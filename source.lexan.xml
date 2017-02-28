@@ -1,1 +1,1 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?><?xml-stylesheet type="text/xsl" href="lexan.xsl"?><lexan><term lexeme="" token="EOF"><location loc="-1.-1---1.-1"/></term></lexan>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><?xml-stylesheet type="text/xsl" href="lexan.xsl"?><lexan><term lexeme="'a'" token="CHARCONST"><location loc="1.2--1.4"/></term><term lexeme="EOF" token="EOF"><location loc="5.2--5.2"/></term></lexan>

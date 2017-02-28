@@ -21,6 +21,12 @@ public class LexAn extends Phase {
 	/** The source file reader. */
 	private final BufferedReader srcFile;
 
+	/** The current line. */
+	private int line;
+
+	/** The current column. */
+	private int column;
+
 
 	/** The list of keywords. */
 	private final List<String> keywords = Arrays.asList(new String []{"arr", "bool", "char", "del", "do", "else", "end", "fun", "if", "int", "new", "ptr", "rec", "then", "typ", "var", "void", "where", "while"});
@@ -34,9 +40,12 @@ public class LexAn extends Phase {
 	 */
 	public LexAn() {
 		super("lexan");
-		srcFileName = compiler.Main.cmdLineArgValue("--src-file-name");
+		this.srcFileName = compiler.Main.cmdLineArgValue("--src-file-name");
+		this.line = 1;
+		this.column = 1;
+
 		try {
-			srcFile = new BufferedReader(new FileReader(srcFileName));
+			this.srcFile = new BufferedReader(new FileReader(srcFileName));
 		} catch (IOException ___) {
 			throw new Report.Error("Cannot open source file '" + srcFileName + "'.");
 		}
@@ -85,6 +94,7 @@ public class LexAn extends Phase {
 		// the current character
 		char c;
 
+		// the previous character
 		char cPrev;
 
 		// the current lexeme
@@ -94,100 +104,176 @@ public class LexAn extends Phase {
 		Term term = null;
 
 		// the current location (updated as needed)
-		int begLine = 1;
-		int begColumn = 1;
-		int endLine = 1;
-		int endColumn = 1;
+		int begLine = this.line;
+		int begColumn = this.column;
+		int endLine = begLine;
+		int endColumn = begColumn;
 
 		// preceding character was a quote
 		boolean quote = false;
+
+		// a quoted character has occurred
 		boolean quotedChar = false;
 
 
-		// ugly (done when we read a complete symbol)
+		// break loop when a complete symbol is read
 		while (true) {
 			try {
 
 				// read a character
 				// reset BufferedReader if we read a character too much by reset()
-				c = (char) srcFile.read();
+				int i = srcFile.read();
+
+				c = (char) i;
 				lexeme += c;
 
 
-
-				// EOF, return immediately
-				if (c == -1) {
+				// EOF
+				if (i == -1) {
+					Report.info("found EOF at " + new Location(begLine, begColumn, endLine, endColumn));
 					if (term == null) {
 						term = Term.EOF;
+
+						// TODO: temporary fix so Firefox does not report badly formed xml
+						lexeme = "EOF";
+						break;
 					}
 					else {
 						lexeme = lexeme.substring(0, lexeme.length()-1);
+						srcFile.reset();
+
 					}
-					break;
 				}
 
 				// character is enclosed in quotes
 				else if (c >= 32 && c <= 126 && quote && !quotedChar) {
+					Report.info("found quoted char at " + new Location(begLine, begColumn, endLine, endColumn));
 					quotedChar = true;
 				}
 
 
 				// letter
 				else if ('A' <= c && 'z' >= c) {
+					Report.info("found letter " + c + " at " + new Location(begLine, begColumn, endLine, endColumn));
 
+					if (term == null) {
+
+					}
+					else {
+
+					}
 
 				}
 
 				// digit
 				else if ('0' <= c && '9' >= c){
+					Report.info("found digit " + c + " at " + new Location(begLine, begColumn, endLine, endColumn));
+					if (term == null) {
 
-				}
-
-				// whitespace
-				else if (c == '\n' || c == '\t' || c == ' ' || c == '\r'){
-
-				}
-
-				// comment
-				else if (c == '#') {
-
-					// discard current line
-					while (srcFile.read() != '\n') {}
-					return lexify();
-				}
-
-				// quote
-				else if (c == '\'') {
-
-					// wrong - only one character can be enclosed in quotes
-					if (quotedChar) {
-						if (lexeme.length() > 2) {
-							reportAndExit("Only one character can be enclosed in quotes at a time");
-						}
-						else {
-							term = Term.CHARCONST;
-							break;
-						}
 					}
+					else {
 
-					quotedChar = false;
-					quote = !quote;
+					}
 				}
 
 				// symbol
 				else if (symbols.contains(c + "")){
+					Report.info("found symbol " + c + " at " + new Location(begLine, begColumn, endLine, endColumn));
+					if (term == null) {
 
+					}
+					else {
+
+					}
+				}
+
+				// quote
+				else if (c == '\'') {
+					Report.info("found quote at " + new Location(begLine, begColumn, endLine, endColumn));
+
+					if (term == null) {
+
+						// TODO: use char or charconst?
+						term = Term.CHARCONST;
+
+						quotedChar = false;
+						quote = !quote;
+					}
+
+					else {
+						if (term.equals(Term.CHARCONST)) {
+							// wrong - only one character can be enclosed in quotes
+							if (lexeme.length() > 3) {
+								Report.warning(lexeme);
+								reportAndExit("Only one character can be enclosed in quotes at a time");
+							} else {
+								break;
+							}
+						}
+						else {
+							lexeme = lexeme.substring(0, lexeme.length()-1);
+							srcFile.reset();
+							break;
+						}
+
+					}
+				}
+
+				// whitespace
+				else if (c == '\n' || c == '\t' || c == ' ' || c == '\r'){
+					Report.info("found whitespace " + (int) c + " at " + new Location(begLine, begColumn, endLine, endColumn));
+
+					if (term == null) {
+						if (c == '\n') {
+							begLine = ++endLine;
+							begColumn = 1;
+							endColumn = 0;
+						}
+						else {
+							begColumn = endColumn + 1;
+						}
+						lexeme = "";
+
+					}
+					else {
+						lexeme = lexeme.substring(0, lexeme.length()-1);
+						srcFile.reset();
+						break;
+					}
+				}
+
+				// comment
+				else if (c == '#') {
+					Report.info("found comment at " + new Location(begLine, begColumn, endLine, endColumn));
+
+					if (term == null) {
+
+						// discard current line
+						while (srcFile.read() != '\n') {}
+
+						begLine = ++endLine;
+						begColumn = 1;
+						endColumn = 0;
+						lexeme = "";
+					}
+
+					else {
+						lexeme = lexeme.substring(0, lexeme.length()-1);
+						srcFile.reset();
+						break;
+					}
 				}
 
 
 				// character not allowed
 				else {
-					reportAndExit("Character " + c + " cannot be in a source file.");
+					reportAndExit("Character " + (int)c + " cannot be in a source file.");
 					return null;
 				}
 
 
 				cPrev = c;
+				endColumn++;
 				srcFile.mark(100);
 			}
 			catch (IOException ioe) {
@@ -198,7 +284,11 @@ public class LexAn extends Phase {
 
 		}
 
-		return new Symbol(term, lexeme, new Location(begLine, begColumn, endLine, endColumn);
+		this.line = endLine;
+		this.column = endColumn + 1;
+
+		// return the symbol (term is set manually, lexeme is concatenated automatically, location updated manually)
+		return new Symbol(term, lexeme, new Location(begLine, begColumn, endLine, endColumn));
 
 	}
 
