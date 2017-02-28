@@ -34,6 +34,9 @@ public class LexAn extends Phase {
 	/** The list of symbols. */
 	private final List<String> symbols = Arrays.asList(new String []{"!", "|", "^", "&", "<", ">", "+", "-", "*", "/", "%", "$", "@", "=", ".", ",", ":", ";", "[", "]", "(", ")", "{", "}"});
 
+	/** The list of constants. */
+	private final List<String> constants = Arrays.asList(new String []{"none", "true", "false", "void"});
+
 
 	/**
 	 * Constructs a new lexical analysis phase.
@@ -94,9 +97,6 @@ public class LexAn extends Phase {
 		// the current character
 		char c;
 
-		// the previous character
-		char cPrev;
-
 		// the current lexeme
 		String lexeme = "";
 
@@ -115,6 +115,8 @@ public class LexAn extends Phase {
 		// a quoted character has occurred
 		boolean quotedChar = false;
 
+		// can the word be only an identifier
+		boolean onlyIdentifier = false;
 
 		// break loop when a complete symbol is read
 		while (true) {
@@ -155,10 +157,101 @@ public class LexAn extends Phase {
 					Report.info(new Location(begLine, begColumn, endLine, endColumn), "letter " + c);
 
 					if (term == null) {
-						term = term.IDENTIFIER;
+						term = Term.IDENTIFIER;
 					}
 					else {
+						if (!onlyIdentifier && term.equals(Term.IDENTIFIER)) {
 
+							//check if lexeme is keyword or constant
+							if (keywords.contains(lexeme)) {
+								switch (lexeme) {
+									case "arr":
+										term = Term.ARR;
+										break;
+									case "bool":
+										term = Term.BOOL;
+										break;
+									case "char":
+										term = Term.CHAR;
+										break;
+									case "del":
+										term = Term.DEL;
+										break;
+									case "do":
+										term = Term.DO;
+										break;
+									case "else":
+										term = Term.ELSE;
+										break;
+									case "end":
+										term = Term.END;
+										break;
+									case "fun":
+										term = Term.FUN;
+										break;
+									case "if":
+										term = Term.IF;
+										break;
+									case "int":
+										term = Term.INT;
+										break;
+									case "new":
+										term = Term.NEW;
+										break;
+									case "ptr":
+										term = Term.PTR;
+										break;
+									case "rec":
+										term = Term.REC;
+										break;
+									case "then":
+										term = Term.THEN;
+										break;
+									case "typ":
+										term = Term.TYP;
+										break;
+									case "var":
+										term = Term.VAR;
+										break;
+									case "void":
+										term = Term.VOID;
+										break;
+									case "where":
+										term = Term.WHERE;
+										break;
+									case "while":
+										term = Term.WHILE;
+										break;
+								}
+							}
+							else if (constants.contains(lexeme)) {
+								switch (lexeme) {
+									case "none":
+										term = Term.VOIDCONST;
+										break;
+									case "true":
+									case "false":
+										term = Term.BOOLCONST;
+										break;
+									case "null":
+										term = Term.PTRCONST;
+										break;
+								}
+							}
+
+						}
+						// TODO add check for enum (keyword / constant)
+						else if (true /* term keyword */) {
+							term = Term.IDENTIFIER;
+						}
+						else if(false /* term constant */ ) {
+							term = Term.IDENTIFIER;
+						}
+						else {
+							lexeme = lexeme.substring(0, lexeme.length()-1);
+							srcFile.reset();
+							break;
+						}
 					}
 
 				}
@@ -171,7 +264,7 @@ public class LexAn extends Phase {
 					}
 					else {
 						if (term.equals(Term.IDENTIFIER)) {
-							term = Term.IDENTIFIER;
+							onlyIdentifier = true;
 						}
 
 						else if (term.equals(Term.INTCONST)) {
@@ -234,10 +327,10 @@ public class LexAn extends Phase {
 								term = Term.MOD;
 								break;
 							case '$':
-								term = Term.VAL;
+								term = Term.MEM;
 								break;
 							case '@':
-								term = Term.MEM;
+								term = Term.VAL;
 								break;
 							case '.':
 								term = Term.DOT;
@@ -310,7 +403,7 @@ public class LexAn extends Phase {
 					}
 					else {
 						if (term.equals(Term.IDENTIFIER)) {
-							term = Term.IDENTIFIER;
+							onlyIdentifier = true;
 						}
 						else {
 							lexeme = lexeme.substring(0, lexeme.length()-1);
@@ -399,8 +492,6 @@ public class LexAn extends Phase {
 					return null;
 				}
 
-
-				cPrev = c;
 				endColumn++;
 				srcFile.mark(100);
 			}
