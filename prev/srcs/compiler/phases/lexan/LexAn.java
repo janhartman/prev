@@ -123,14 +123,13 @@ public class LexAn extends Phase {
 				// read a character
 				// reset BufferedReader if we read a character too much by reset()
 				int i = srcFile.read();
-
 				c = (char) i;
 				lexeme += c;
 
 
 				// EOF
 				if (i == -1) {
-					Report.info("found EOF at " + new Location(begLine, begColumn, endLine, endColumn));
+					Report.info(new Location(begLine, begColumn, endLine, endColumn), "EOF");
 					if (term == null) {
 						term = Term.EOF;
 
@@ -141,23 +140,22 @@ public class LexAn extends Phase {
 					else {
 						lexeme = lexeme.substring(0, lexeme.length()-1);
 						srcFile.reset();
-
 					}
 				}
 
 				// character is enclosed in quotes
 				else if (c >= 32 && c <= 126 && quote && !quotedChar) {
-					Report.info("found quoted char at " + new Location(begLine, begColumn, endLine, endColumn));
+					Report.info(new Location(begLine, begColumn, endLine, endColumn), "quoted char " + c);
 					quotedChar = true;
 				}
 
 
 				// letter
 				else if ('A' <= c && 'z' >= c) {
-					Report.info("found letter " + c + " at " + new Location(begLine, begColumn, endLine, endColumn));
+					Report.info(new Location(begLine, begColumn, endLine, endColumn), "letter " + c);
 
 					if (term == null) {
-
+						term = term.IDENTIFIER;
 					}
 					else {
 
@@ -167,49 +165,19 @@ public class LexAn extends Phase {
 
 				// digit
 				else if ('0' <= c && '9' >= c){
-					Report.info("found digit " + c + " at " + new Location(begLine, begColumn, endLine, endColumn));
+					Report.info(new Location(begLine, begColumn, endLine, endColumn), "digit " + c);
 					if (term == null) {
-
+						term = Term.INTCONST;
 					}
 					else {
-
-					}
-				}
-
-				// symbol
-				else if (symbols.contains(c + "")){
-					Report.info("found symbol " + c + " at " + new Location(begLine, begColumn, endLine, endColumn));
-					if (term == null) {
-
-					}
-					else {
-
-					}
-				}
-
-				// quote
-				else if (c == '\'') {
-					Report.info("found quote at " + new Location(begLine, begColumn, endLine, endColumn));
-
-					if (term == null) {
-
-						// TODO: use char or charconst?
-						term = Term.CHARCONST;
-
-						quotedChar = false;
-						quote = !quote;
-					}
-
-					else {
-						if (term.equals(Term.CHARCONST)) {
-							// wrong - only one character can be enclosed in quotes
-							if (lexeme.length() > 3) {
-								Report.warning(lexeme);
-								reportAndExit("Only one character can be enclosed in quotes at a time");
-							} else {
-								break;
-							}
+						if (term.equals(Term.IDENTIFIER)) {
+							term = Term.IDENTIFIER;
 						}
+
+						else if (term.equals(Term.INTCONST)) {
+							term = Term.INTCONST;
+						}
+
 						else {
 							lexeme = lexeme.substring(0, lexeme.length()-1);
 							srcFile.reset();
@@ -219,9 +187,169 @@ public class LexAn extends Phase {
 					}
 				}
 
+				// symbol
+				else if (symbols.contains(c + "")){
+					Report.info(new Location(begLine, begColumn, endLine, endColumn), "symbol " + c );
+					if (term == null) {
+						boolean isTwoPartSymbol = false;
+						switch (c) {
+							case '!':
+								isTwoPartSymbol = true;
+								term = Term.NOT;
+								break;
+							case '|':
+								term = Term.IOR;
+								break;
+							case '^':
+								term = Term.XOR;
+								break;
+							case '&':
+								term = Term.AND;
+								break;
+							case '=':
+								isTwoPartSymbol = true;
+								term = Term.ASSIGN;
+								break;
+							case '<':
+								isTwoPartSymbol = true;
+								term = Term.LTH;
+								break;
+							case '>':
+								isTwoPartSymbol = true;
+								term = Term.GTH;
+								break;
+							case '+':
+								term = Term.ADD;
+								break;
+							case '-':
+								term = Term.SUB;
+								break;
+							case '*':
+								term = Term.MUL;
+								break;
+							case '/':
+								term = Term.DIV;
+								break;
+							case '%':
+								term = Term.MOD;
+								break;
+							case '$':
+								term = Term.VAL;
+								break;
+							case '@':
+								term = Term.MEM;
+								break;
+							case '.':
+								term = Term.DOT;
+								break;
+							case ',':
+								term = Term.COMMA;
+								break;
+							case ':':
+								term = Term.COLON;
+								break;
+							case ';':
+								term = Term.SEMIC;
+								break;
+							case '[':
+								term = Term.RBRACKET;
+								break;
+							case ']':
+								term = Term.LBRACKET;
+								break;
+							case '(':
+								term = Term.RPARENTHESIS;
+								break;
+							case ')':
+								term = Term.LPARENTHESIS;
+								break;
+							case '{':
+								term = Term.RBRACE;
+								break;
+							case '}':
+								term = Term.LBRACE;
+								break;
+						}
+
+						if (!isTwoPartSymbol) {
+							break;
+						}
+
+					}
+					else {
+						if ((term.equals(Term.ASSIGN) || term.equals(Term.NOT) || term.equals(Term.LTH) || term.equals(Term.GTH)) && lexeme.length() == 2 && c == '=')  {
+							if (term.equals(Term.ASSIGN)) {
+								term = Term.EQU;
+								break;
+							}
+							else if (term.equals(Term.NOT)){
+								term = Term.NEQ;
+								break;
+							}
+							else if (term.equals(Term.LTH)) {
+								term = Term.LEQ;
+								break;
+							}
+							else if (term.equals(Term.GTH)) {
+								term = Term.GEQ;
+								break;
+							}
+						}
+						else {
+							lexeme = lexeme.substring(0, lexeme.length()-1);
+							srcFile.reset();
+							break;
+						}
+					}
+				}
+
+				// underscore
+				else if (c == '_') {
+					if (term == null) {
+						term = Term.IDENTIFIER;
+					}
+					else {
+						if (term.equals(Term.IDENTIFIER)) {
+							term = Term.IDENTIFIER;
+						}
+						else {
+							lexeme = lexeme.substring(0, lexeme.length()-1);
+							srcFile.reset();
+						}
+					}
+				}
+
+				// quote
+				else if (c == '\'') {
+					Report.info(new Location(begLine, begColumn, endLine, endColumn), "quote");
+
+					if (term == null) {
+						term = Term.CHARCONST;
+						quotedChar = false;
+						quote = !quote;
+					}
+
+					else if (term.equals(Term.CHARCONST)) {
+						// wrong - only one character can be enclosed in quotes
+						if (lexeme.length() > 3) {
+							Report.warning(lexeme);
+							reportAndExit("Only one character can be enclosed in quotes at a time");
+						} else {
+							break;
+						}
+					}
+					else {
+						lexeme = lexeme.substring(0, lexeme.length()-1);
+						srcFile.reset();
+						break;
+					}
+
+
+				}
+
 				// whitespace
 				else if (c == '\n' || c == '\t' || c == ' ' || c == '\r'){
-					Report.info("found whitespace " + (int) c + " at " + new Location(begLine, begColumn, endLine, endColumn));
+					Report.info(new Location(begLine, begColumn, endLine, endColumn), "whitespace " + (int) c);
 
 					if (term == null) {
 						if (c == '\n') {
@@ -244,7 +372,7 @@ public class LexAn extends Phase {
 
 				// comment
 				else if (c == '#') {
-					Report.info("found comment at " + new Location(begLine, begColumn, endLine, endColumn));
+					Report.info(new Location(begLine, begColumn, endLine, endColumn), "comment" );
 
 					if (term == null) {
 
@@ -288,7 +416,9 @@ public class LexAn extends Phase {
 		this.column = endColumn + 1;
 
 		// return the symbol (term is set manually, lexeme is concatenated automatically, location updated manually)
-		return new Symbol(term, lexeme, new Location(begLine, begColumn, endLine, endColumn));
+		Symbol symbol = new Symbol(term, lexeme, new Location(begLine, begColumn, endLine, endColumn));
+		Report.info("Returning symbol " + symbol.stringify());
+		return symbol;
 
 	}
 

@@ -54,4 +54,8 @@ public class Symbol implements Locatable, Loggable {
 		return lexeme;
 	}
 
+	public String stringify() {
+		return token + " " + lexeme + " " + location;
+	}
+
 }
