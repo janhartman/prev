@@ -118,10 +118,12 @@ public class LexAn extends Phase {
 		// can the word be only an identifier
 		boolean onlyIdentifier = false;
 
+		// if a keyword / constant has been encountered
+		boolean keywordOrConstant = false;
+
 		// break loop when a complete symbol is read
 		while (true) {
 			try {
-
 				// read a character
 				// reset BufferedReader if we read a character too much by reset()
 				int i = srcFile.read();
@@ -134,15 +136,13 @@ public class LexAn extends Phase {
 					Report.info(new Location(begLine, begColumn, endLine, endColumn), "EOF");
 					if (term == null) {
 						term = Term.EOF;
-
-						// TODO: temporary fix so Firefox does not report badly formed xml
-						lexeme = "EOF";
-						break;
+						lexeme = "";
 					}
 					else {
 						lexeme = lexeme.substring(0, lexeme.length()-1);
 						srcFile.reset();
 					}
+					break;
 				}
 
 				// character is enclosed in quotes
@@ -160,7 +160,7 @@ public class LexAn extends Phase {
 						term = Term.IDENTIFIER;
 					}
 					else {
-						if (!onlyIdentifier && term.equals(Term.IDENTIFIER)) {
+						if (!onlyIdentifier && term == Term.IDENTIFIER) {
 
 							//check if lexeme is keyword or constant
 							if (keywords.contains(lexeme)) {
@@ -223,6 +223,7 @@ public class LexAn extends Phase {
 										term = Term.WHILE;
 										break;
 								}
+								keywordOrConstant = true;
 							}
 							else if (constants.contains(lexeme)) {
 								switch (lexeme) {
@@ -237,15 +238,15 @@ public class LexAn extends Phase {
 										term = Term.PTRCONST;
 										break;
 								}
+								keywordOrConstant = true;
 							}
 
 						}
-						// TODO add check for enum (keyword / constant)
-						else if (true /* term keyword */) {
+						// lexeme was previously identified as keyword or constant, but is now an identifier
+						else if (keywordOrConstant) {
 							term = Term.IDENTIFIER;
-						}
-						else if(false /* term constant */ ) {
-							term = Term.IDENTIFIER;
+							keywordOrConstant = false;
+							onlyIdentifier = true;
 						}
 						else {
 							lexeme = lexeme.substring(0, lexeme.length()-1);
@@ -263,11 +264,11 @@ public class LexAn extends Phase {
 						term = Term.INTCONST;
 					}
 					else {
-						if (term.equals(Term.IDENTIFIER)) {
+						if (term == Term.IDENTIFIER) {
 							onlyIdentifier = true;
 						}
 
-						else if (term.equals(Term.INTCONST)) {
+						else if (term == Term.INTCONST) {
 							term = Term.INTCONST;
 						}
 
@@ -345,22 +346,22 @@ public class LexAn extends Phase {
 								term = Term.SEMIC;
 								break;
 							case '[':
-								term = Term.RBRACKET;
-								break;
-							case ']':
 								term = Term.LBRACKET;
 								break;
-							case '(':
-								term = Term.RPARENTHESIS;
+							case ']':
+								term = Term.RBRACKET;
 								break;
-							case ')':
+							case '(':
 								term = Term.LPARENTHESIS;
 								break;
+							case ')':
+								term = Term.RPARENTHESIS;
+								break;
 							case '{':
-								term = Term.RBRACE;
+								term = Term.LBRACE;
 								break;
 							case '}':
-								term = Term.LBRACE;
+								term = Term.RBRACE;
 								break;
 						}
 
@@ -370,20 +371,20 @@ public class LexAn extends Phase {
 
 					}
 					else {
-						if ((term.equals(Term.ASSIGN) || term.equals(Term.NOT) || term.equals(Term.LTH) || term.equals(Term.GTH)) && lexeme.length() == 2 && c == '=')  {
-							if (term.equals(Term.ASSIGN)) {
+						if ((term == Term.ASSIGN || term == Term.NOT || term == Term.LTH || term == Term.GTH) && lexeme.length() == 2 && c == '=')  {
+							if (term == Term.ASSIGN) {
 								term = Term.EQU;
 								break;
 							}
-							else if (term.equals(Term.NOT)){
+							else if (term == Term.NOT){
 								term = Term.NEQ;
 								break;
 							}
-							else if (term.equals(Term.LTH)) {
+							else if (term == Term.LTH) {
 								term = Term.LEQ;
 								break;
 							}
-							else if (term.equals(Term.GTH)) {
+							else if (term == Term.GTH) {
 								term = Term.GEQ;
 								break;
 							}
@@ -402,7 +403,7 @@ public class LexAn extends Phase {
 						term = Term.IDENTIFIER;
 					}
 					else {
-						if (term.equals(Term.IDENTIFIER)) {
+						if (term == Term.IDENTIFIER) {
 							onlyIdentifier = true;
 						}
 						else {
@@ -422,11 +423,11 @@ public class LexAn extends Phase {
 						quote = !quote;
 					}
 
-					else if (term.equals(Term.CHARCONST)) {
+					else if (term == Term.CHARCONST) {
 						// wrong - only one character can be enclosed in quotes
 						if (lexeme.length() > 3) {
 							Report.warning(lexeme);
-							reportAndExit("Only one character can be enclosed in quotes at a time");
+							throw new Report.Error(new Location(endLine, endColumn), "Only one character can be enclosed in quotes at a time");
 						} else {
 							break;
 						}
@@ -488,8 +489,7 @@ public class LexAn extends Phase {
 
 				// character not allowed
 				else {
-					reportAndExit("Character " + (int)c + " cannot be in a source file.");
-					return null;
+					throw new Report.Error(new Location(endLine, endColumn), "Character " + (int)c + " cannot be in a source file.");
 				}
 
 				endColumn++;
@@ -511,11 +511,6 @@ public class LexAn extends Phase {
 		Report.info("Returning symbol " + symbol.stringify());
 		return symbol;
 
-	}
-
-	private static void reportAndExit(String msg) {
-		Report.warning(msg);
-		System.exit(1);
 	}
 
 }
