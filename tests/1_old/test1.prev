@@ -1,0 +1,7 @@
+arr integer intArray = [1,2,3,5,6]
+
+func integer main(att ptr char args, integer argc){
+	for(integer i=0, i<intArray.length, i++){
+		printf(intArray[i])
+	}	
+}

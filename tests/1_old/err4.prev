@@ -1,0 +1,3 @@
+# an EOF inside character constant
+# should throw an error
+'a

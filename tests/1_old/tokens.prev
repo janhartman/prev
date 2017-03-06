@@ -1,0 +1,17 @@
+		  	 	#this is a comment
+   # this too
+'a' 'b' 'c' '\n' '\t'
+'\\' '\'' '\"' '3' '@'
+
+1 + 2 equals 3145010
+
++ & = : , } ] ) . / == >= > <= < @ % * != ! { [ ( | - ^
+(i+3=3,1+i)
+true false #tralse
+null
+none
+integer boolean char string void
+arr else end for fun if then ptr rec typ var where while
+# empty
+INT INT INT INTINT
+int

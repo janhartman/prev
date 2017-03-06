@@ -1,0 +1,2 @@
+# checks boundary values for char, signed ints
+'c' 't' 'b' '~' ' ' +23518 -13578 0x10 saahe_geza()

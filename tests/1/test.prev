@@ -1,0 +1,17 @@
+#this comment should be removed
+12345 #this as well == 56789
+
+#test some literals:
+none true false null
+3496857 +2345 -3753
+59837645798346873246587364
+
+#check keywords
+arr bool char del
+do else end fun if
+int new ptr rec then
+typ var void
+where while
+
+#these should be idents, not keywords:
+ARR BOOL WHERE WHILE VAR VOID TYP

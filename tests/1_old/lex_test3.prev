@@ -1,0 +1,31 @@
+# reverse string
+fun reverseString(str:String):String =
+{
+	String reversedString = 'b'
+	for(integer i = 0:i < str.length: i++)
+	{
+		reversedString = str[i] + reversedString
+	}
+
+	return str
+}
+
+fun main(args:String):void =
+{
+	String read = 'a'
+	while(true)
+	{
+		char c = readChar()
+		if(c == EOF) then
+		{
+			break
+		}
+		else
+		{
+			read += c
+		}
+		end
+	}
+	String rev = reverseString(read)
+	println(rev)
+}

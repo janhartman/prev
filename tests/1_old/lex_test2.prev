@@ -1,0 +1,11 @@
+# check symbols
++ & : ,{}[]()./ == >== > < <= @ % * != ^
+ false
+'c''h''a''r''s''\\''\t''\n' '\'' '\"'
+
+none	null
+
+identifiers type names and keywords
+integer boolean char string
+voidfunifa==5thenarr=0elsearr=1end
+whererecwhiletyp

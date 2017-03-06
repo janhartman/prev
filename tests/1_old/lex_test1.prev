@@ -1,0 +1,17 @@
+#	/sums all elements of an array of random integers/
+fun integer sum(arr data:integer)
+{
+	integer sum = 0
+	for(integer i = 0:i < data.length:i++)
+	{
+		sum = sum + data[i]
+	}
+	
+	return sum
+}
+
+fun void main()
+{
+	arr[integer] data = randomIntegers()
+	print(sum(data))
+}

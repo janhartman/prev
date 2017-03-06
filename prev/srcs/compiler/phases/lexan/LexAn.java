@@ -9,7 +9,7 @@ import compiler.phases.*;
 
 /**
  * Lexical analysis.
- * 
+ *
  * @author sliva
  *
  */
@@ -27,7 +27,6 @@ public class LexAn extends Phase {
 	/** The current column. */
 	private int column;
 
-
 	/** The list of keywords. */
 	private final List<String> keywords = Arrays.asList(new String []{"arr", "bool", "char", "del", "do", "else", "end", "fun", "if", "int", "new", "ptr", "rec", "then", "typ", "var", "void", "where", "while"});
 
@@ -35,7 +34,7 @@ public class LexAn extends Phase {
 	private final List<String> symbols = Arrays.asList(new String []{"!", "|", "^", "&", "<", ">", "+", "-", "*", "/", "%", "$", "@", "=", ".", ",", ":", ";", "[", "]", "(", ")", "{", "}"});
 
 	/** The list of constants. */
-	private final List<String> constants = Arrays.asList(new String []{"none", "true", "false", "void"});
+	private final List<String> constants = Arrays.asList(new String []{"none", "true", "false", "void", "null"});
 
 
 	/**
@@ -56,12 +55,12 @@ public class LexAn extends Phase {
 
 	/**
 	 * The lexer.
-	 * 
+	 *
 	 * This method returns the next symbol from the source file. To perform the
 	 * lexical analysis of the entire source file, this method must be called
 	 * until it returns EOF. This method calls {@link #lexify()}, logs its
 	 * result if requested, and returns it.
-	 * 
+	 *
 	 * @return The next symbol from the source file.
 	 */
 	public Symbol lexer() {
@@ -84,11 +83,11 @@ public class LexAn extends Phase {
 
 	/**
 	 * Performs the lexical analysis of the source file.
-	 * 
+	 *
 	 * This method returns the next symbol from the source file. To perform the
 	 * lexical analysis of the entire source file, this method must be called
 	 * until it returns EOF.
-	 * 
+	 *
 	 * @return The next symbol from the source file or EOF if no symbol is
 	 *         available any more.
 	 */
@@ -124,6 +123,7 @@ public class LexAn extends Phase {
 		// break loop when a complete symbol is read
 		while (true) {
 			try {
+
 				// read a character
 				// reset BufferedReader if we read a character too much by reset()
 				int i = srcFile.read();
@@ -139,6 +139,7 @@ public class LexAn extends Phase {
 						lexeme = "";
 					}
 					else {
+						endColumn--;
 						lexeme = lexeme.substring(0, lexeme.length()-1);
 						srcFile.reset();
 					}
@@ -146,14 +147,18 @@ public class LexAn extends Phase {
 				}
 
 				// character is enclosed in quotes
-				else if (c >= 32 && c <= 126 && quote && !quotedChar) {
-					Report.info(new Location(begLine, begColumn, endLine, endColumn), "quoted char " + c);
-					quotedChar = true;
+				else if (quote && !quotedChar) {
+					if (c >= 32 && c <= 126) {
+						Report.info(new Location(begLine, begColumn, endLine, endColumn), "quoted char " + c);
+						quotedChar = true;
+					}
+					else {
+						throw new Report.Error(new Location(endLine, endColumn), "Character " + c + " with code " + i + " cannot be enclosed in quotes");
+					}
 				}
 
-
 				// letter
-				else if ('A' <= c && 'z' >= c) {
+				else if (Character.isLetter(c) && c < 123) {
 					Report.info(new Location(begLine, begColumn, endLine, endColumn), "letter " + c);
 
 					if (term == null) {
@@ -248,7 +253,11 @@ public class LexAn extends Phase {
 							keywordOrConstant = false;
 							onlyIdentifier = true;
 						}
+						else if (term == Term.IDENTIFIER) {
+
+						}
 						else {
+							endColumn--;
 							lexeme = lexeme.substring(0, lexeme.length()-1);
 							srcFile.reset();
 							break;
@@ -258,7 +267,7 @@ public class LexAn extends Phase {
 				}
 
 				// digit
-				else if ('0' <= c && '9' >= c){
+				else if (Character.isDigit(c)){
 					Report.info(new Location(begLine, begColumn, endLine, endColumn), "digit " + c);
 					if (term == null) {
 						term = Term.INTCONST;
@@ -273,6 +282,7 @@ public class LexAn extends Phase {
 						}
 
 						else {
+							endColumn--;
 							lexeme = lexeme.substring(0, lexeme.length()-1);
 							srcFile.reset();
 							break;
@@ -390,6 +400,7 @@ public class LexAn extends Phase {
 							}
 						}
 						else {
+							endColumn--;
 							lexeme = lexeme.substring(0, lexeme.length()-1);
 							srcFile.reset();
 							break;
@@ -407,8 +418,10 @@ public class LexAn extends Phase {
 							onlyIdentifier = true;
 						}
 						else {
+							endColumn--;
 							lexeme = lexeme.substring(0, lexeme.length()-1);
 							srcFile.reset();
+							break;
 						}
 					}
 				}
@@ -424,15 +437,16 @@ public class LexAn extends Phase {
 					}
 
 					else if (term == Term.CHARCONST) {
+						quote = false;
 						// wrong - only one character can be enclosed in quotes
 						if (lexeme.length() > 3) {
-							Report.warning(lexeme);
 							throw new Report.Error(new Location(endLine, endColumn), "Only one character can be enclosed in quotes at a time");
 						} else {
 							break;
 						}
 					}
 					else {
+						endColumn--;
 						lexeme = lexeme.substring(0, lexeme.length()-1);
 						srcFile.reset();
 						break;
@@ -458,6 +472,7 @@ public class LexAn extends Phase {
 
 					}
 					else {
+						endColumn--;
 						lexeme = lexeme.substring(0, lexeme.length()-1);
 						srcFile.reset();
 						break;
@@ -471,7 +486,13 @@ public class LexAn extends Phase {
 					if (term == null) {
 
 						// discard current line
-						while (srcFile.read() != '\n') {}
+						int j;
+						while ((j = srcFile.read()) != '\n') {
+							if (j > 127) {
+								throw new Report.Error(new Location(endLine, endColumn), "Character " + (char)j + " with code " + j + " cannot be in a source file");
+							}
+							endColumn++;
+						}
 
 						begLine = ++endLine;
 						begColumn = 1;
@@ -480,6 +501,7 @@ public class LexAn extends Phase {
 					}
 
 					else {
+						endColumn--;
 						lexeme = lexeme.substring(0, lexeme.length()-1);
 						srcFile.reset();
 						break;
@@ -489,7 +511,7 @@ public class LexAn extends Phase {
 
 				// character not allowed
 				else {
-					throw new Report.Error(new Location(endLine, endColumn), "Character " + (int)c + " cannot be in a source file.");
+					throw new Report.Error(new Location(endLine, endColumn), "Character " + c + " with code " + (int)c + " cannot be in a source file.");
 				}
 
 				endColumn++;
@@ -503,6 +525,12 @@ public class LexAn extends Phase {
 
 		}
 
+		if (quotedChar && quote) {
+			throw new Report.Error(new Location(endLine, endColumn), "Unterminated character constant");
+		}
+
+		//set line and column for next call of lexify
+		//endColumn = begColumn + lexeme.length() - 1;
 		this.line = endLine;
 		this.column = endColumn + 1;
 

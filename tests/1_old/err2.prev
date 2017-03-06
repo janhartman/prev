@@ -1,0 +1,2 @@
+# invalid escape char
+var = "test\#"

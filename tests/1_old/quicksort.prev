@@ -1,0 +1,30 @@
+fun quick_sort (*a:integer, n:integer):void {
+    integer i, j, p, t
+    if (n > 2) {
+		p = a[n / 2]
+		{i = 0, j = n - 1}
+		for (:: i++, j--) {
+			while (a[i] < p)
+				i = i + 1
+			while (p < a[j])
+				j--
+			if (i >= j)
+				end
+			t = a[i]
+			a[i] = a[j]
+			a[j] = t
+		}
+		quick_sort(a, i)
+		quick_sort(a + i, n - i)
+	}
+}
+
+fun main (void): integer {
+    integer a[] = {4, 65, 2, -31, 0, 99, 2, 83, 782, 1}
+    integer n = sizeof a / sizeof a[0]
+    integer i
+    for (i = 0: i < n: i++)
+    quick_sort(a, n)
+    for (i = 0: i < n: i++)
+    return 0
+}
