@@ -133,7 +133,7 @@ public class LexAn extends Phase {
 
 				// EOF
 				if (i == -1) {
-					Report.info(new Location(begLine, begColumn, endLine, endColumn), "EOF");
+					//Report.info(new Location(begLine, begColumn, endLine, endColumn), "EOF");
 					if (term == null) {
 						term = Term.EOF;
 						lexeme = "";
@@ -149,7 +149,7 @@ public class LexAn extends Phase {
 				// character is enclosed in quotes
 				else if (quote && !quotedChar) {
 					if (c >= 32 && c <= 126) {
-						Report.info(new Location(begLine, begColumn, endLine, endColumn), "quoted char " + c);
+						//Report.info(new Location(begLine, begColumn, endLine, endColumn), "quoted char " + c);
 						quotedChar = true;
 					}
 					else {
@@ -159,7 +159,7 @@ public class LexAn extends Phase {
 
 				// letter
 				else if (Character.isLetter(c) && c < 123) {
-					Report.info(new Location(begLine, begColumn, endLine, endColumn), "letter " + c);
+					//Report.info(new Location(begLine, begColumn, endLine, endColumn), "letter " + c);
 
 					if (term == null) {
 						term = Term.IDENTIFIER;
@@ -268,7 +268,7 @@ public class LexAn extends Phase {
 
 				// digit
 				else if (Character.isDigit(c)){
-					Report.info(new Location(begLine, begColumn, endLine, endColumn), "digit " + c);
+					//Report.info(new Location(begLine, begColumn, endLine, endColumn), "digit " + c);
 					if (term == null) {
 						term = Term.INTCONST;
 					}
@@ -293,7 +293,7 @@ public class LexAn extends Phase {
 
 				// symbol
 				else if (symbols.contains(c + "")){
-					Report.info(new Location(begLine, begColumn, endLine, endColumn), "symbol " + c );
+					//Report.info(new Location(begLine, begColumn, endLine, endColumn), "symbol " + c );
 					if (term == null) {
 						boolean isTwoPartSymbol = false;
 						switch (c) {
@@ -428,7 +428,7 @@ public class LexAn extends Phase {
 
 				// quote
 				else if (c == '\'') {
-					Report.info(new Location(begLine, begColumn, endLine, endColumn), "quote");
+					//Report.info(new Location(begLine, begColumn, endLine, endColumn), "quote");
 
 					if (term == null) {
 						term = Term.CHARCONST;
@@ -457,7 +457,7 @@ public class LexAn extends Phase {
 
 				// whitespace
 				else if (c == '\n' || c == '\t' || c == ' ' || c == '\r'){
-					Report.info(new Location(begLine, begColumn, endLine, endColumn), "whitespace " + (int) c);
+					//Report.info(new Location(begLine, begColumn, endLine, endColumn), "whitespace " + (int) c);
 
 					if (term == null) {
 						if (c == '\n') {
@@ -481,7 +481,7 @@ public class LexAn extends Phase {
 
 				// comment
 				else if (c == '#') {
-					Report.info(new Location(begLine, begColumn, endLine, endColumn), "comment" );
+					//Report.info(new Location(begLine, begColumn, endLine, endColumn), "comment" );
 
 					if (term == null) {
 
