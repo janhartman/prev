@@ -536,7 +536,7 @@ public class LexAn extends Phase {
 
 		// return the symbol (term is set manually, lexeme is concatenated automatically, location updated manually)
 		Symbol symbol = new Symbol(term, lexeme, new Location(begLine, begColumn, endLine, endColumn));
-		Report.info("Returning symbol " + symbol.stringify());
+		//Report.info("Returning symbol " + symbol.stringify());
 		return symbol;
 
 	}

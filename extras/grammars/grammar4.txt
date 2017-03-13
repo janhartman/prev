@@ -1,0 +1,61 @@
+expr -> literal .
+expr -> unop expr .
+expr -> expr binop expr .
+expr -> idenexprmulti .
+expr -> expr [ expr ] .
+expr -> [ type ] expr .
+expr -> expr dot identifier .
+expr -> new type .
+expr -> del expr .
+expr -> { stmtmulti : exprwhere } .
+expr -> ( expr ) .
+
+type -> void .
+type -> bool .
+type -> char .
+type -> int .
+type -> arr [ expr ] type .
+type -> rec ( identypemulti ) .
+type -> ptr type .
+type -> identifier .
+
+stmt -> expr stmt' .
+stmt' -> .
+stmt' -> = expr .
+stmt -> if expr then stmtmulti stmtelse end .
+stmt -> while expr do stmtmulti end .
+
+decl -> typ identifier : type .
+decl -> var identifier : type .
+decl -> fun identifier ( identypemulti ) : type exprassign .
+
+idenexprmulti -> identifier idenexprmulti' .
+idenexprmulti' -> ( exprmulti ) .
+idenexprmulti' -> .
+
+exprwhere -> expr exprwhere' .
+exprwhere' -> .
+exprwhere' -> where declmulti .
+
+exprmulti -> expr exprmulti' .
+exprmulti -> .
+exprmulti'-> , expr exprmulti' .
+exprmulti' -> .
+
+exprassign -> .
+exprassign -> = expr .
+
+stmtelse -> else stmtmulti .
+stmtelse -> .
+
+stmtmulti -> stmt stmtmulti' .
+stmtmulti' -> ; stmtmulti .
+stmtmulti' -> .
+
+declmulti -> decl declmulti' .
+declmulti' -> ; declmulti .
+declmulti' -> .
+
+identypemulti -> identifier : type identypemulti' .
+identypemulti' -> .
+identypemulti' -> , identypemulti .

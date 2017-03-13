@@ -10,4 +10,14 @@ public enum Nont {
 
 	Source,
 
+	Expr,
+
+	Type,
+
+	Stmt,
+
+	Decl,
+
+
+
 }
