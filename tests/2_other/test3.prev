@@ -1,0 +1,21 @@
+#testiranje gnezedene kode, funkcij in zank
+{
+	if a>b then
+	    a= a-1;
+	    b=b+1
+	else a = a+1
+	end;
+	if a< b then b=b+2 end; #brez else
+	while funkcija (a,b,a+b) <= 10 do
+	    a = b+2;
+	    b = a+1
+	end
+	: 0
+	where
+	var a:int;
+	var b:int;
+	fun funkcija(c:int,d:int,e:int):int = {
+	    f = c+d*e : f*4
+	    where var f:int
+	}
+}

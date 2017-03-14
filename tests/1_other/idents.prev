@@ -1,0 +1,7 @@
+#check validity of identifiers
+valid also_valid
+_still_valid try_42_this
+cheese21 nullident
+
+#separate constant in front of identifier
+1234someVariable

@@ -16,7 +16,7 @@ public enum Nont {
 
 	Type,
 
-	Stmt, StmtMulti, StmtMulti0, StmtElse,
+	Stmt, Stmt0, StmtMulti, StmtMulti0, StmtElse,
 
 	Decl, DeclMulti, DeclMulti0,
 

@@ -1,0 +1,8 @@
+# symbols
+! | ^ & == != <= >= < > + - * / % $ @ = . , : ; [ ] ( ) { }
+
+# keywords
+arr bool char del do else end fun if int new ptr rec then typ var void where while
+
+# literals
+none true false null 123 +42 'c'

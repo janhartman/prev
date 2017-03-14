@@ -1,0 +1,11 @@
+#testiranje izrazov
+{
+	a = b;
+	a = b + c;
+	c = 12;
+	b = a+(c|b^c-a)*a/b%c >= b < a <=c == a > a != !c;
+#dvojni unarni operator
+	a = -@b
+	: 0
+	where var a:int;var b:int;var c:int
+}

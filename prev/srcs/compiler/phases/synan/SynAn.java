@@ -83,6 +83,14 @@ public class SynAn extends Phase {
 		super.close();
 	}
 
+	public Symbol check(DerNode node, Term token) {
+		if (currSymb.token != token)
+			throw new Report.Error(currSymb.location(), "Unexpected " + token);
+		else
+			node.add(new DerLeaf(currSymb));
+		return null;
+
+	}
 
 	// --- PARSER ---
 
@@ -97,32 +105,19 @@ public class SynAn extends Phase {
 		DerNode node = new DerNode(Nont.Expr);
 		switch (currSymb.token) {
 
-			// expr → { stmtmulti : exprwhere } expr0
-			case LBRACE:
-				currSymb = skip(node);
-				node.add(parseStmtMulti());
-				currSymb = skip(node);
-				node.add(parseExprWhere());
-				currSymb = skip(node);
-				node.add(parseExpr0());
-				currSymb = skip(node);
-				break;
-
-			// expr → literal
+			// expr → expr1 expr0
+			// literal
 			case BOOLCONST:
 			case CHARCONST:
 			case INTCONST:
 			case PTRCONST:
 			case VOIDCONST:
-				currSymb = skip(node);
-				break;
-
-			// expr → expr1 expr0
-			case LBRACKET:
 			case NEW:
 			case DEL:
+			case IDENTIFIER:
 			case LPARENTHESIS:
-
+			case LBRACE:
+			case LBRACKET:
 			// unary
 			case NOT:
 			case ADD:
@@ -130,12 +125,6 @@ public class SynAn extends Phase {
 			case MEM:
 			case VAL:
 				parseExpr1();
-				parseExpr0();
-				break;
-
-			// expr → idenexprmulti expr0
-			case IDENTIFIER:
-				parseIdenExprMulti();
 				parseExpr0();
 				break;
 
@@ -313,10 +302,10 @@ public class SynAn extends Phase {
 			case ARR:
 				currSymb = skip(node);
 				currSymb = currSymb == null ? lexAn.lexer() : currSymb;
-				currSymb = skip(node);
+				currSymb = check(node, Term.LBRACKET);
 				node.add(parseExpr());
 				currSymb = currSymb == null ? lexAn.lexer() : currSymb;
-				currSymb = skip(node);
+				currSymb = check(node, Term.RBRACKET);
 				node.add(parseType());
 				break;
 
@@ -324,10 +313,10 @@ public class SynAn extends Phase {
 			case REC:
 				currSymb = skip(node);
 				currSymb = currSymb == null ? lexAn.lexer() : currSymb;
-				currSymb = skip(node);
+				currSymb = check(node, Term.LPARENTHESIS);
 				node.add(parseIdenTypeMulti());
 				currSymb = currSymb == null ? lexAn.lexer() : currSymb;
-				currSymb = skip(node);
+				currSymb = check(node, Term.RPARENTHESIS);
 				break;
 
 			default:
@@ -369,11 +358,11 @@ public class SynAn extends Phase {
 				currSymb = skip(node);
 				node.add(parseExpr());
 				currSymb = currSymb == null ? lexAn.lexer() : currSymb;
-				currSymb = skip(node);
+				currSymb = check(node, Term.THEN);
 				node.add(parseStmtMulti());
 				node.add(parseStmtElse());
 				currSymb = currSymb == null ? lexAn.lexer() : currSymb;
-				currSymb = skip(node);
+				currSymb = check(node, Term.END);
 				break;
 
 			// stmt → while expr do stmtmulti end
@@ -381,14 +370,40 @@ public class SynAn extends Phase {
 				currSymb = skip(node);
 				node.add(parseExpr());
 				currSymb = currSymb == null ? lexAn.lexer() : currSymb;
-				currSymb = skip(node);
+				currSymb = check(node, Term.DO);
 				node.add(parseStmtMulti());
 				currSymb = currSymb == null ? lexAn.lexer() : currSymb;
-				currSymb = skip(node);
+				currSymb = check(node, Term.END);
 				break;
 
 			default:
 				throw new Report.Error(currSymb.location(), "Unrecognized symbol " + currSymb + " in parseStmt");
+
+		}
+		return node;
+	}
+
+	private DerNode parseStmt0() {
+		currSymb = currSymb == null ? lexAn.lexer() : currSymb;
+		DerNode node = new DerNode(Nont.Stmt0);
+
+		switch (currSymb.token) {
+
+			// stmt0 → = expr
+			case ASSIGN:
+				currSymb = skip(node);
+				node.add(parseExpr());
+				break;
+
+			// stmt0 → ε
+			case END:
+			case SEMIC:
+			case ELSE:
+			case COLON:
+				break;
+
+			default:
+				throw new Report.Error(currSymb.location(), "Unrecognized symbol " + currSymb + " in parseStmt0");
 
 		}
 		return node;
@@ -485,9 +500,9 @@ public class SynAn extends Phase {
 			case TYP:
 				currSymb = skip(node);
 				currSymb = currSymb == null ? lexAn.lexer() : currSymb;
-				currSymb = skip(node);
+				currSymb = check(node, Term.IDENTIFIER);
 				currSymb = currSymb == null ? lexAn.lexer() : currSymb;
-				currSymb = skip(node);
+				currSymb = check(node, Term.COLON);
 				node.add(parseType());
 				break;
 
@@ -495,9 +510,9 @@ public class SynAn extends Phase {
 			case VAR:
 				currSymb = skip(node);
 				currSymb = currSymb == null ? lexAn.lexer() : currSymb;
-				currSymb = skip(node);
+				currSymb = check(node, Term.IDENTIFIER);
 				currSymb = currSymb == null ? lexAn.lexer() : currSymb;
-				currSymb = skip(node);
+				currSymb = check(node, Term.COLON);
 				node.add(parseType());
 				break;
 
@@ -505,13 +520,13 @@ public class SynAn extends Phase {
 			case FUN:
 				currSymb = skip(node);
 				currSymb = currSymb == null ? lexAn.lexer() : currSymb;
-				currSymb = skip(node);
+				currSymb = check(node, Term.IDENTIFIER);
 				currSymb = currSymb == null ? lexAn.lexer() : currSymb;
-				currSymb = skip(node);
+				currSymb = check(node, Term.LPARENTHESIS);
 				node.add(parseIdenTypeMulti());
-				currSymb = skip(node);
+				currSymb = check(node, Term.RPARENTHESIS);
 				currSymb = currSymb == null ? lexAn.lexer() : currSymb;
-				currSymb = skip(node);
+				currSymb = check(node, Term.COLON);
 				node.add(parseType());
 				node.add(parseExprAssign());
 				break;
@@ -576,7 +591,7 @@ public class SynAn extends Phase {
 			case IDENTIFIER:
 				currSymb = skip(node);
 				currSymb = currSymb == null ? lexAn.lexer() : currSymb;
-				currSymb = skip(node);
+				currSymb = check(node, Term.COLON);
 				node.add(parseType());
 				node.add(parseIdenTypeMulti0());
 				break;
@@ -640,7 +655,7 @@ public class SynAn extends Phase {
 				currSymb = skip(node);
 				node.add(parseExprMulti());
 				currSymb = currSymb == null ? lexAn.lexer() : currSymb;
-				currSymb = skip(node);
+				currSymb = check(node, Term.RPARENTHESIS);
 				break;
 
 			// idenexprmulti0 → ε
