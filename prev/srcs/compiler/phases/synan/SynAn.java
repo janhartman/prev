@@ -90,6 +90,14 @@ public class SynAn extends Phase {
         super.close();
     }
 
+    /**
+     * An improved skip method - also checks if the current symbol to append
+     * matches the desired symbol.
+     * @param node The node of the derivation tree currently being expanded by
+     *             the parser.
+     * @param token The token to check the current symbol's token against
+     * @return {@code null}.
+     */
     public Symbol check(DerNode node, Term token) {
         if (currSymb.token != token)
             throw new Report.Error(currSymb.location(), "Unexpected " + token);
@@ -101,6 +109,11 @@ public class SynAn extends Phase {
 
     // --- PARSER ---
 
+    /**
+     * The root parsing method - creates a Source node and calls parseExpr
+     * to parse the list of symbols.
+     * @return node
+     */
     private DerNode parseSource() {
         DerNode node = new DerNode(Nont.Source);
         node.add(parseExpr());

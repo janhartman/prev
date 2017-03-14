@@ -281,6 +281,12 @@ public class LexAn extends Phase {
 							term = Term.INTCONST;
 						}
 
+						else if (keywordOrConstant) {
+							keywordOrConstant = false;
+							onlyIdentifier = true;
+							term = Term.IDENTIFIER;
+						}
+
 						else {
 							endColumn--;
 							lexeme = lexeme.substring(0, lexeme.length()-1);

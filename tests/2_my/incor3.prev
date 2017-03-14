@@ -1,0 +1,7 @@
+# declaration in wrong place, missing semicolon
+
+{
+    typ myType: Struct
+    var wholeNumber : int
+
+}
