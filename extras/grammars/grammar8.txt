@@ -13,10 +13,10 @@ expr3 -> expr4 .
 expr4 -> expr4 multdivmod expr5 .
 expr4 -> expr5 .
 
-expr5 -> unop expr6 .
+expr5 -> unop expr5 .
 expr5 -> new type .
-expr5 -> del expr6 .
-expr5 -> [ type ] expr6 .
+expr5 -> del expr5 .
+expr5 -> [ type ] expr5 .
 expr5 -> expr6 .
 
 expr6 -> expr6 [ expr ] .
