@@ -12,7 +12,7 @@ public enum Nont {
 
 	Expr, ExprWhere, ExprWhere0, ExprAssign, ExprMulti, ExprMulti0,
 
-
+	Expr0, Expr1, Expr10, Expr2, Expr20, Expr3, Expr30, Expr4, Expr40, Expr5, Expr6, Expr60, Expr7,
 
 	Type,
 

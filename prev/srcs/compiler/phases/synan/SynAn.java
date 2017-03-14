@@ -124,8 +124,8 @@ public class SynAn extends Phase {
 			case SUB:
 			case MEM:
 			case VAL:
-				parseExpr1();
-				parseExpr0();
+				node.add(parseExpr1());
+				node.add(parseExpr0());
 				break;
 
 			default:
@@ -133,6 +133,540 @@ public class SynAn extends Phase {
 		}
 		return node;
 	}
+
+	private DerNode parseExpr0() {
+		currSymb = currSymb == null ? lexAn.lexer() : currSymb;
+		DerNode node = new DerNode(Nont.Expr0);
+
+		switch (currSymb.token) {
+
+			// expr0 → xior expr1 expr0
+			case XOR:
+			case IOR:
+				node.add(parseExpr1());
+				node.add(parseExpr0());
+				break;
+
+			// expr0 → ε
+			case RBRACKET:
+			case RPARENTHESIS:
+			case RBRACE:
+			case COLON:
+			case ASSIGN:
+			case THEN:
+			case DO:
+			case END:
+			case WHERE:
+			case COMMA:
+			case ELSE:
+			case SEMIC:
+			case EOF:
+				break;
+
+			default:
+				throw new Report.Error(currSymb.location(), "Unrecognized symbol " + currSymb + " in parseExpr0");
+
+		}
+		return node;
+	}
+
+	private DerNode parseExpr1() {
+		currSymb = currSymb == null ? lexAn.lexer() : currSymb;
+		DerNode node = new DerNode(Nont.Expr1);
+
+		switch (currSymb.token) {
+			// expr1 → expr2 expr10
+			// literal
+			case BOOLCONST:
+			case CHARCONST:
+			case INTCONST:
+			case PTRCONST:
+			case VOIDCONST:
+			case NEW:
+			case DEL:
+			case IDENTIFIER:
+			case LPARENTHESIS:
+			case LBRACE:
+			case LBRACKET:
+
+				// unary
+			case NOT:
+			case ADD:
+			case SUB:
+			case MEM:
+			case VAL:
+				node.add(parseExpr2());
+				node.add(parseExpr10());
+				break;
+
+			default:
+				throw new Report.Error(currSymb.location(), "Unrecognized symbol " + currSymb + " in parseExpr1");
+
+		}
+		return node;
+	}
+
+	private DerNode parseExpr10() {
+		currSymb = currSymb == null ? lexAn.lexer() : currSymb;
+		DerNode node = new DerNode(Nont.Expr10);
+
+		switch (currSymb.token) {
+
+			case AND:
+				currSymb = skip(node);
+				node.add(parseExpr2());
+				node.add(parseExpr10());
+				break;
+
+			// expr10 → ε
+			case XOR:
+			case IOR:
+			case RBRACKET:
+			case RPARENTHESIS:
+			case RBRACE:
+			case COLON:
+			case ASSIGN:
+			case THEN:
+			case DO:
+			case END:
+			case WHERE:
+			case COMMA:
+			case ELSE:
+			case SEMIC:
+			case EOF:
+				break;
+
+			default:
+				throw new Report.Error(currSymb.location(), "Unrecognized symbol " + currSymb + " in parseExpr10");
+
+		}
+		return node;
+	}
+
+	private DerNode parseExpr2() {
+		currSymb = currSymb == null ? lexAn.lexer() : currSymb;
+		DerNode node = new DerNode(Nont.Expr2);
+
+		switch (currSymb.token) {
+			// expr2 → expr3 expr20
+			// literal
+			case BOOLCONST:
+			case CHARCONST:
+			case INTCONST:
+			case PTRCONST:
+			case VOIDCONST:
+			case NEW:
+			case DEL:
+			case IDENTIFIER:
+			case LPARENTHESIS:
+			case LBRACE:
+			case LBRACKET:
+				// unary
+			case NOT:
+			case ADD:
+			case SUB:
+			case MEM:
+			case VAL:
+				node.add(parseExpr3());
+				node.add(parseExpr20());
+				break;
+
+			default:
+				throw new Report.Error(currSymb.location(), "Unrecognized symbol " + currSymb + " in parseExpr2");
+
+		}
+		return node;
+	}
+
+	private DerNode parseExpr20() {
+		currSymb = currSymb == null ? lexAn.lexer() : currSymb;
+		DerNode node = new DerNode(Nont.Expr20);
+
+		switch (currSymb.token) {
+
+			// expr20 → cmp expr3 expr20
+			case LTH:
+			case GTH:
+			case LEQ:
+			case GEQ:
+			case EQU:
+			case NEQ:
+				currSymb = skip(node);
+				node.add(parseExpr3());
+				node.add(parseExpr20());
+				break;
+
+			// expr0 → ε
+			case XOR:
+			case IOR:
+			case AND:
+			case RBRACKET:
+			case RPARENTHESIS:
+			case RBRACE:
+			case COLON:
+			case ASSIGN:
+			case THEN:
+			case DO:
+			case END:
+			case WHERE:
+			case COMMA:
+			case ELSE:
+			case SEMIC:
+			case EOF:
+				break;
+
+			default:
+				throw new Report.Error(currSymb.location(), "Unrecognized symbol " + currSymb + " in parseExpr20");
+
+		}
+		return node;
+	}
+
+	private DerNode parseExpr3() {
+		currSymb = currSymb == null ? lexAn.lexer() : currSymb;
+		DerNode node = new DerNode(Nont.Expr3);
+
+		switch (currSymb.token) {
+			// expr3 → expr4 expr30
+			case BOOLCONST:
+			case CHARCONST:
+			case INTCONST:
+			case PTRCONST:
+			case VOIDCONST:
+			case NEW:
+			case DEL:
+			case IDENTIFIER:
+			case LPARENTHESIS:
+			case LBRACE:
+			case LBRACKET:
+			case NOT:
+			case ADD:
+			case SUB:
+			case MEM:
+			case VAL:
+				node.add(parseExpr4());
+				node.add(parseExpr30());
+				break;
+
+			default:
+				throw new Report.Error(currSymb.location(), "Unrecognized symbol " + currSymb + " in parseExpr3");
+
+		}
+		return node;
+	}
+
+	private DerNode parseExpr30() {
+		currSymb = currSymb == null ? lexAn.lexer() : currSymb;
+		DerNode node = new DerNode(Nont.Expr30);
+
+		switch (currSymb.token) {
+
+			// expr30 → plusminus expr4 expr30
+			case ADD:
+			case SUB:
+				currSymb = skip(node);
+				node.add(parseExpr4());
+				node.add(parseExpr30());
+				break;
+
+			// expr30 → ε
+			case XOR:
+			case IOR:
+			case LTH:
+			case GTH:
+			case LEQ:
+			case GEQ:
+			case EQU:
+			case NEQ:
+			case AND:
+			case RBRACKET:
+			case RPARENTHESIS:
+			case RBRACE:
+			case COLON:
+			case ASSIGN:
+			case THEN:
+			case DO:
+			case END:
+			case WHERE:
+			case COMMA:
+			case ELSE:
+			case SEMIC:
+			case EOF:
+				break;
+
+			default:
+				throw new Report.Error(currSymb.location(), "Unrecognized symbol " + currSymb + " in parseExpr30");
+
+		}
+		return node;
+	}
+
+	private DerNode parseExpr4() {
+		currSymb = currSymb == null ? lexAn.lexer() : currSymb;
+		DerNode node = new DerNode(Nont.Expr4);
+
+		switch (currSymb.token) {
+			// expr4 → expr5 expr40
+			case BOOLCONST:
+			case CHARCONST:
+			case INTCONST:
+			case PTRCONST:
+			case VOIDCONST:
+			case NEW:
+			case DEL:
+			case IDENTIFIER:
+			case LPARENTHESIS:
+			case LBRACE:
+			case LBRACKET:
+			case NOT:
+			case ADD:
+			case SUB:
+			case MEM:
+			case VAL:
+				node.add(parseExpr5());
+				node.add(parseExpr40());
+				break;
+
+			default:
+				throw new Report.Error(currSymb.location(), "Unrecognized symbol " + currSymb + " in parseExpr4");
+
+		}
+		return node;
+	}
+
+	private DerNode parseExpr40() {
+		currSymb = currSymb == null ? lexAn.lexer() : currSymb;
+		DerNode node = new DerNode(Nont.Expr40);
+
+		switch (currSymb.token) {
+
+			// expr40 → multdivmod expr5 expr40
+			case MUL:
+			case DIV:
+			case MOD:
+				currSymb = skip(node);
+				node.add(parseExpr5());
+				node.add(parseExpr40());
+				break;
+
+			// expr40 → ε
+			case ADD:
+			case SUB:
+			case XOR:
+			case IOR:
+			case LTH:
+			case GTH:
+			case LEQ:
+			case GEQ:
+			case EQU:
+			case NEQ:
+			case AND:
+			case RBRACKET:
+			case RPARENTHESIS:
+			case RBRACE:
+			case COLON:
+			case ASSIGN:
+			case THEN:
+			case DO:
+			case END:
+			case WHERE:
+			case COMMA:
+			case ELSE:
+			case SEMIC:
+			case EOF:
+				break;
+
+			default:
+				throw new Report.Error(currSymb.location(), "Unrecognized symbol " + currSymb + " in parseExpr40");
+
+		}
+		return node;
+	}
+
+	private DerNode parseExpr5() {
+		currSymb = currSymb == null ? lexAn.lexer() : currSymb;
+		DerNode node = new DerNode(Nont.Expr5);
+
+		switch (currSymb.token) {
+
+			// expr5 → expr6
+			case BOOLCONST:
+			case CHARCONST:
+			case INTCONST:
+			case PTRCONST:
+			case VOIDCONST:
+			case IDENTIFIER:
+			case LPARENTHESIS:
+			case LBRACE:
+				node.add(parseExpr6());
+				break;
+
+			// expr5 → [ type ] expr6
+			case LBRACKET:
+				currSymb = skip(node);
+				node.add(parseType());
+				currSymb = currSymb == null ? lexAn.lexer() : currSymb;
+				currSymb = check(node, Term.RBRACKET);
+				node.add(parseExpr6());
+				break;
+
+			// expr5 → new type
+			case NEW:
+				currSymb = skip(node);
+				node.add(parseType());
+				break;
+
+			// expr5 → del expr6
+			case DEL:
+
+			// expr5 → unop expr6
+			case NOT:
+			case ADD:
+			case SUB:
+			case MEM:
+			case VAL:
+				currSymb = skip(node);
+				node.add(parseExpr6());
+				break;
+
+			default:
+				throw new Report.Error(currSymb.location(), "Unrecognized symbol " + currSymb + " in parseExpr5");
+
+		}
+		return node;
+	}
+
+	private DerNode parseExpr6() {
+		currSymb = currSymb == null ? lexAn.lexer() : currSymb;
+		DerNode node = new DerNode(Nont.Expr6);
+
+		switch (currSymb.token) {
+
+			// expr6 → expr7 expr60
+			case BOOLCONST:
+			case CHARCONST:
+			case INTCONST:
+			case PTRCONST:
+			case VOIDCONST:
+			case IDENTIFIER:
+			case LPARENTHESIS:
+			case LBRACE:
+				node.add(parseExpr7());
+				node.add(parseExpr60());
+				break;
+
+			default:
+				throw new Report.Error(currSymb.location(), "Unrecognized symbol " + currSymb + " in parseExpr6");
+
+		}
+		return node;
+	}
+
+	private DerNode parseExpr60() {
+		currSymb = currSymb == null ? lexAn.lexer() : currSymb;
+		DerNode node = new DerNode(Nont.Expr60);
+
+		switch (currSymb.token) {
+
+			// expr60 → dot identifier expr60
+			case DOT:
+				currSymb = skip(node);
+				currSymb = currSymb == null ? lexAn.lexer() : currSymb;
+				currSymb = check(node, Term.IDENTIFIER);
+				node.add(parseExpr60());
+				break;
+
+			// expr60 → [ expr ] expr60
+			case LBRACKET:
+				currSymb = skip(node);
+				node.add(parseExpr());
+				currSymb = currSymb == null ? lexAn.lexer() : currSymb;
+				currSymb = check(node, Term.RBRACKET);
+				node.add(parseExpr60());
+				break;
+
+			// expr60 → ε
+			case MUL:
+			case DIV:
+			case MOD:
+			case ADD:
+			case SUB:
+			case XOR:
+			case IOR:
+			case AND:
+			case LTH:
+			case GTH:
+			case LEQ:
+			case GEQ:
+			case EQU:
+			case NEQ:
+			case RBRACKET:
+			case RPARENTHESIS:
+			case RBRACE:
+			case COLON:
+			case ASSIGN:
+			case THEN:
+			case DO:
+			case END:
+			case WHERE:
+			case COMMA:
+			case ELSE:
+			case SEMIC:
+			case EOF:
+				break;
+
+			default:
+				throw new Report.Error(currSymb.location(), "Unrecognized symbol " + currSymb + " in parseExpr60");
+
+		}
+		return node;
+	}
+
+	private DerNode parseExpr7() {
+		currSymb = currSymb == null ? lexAn.lexer() : currSymb;
+		DerNode node = new DerNode(Nont.Expr7);
+
+		switch (currSymb.token) {
+			// expr7 → idenexprmulti
+			case IDENTIFIER:
+				node.add(parseIdenExprMulti());
+				break;
+
+			// expr7 → ( expr )
+			case LPARENTHESIS:
+				currSymb = skip(node);
+				node.add(parseExpr());
+				currSymb = currSymb == null ? lexAn.lexer() : currSymb;
+				currSymb = check(node, Term.RPARENTHESIS);
+				break;
+
+			// expr7 → { stmtmulti : exprwhere }
+			case LBRACE:
+				currSymb = skip(node);
+				node.add(parseStmtMulti());
+				currSymb = currSymb == null ? lexAn.lexer() : currSymb;
+				currSymb = check(node, Term.COLON);
+				node.add(parseExprWhere());
+				currSymb = currSymb == null ? lexAn.lexer() : currSymb;
+				currSymb = check(node, Term.RBRACE);
+				break;
+
+			// expr7 → literal
+			case BOOLCONST:
+			case CHARCONST:
+			case INTCONST:
+			case PTRCONST:
+			case VOIDCONST:
+				currSymb = skip(node);
+				break;
+
+			default:
+				throw new Report.Error(currSymb.location(), "Unrecognized symbol " + currSymb + " in parseExpr7");
+
+		}
+		return node;
+	}
+
 
 	private DerNode parseExprWhere() {
 		currSymb = currSymb == null ? lexAn.lexer() : currSymb;
