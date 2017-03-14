@@ -145,6 +145,149 @@ public class SynAn extends Phase {
 		return node;
 	}
 
+	private DerNode parseExprWhere() {
+		currSymb = currSymb == null ? lexAn.lexer() : currSymb;
+		DerNode node = new DerNode(Nont.ExprWhere);
+
+		switch (currSymb.token) {
+
+			// exprwhere → expr exprwhere0
+			case LBRACE:
+			case LPARENTHESIS:
+			case LBRACKET:
+			case BOOLCONST:
+			case CHARCONST:
+			case INTCONST:
+			case PTRCONST:
+			case VOIDCONST:
+			case NOT:
+			case ADD:
+			case SUB:
+			case MEM:
+			case VAL:
+			case NEW:
+			case DEL:
+			case IDENTIFIER:
+				node.add(parseExpr());
+				node.add(parseExprWhere0());
+				break;
+
+
+			default:
+				throw new Report.Error(currSymb.location(), "Unrecognized symbol " + currSymb + " in parseExprWhere");
+
+		}
+		return node;
+	}
+
+	private DerNode parseExprWhere0() {
+		currSymb = currSymb == null ? lexAn.lexer() : currSymb;
+		DerNode node = new DerNode(Nont.ExprWhere0);
+
+		switch (currSymb.token) {
+
+			// exprwhere0 → ε
+			case RBRACE:
+				break;
+
+			// exprwhere0 → where declmulti
+			case WHERE:
+				currSymb = skip(node);
+				node.add(parseDeclMulti());
+				break;
+
+			default:
+				throw new Report.Error(currSymb.location(), "Unrecognized symbol " + currSymb + " in parseExprWhere0");
+
+		}
+		return node;
+	}
+
+	private DerNode parseExprMulti() {
+		currSymb = currSymb == null ? lexAn.lexer() : currSymb;
+		DerNode node = new DerNode(Nont.ExprMulti);
+
+		switch (currSymb.token) {
+
+			// exprmulti → expr exprmulti0
+			case LBRACE:
+			case LPARENTHESIS:
+			case LBRACKET:
+			case BOOLCONST:
+			case CHARCONST:
+			case INTCONST:
+			case PTRCONST:
+			case VOIDCONST:
+			case NOT:
+			case ADD:
+			case SUB:
+			case MEM:
+			case VAL:
+			case NEW:
+			case DEL:
+			case IDENTIFIER:
+				node.add(parseExpr());
+				node.add(parseExprMulti0());
+				break;
+
+			// exprmulti → ε
+			case RPARENTHESIS:
+				break;
+
+			default:
+				throw new Report.Error(currSymb.location(), "Unrecognized symbol " + currSymb + " in parseExprMulti");
+
+		}
+		return node;
+	}
+
+	private DerNode parseExprMulti0() {
+		currSymb = currSymb == null ? lexAn.lexer() : currSymb;
+		DerNode node = new DerNode(Nont.ExprMulti0);
+
+		switch (currSymb.token) {
+
+			// exprmulti0 → , expr exprmulti0
+			case COMMA:
+				currSymb = skip(node);
+				node.add(parseExpr());
+				node.add(parseExprMulti0());
+				break;
+
+			// exprmulti0 → ε
+			case RPARENTHESIS:
+				break;
+
+			default:
+				throw new Report.Error(currSymb.location(), "Unrecognized symbol " + currSymb + " in parseExprMulti0");
+
+		}
+		return node;
+	}
+
+	private DerNode parseExprAssign() {
+		currSymb = currSymb == null ? lexAn.lexer() : currSymb;
+		DerNode node = new DerNode(Nont.ExprAssign);
+
+		switch (currSymb.token) {
+
+			// exprassign → ε
+			case RBRACE:
+				break;
+
+			// exprassign → = expr
+			case ASSIGN:
+				currSymb = skip(node);
+				node.add(parseExpr());
+				break;
+
+			default:
+				throw new Report.Error(currSymb.location(), "Unrecognized symbol " + currSymb + " in parseExprAssign");
+
+		}
+		return node;
+	}
+
 	private DerNode parseType() {
 		currSymb = currSymb == null ? lexAn.lexer() : currSymb;
 		DerNode node = new DerNode(Nont.Type);
@@ -251,6 +394,88 @@ public class SynAn extends Phase {
 		return node;
 	}
 
+	private DerNode parseStmtMulti() {
+		currSymb = currSymb == null ? lexAn.lexer() : currSymb;
+		DerNode node = new DerNode(Nont.StmtMulti);
+
+		switch (currSymb.token) {
+
+			// stmtmulti → stmt stmtmulti0
+			case LBRACE:
+			case LBRACKET:
+			case LPARENTHESIS:
+			case BOOLCONST:
+			case CHARCONST:
+			case INTCONST:
+			case PTRCONST:
+			case VOIDCONST:
+			case NEW:
+			case DEL:
+			case NOT:
+			case ADD:
+			case SUB:
+			case MEM:
+			case VAL:
+			case IF:
+			case WHILE:
+				node.add(parseStmt());
+				node.add(parseStmtMulti0());
+				break;
+
+			default:
+				throw new Report.Error(currSymb.location(), "Unrecognized symbol " + currSymb + " in parseStmtMulti");
+
+		}
+		return node;
+	}
+
+	private DerNode parseStmtMulti0() {
+		currSymb = currSymb == null ? lexAn.lexer() : currSymb;
+		DerNode node = new DerNode(Nont.StmtMulti0);
+
+		switch (currSymb.token) {
+
+			// stmtmulti0 → ε
+			case COLON:
+			case ELSE:
+			case END:
+				break;
+
+			// stmtmulti0 → ; stmtmulti
+			case SEMIC:
+				currSymb = skip(node);
+				node.add(parseStmtMulti());
+				break;
+
+			default:
+				throw new Report.Error(currSymb.location(), "Unrecognized symbol " + currSymb + " in parseStmtMulti0");
+
+		}
+		return node;
+	}
+
+	private DerNode parseStmtElse() {
+		currSymb = currSymb == null ? lexAn.lexer() : currSymb;
+		DerNode node = new DerNode(Nont.StmtElse);
+
+		switch (currSymb.token) {
+			// stmtelse → else stmtmulti
+			case ELSE:
+				currSymb = skip(node);
+				node.add(parseStmtMulti());
+				break;
+
+			// stmtelse → ε
+			case END:
+				break;
+
+			default:
+				throw new Report.Error(currSymb.location(), "Unrecognized symbol " + currSymb + " in parseStmtElse");
+
+		}
+		return node;
+	}
+
 	private DerNode parseDecl() {
 		currSymb = currSymb == null ? lexAn.lexer() : currSymb;
 		DerNode node = new DerNode(Nont.Decl);
@@ -298,6 +523,150 @@ public class SynAn extends Phase {
 		return node;
 	}
 
+	private DerNode parseDeclMulti() {
+		currSymb = currSymb == null ? lexAn.lexer() : currSymb;
+		DerNode node = new DerNode(Nont.DeclMulti);
 
+		switch (currSymb.token) {
+			// declmulti → decl declmulti0
+			case TYP:
+			case VAR:
+			case FUN:
+				node.add(parseDecl());
+				node.add(parseDeclMulti0());
+				break;
+
+			default:
+				throw new Report.Error(currSymb.location(), "Unrecognized symbol " + currSymb + " in parseDeclMulti");
+
+		}
+		return node;
+	}
+
+	private DerNode parseDeclMulti0() {
+		currSymb = currSymb == null ? lexAn.lexer() : currSymb;
+		DerNode node = new DerNode(Nont.DeclMulti0);
+
+		switch (currSymb.token) {
+
+			// declmulti0 → ; declmulti
+			case SEMIC:
+				currSymb = skip(node);
+				node.add(parseDeclMulti());
+				break;
+
+			// declmulti0 → ε
+			case RBRACE:
+				break;
+
+			default:
+				throw new Report.Error(currSymb.location(), "Unrecognized symbol " + currSymb + " in parseDeclMulti0");
+
+		}
+		return node;
+	}
+
+	private DerNode parseIdenTypeMulti() {
+		currSymb = currSymb == null ? lexAn.lexer() : currSymb;
+		DerNode node = new DerNode(Nont.IdenTypeMulti);
+
+		switch (currSymb.token) {
+
+			// identypemulti → identifier : type identypemulti0
+			case IDENTIFIER:
+				currSymb = skip(node);
+				currSymb = currSymb == null ? lexAn.lexer() : currSymb;
+				currSymb = skip(node);
+				node.add(parseType());
+				node.add(parseIdenTypeMulti0());
+				break;
+
+			default:
+				throw new Report.Error(currSymb.location(), "Unrecognized symbol " + currSymb + " in parseIdenTypeMulti");
+
+		}
+		return node;
+	}
+
+	private DerNode parseIdenTypeMulti0() {
+		currSymb = currSymb == null ? lexAn.lexer() : currSymb;
+		DerNode node = new DerNode(Nont.IdenTypeMulti0);
+
+		switch (currSymb.token) {
+			// identypemulti0 → , identypemulti
+			case COMMA:
+				currSymb = skip(node);
+				node.add(parseIdenTypeMulti());
+				break;
+
+			// identypemulti0 → ε
+			case RPARENTHESIS:
+				break;
+
+			default:
+				throw new Report.Error(currSymb.location(), "Unrecognized symbol " + currSymb + " in parseIdenTypeMulti0");
+
+		}
+		return node;
+	}
+
+	private DerNode parseIdenExprMulti() {
+		currSymb = currSymb == null ? lexAn.lexer() : currSymb;
+		DerNode node = new DerNode(Nont.IdenExprMulti);
+
+		switch (currSymb.token) {
+
+			// idenexprmulti → identifier idenexprmulti0
+			case IDENTIFIER:
+				currSymb = skip(node);
+				node.add(parseIdenExprMulti0());
+				break;
+
+			default:
+				throw new Report.Error(currSymb.location(), "Unrecognized symbol " + currSymb + " in parseIdenExprMulti");
+
+		}
+		return node;
+	}
+
+	private DerNode parseIdenExprMulti0() {
+		currSymb = currSymb == null ? lexAn.lexer() : currSymb;
+		DerNode node = new DerNode(Nont.IdenExprMulti0);
+
+		switch (currSymb.token) {
+
+			// idenexprmulti0 → ( exprmulti )
+			case LPARENTHESIS:
+				currSymb = skip(node);
+				node.add(parseExprMulti());
+				currSymb = currSymb == null ? lexAn.lexer() : currSymb;
+				currSymb = skip(node);
+				break;
+
+			// idenexprmulti0 → ε
+			case IDENTIFIER:
+			case COLON:
+			case RBRACE:
+			case XOR:
+			case IOR:
+			case RBRACKET:
+			case RPARENTHESIS:
+			case ASSIGN:
+			case END:
+			case DO:
+			case THEN:
+			case WHERE:
+			case COMMA:
+			case ELSE:
+			case SEMIC:
+			case EOF:
+				break;
+
+			default:
+				throw new Report.Error(currSymb.location(), "Unrecognized symbol " + currSymb + " in parseIdenExprMulti0");
+
+		}
+		return node;
+	}
 
 }

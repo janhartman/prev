@@ -1,3 +1,0 @@
-#try parsing too long or escaped character literals
-'o' 'k'
-'\t' '\n'

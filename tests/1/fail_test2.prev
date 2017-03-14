@@ -1,6 +1,0 @@
-#some extra tests
-
-'#' #comment1# comment2?
-does it parse this '?'
-# three idents, ? should fail
-_xy_ __ _null?

@@ -10,14 +10,18 @@ public enum Nont {
 
 	Source,
 
-	Expr,
+	Expr, ExprWhere, ExprWhere0, ExprAssign, ExprMulti, ExprMulti0,
+
+
 
 	Type,
 
-	Stmt,
+	Stmt, StmtMulti, StmtMulti0, StmtElse,
 
-	Decl,
+	Decl, DeclMulti, DeclMulti0,
 
+	IdenTypeMulti, IdenTypeMulti0,
 
+	IdenExprMulti, IdenExprMulti0
 
 }
