@@ -43,6 +43,9 @@ public class DerNode extends DerTree {
 	 * @return This node.
 	 */
 	public DerNode add(DerTree subtree) {
+		if (subtree == null)
+			return null;
+
 		subtrees.addElement(subtree);
 		Location location = subtree.location();
 		this.location = (this.location == null) ? location

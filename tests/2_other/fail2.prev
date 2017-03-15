@@ -1,0 +1,15 @@
+{ 
+	if 
+		iden1 
+	then 
+		del 12 
+	else 
+		1 + 2;
+		while 12 do 
+			b;
+			c 
+		end 
+	end: a12 where 
+		typ b:bool; 
+		var a:void 
+)

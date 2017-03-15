@@ -100,7 +100,7 @@ public class SynAn extends Phase {
      */
     public Symbol check(DerNode node, Term token) {
         if (currSymb.token != token)
-            throw new Report.Error(currSymb.location(), "Unexpected " + token);
+            throw new Report.Error(currSymb.location(), "Expected " + token + ", got " + currSymb.token);
         else
             node.add(new DerLeaf(currSymb));
         return null;
@@ -123,7 +123,7 @@ public class SynAn extends Phase {
     private DerNode parseExpr() {
         currSymb = currSymb == null ? lexAn.lexer() : currSymb;
         DerNode node = new DerNode(Nont.Expr);
-        Report.info("parseExpr " + currSymb.stringify());
+        //Report.info("parseExpr " + currSymb.stringify());
         switch (currSymb.token) {
 
             // expr → expr1 expr0
@@ -158,7 +158,7 @@ public class SynAn extends Phase {
     private DerNode parseExpr0() {
         currSymb = currSymb == null ? lexAn.lexer() : currSymb;
         DerNode node = new DerNode(Nont.Expr0);
-        Report.info("parseExpr0 " + currSymb.stringify());
+        //Report.info("parseExpr0 " + currSymb.stringify());
 
         switch (currSymb.token) {
 
@@ -184,7 +184,7 @@ public class SynAn extends Phase {
             case ELSE:
             case SEMIC:
             case EOF:
-                break;
+                return null;
 
             default:
                 throw new Report.Error(currSymb.location(), "Unrecognized symbol " + currSymb.stringify() + " in parseExpr0");
@@ -196,7 +196,7 @@ public class SynAn extends Phase {
     private DerNode parseExpr1() {
         currSymb = currSymb == null ? lexAn.lexer() : currSymb;
         DerNode node = new DerNode(Nont.Expr1);
-        Report.info("parseExpr1 " + currSymb.stringify());
+        //Report.info("parseExpr1 " + currSymb.stringify());
         switch (currSymb.token) {
             // expr1 → expr2 expr10
             // literal
@@ -232,7 +232,7 @@ public class SynAn extends Phase {
     private DerNode parseExpr10() {
         currSymb = currSymb == null ? lexAn.lexer() : currSymb;
         DerNode node = new DerNode(Nont.Expr10);
-        Report.info("parseExpr10 " + currSymb.stringify());
+        //Report.info("parseExpr10 " + currSymb.stringify());
 
         switch (currSymb.token) {
 
@@ -258,7 +258,7 @@ public class SynAn extends Phase {
             case ELSE:
             case SEMIC:
             case EOF:
-                break;
+                return null;
 
             default:
                 throw new Report.Error(currSymb.location(), "Unrecognized symbol " + currSymb.stringify() + " in parseExpr10");
@@ -270,7 +270,7 @@ public class SynAn extends Phase {
     private DerNode parseExpr2() {
         currSymb = currSymb == null ? lexAn.lexer() : currSymb;
         DerNode node = new DerNode(Nont.Expr2);
-        Report.info("parseExpr2 " + currSymb.stringify());
+        //Report.info("parseExpr2 " + currSymb.stringify());
 
         switch (currSymb.token) {
             // expr2 → expr3 expr20
@@ -306,7 +306,7 @@ public class SynAn extends Phase {
     private DerNode parseExpr20() {
         currSymb = currSymb == null ? lexAn.lexer() : currSymb;
         DerNode node = new DerNode(Nont.Expr20);
-        Report.info("parseExpr20 " + currSymb.stringify());
+        //Report.info("parseExpr20 " + currSymb.stringify());
 
         switch (currSymb.token) {
 
@@ -339,7 +339,7 @@ public class SynAn extends Phase {
             case ELSE:
             case SEMIC:
             case EOF:
-                break;
+                return null;
 
             default:
                 throw new Report.Error(currSymb.location(), "Unrecognized symbol " + currSymb.stringify() + " in parseExpr20");
@@ -351,7 +351,7 @@ public class SynAn extends Phase {
     private DerNode parseExpr3() {
         currSymb = currSymb == null ? lexAn.lexer() : currSymb;
         DerNode node = new DerNode(Nont.Expr3);
-        Report.info("parseExpr3 " + currSymb.stringify());
+        //Report.info("parseExpr3 " + currSymb.stringify());
 
         switch (currSymb.token) {
             // expr3 → expr4 expr30
@@ -385,7 +385,7 @@ public class SynAn extends Phase {
     private DerNode parseExpr30() {
         currSymb = currSymb == null ? lexAn.lexer() : currSymb;
         DerNode node = new DerNode(Nont.Expr30);
-        Report.info("parseExpr30 " + currSymb.stringify());
+        //Report.info("parseExpr30 " + currSymb.stringify());
 
         switch (currSymb.token) {
 
@@ -420,7 +420,7 @@ public class SynAn extends Phase {
             case ELSE:
             case SEMIC:
             case EOF:
-                break;
+                return null;
 
             default:
                 throw new Report.Error(currSymb.location(), "Unrecognized symbol " + currSymb.stringify() + " in parseExpr30");
@@ -432,7 +432,7 @@ public class SynAn extends Phase {
     private DerNode parseExpr4() {
         currSymb = currSymb == null ? lexAn.lexer() : currSymb;
         DerNode node = new DerNode(Nont.Expr4);
-        Report.info("parseExpr4 " + currSymb.stringify());
+        //Report.info("parseExpr4 " + currSymb.stringify());
 
         switch (currSymb.token) {
             // expr4 → expr5 expr40
@@ -466,7 +466,7 @@ public class SynAn extends Phase {
     private DerNode parseExpr40() {
         currSymb = currSymb == null ? lexAn.lexer() : currSymb;
         DerNode node = new DerNode(Nont.Expr40);
-        Report.info("parseExpr40 " + currSymb.stringify());
+        //Report.info("parseExpr40 " + currSymb.stringify());
 
         switch (currSymb.token) {
 
@@ -504,7 +504,7 @@ public class SynAn extends Phase {
             case ELSE:
             case SEMIC:
             case EOF:
-                break;
+                return null;
 
             default:
                 throw new Report.Error(currSymb.location(), "Unrecognized symbol " + currSymb.stringify() + " in parseExpr40");
@@ -516,7 +516,7 @@ public class SynAn extends Phase {
     private DerNode parseExpr5() {
         currSymb = currSymb == null ? lexAn.lexer() : currSymb;
         DerNode node = new DerNode(Nont.Expr5);
-        Report.info("parseExpr5 " + currSymb.stringify());
+        //Report.info("parseExpr5 " + currSymb.stringify());
 
         switch (currSymb.token) {
 
@@ -570,7 +570,7 @@ public class SynAn extends Phase {
     private DerNode parseExpr6() {
         currSymb = currSymb == null ? lexAn.lexer() : currSymb;
         DerNode node = new DerNode(Nont.Expr6);
-        Report.info("parseExpr6 " + currSymb.stringify());
+        //Report.info("parseExpr6 " + currSymb.stringify());
 
         switch (currSymb.token) {
 
@@ -597,7 +597,7 @@ public class SynAn extends Phase {
     private DerNode parseExpr60() {
         currSymb = currSymb == null ? lexAn.lexer() : currSymb;
         DerNode node = new DerNode(Nont.Expr60);
-        Report.info("parseExpr60 " + currSymb.stringify());
+        //Report.info("parseExpr60 " + currSymb.stringify());
 
         switch (currSymb.token) {
 
@@ -646,7 +646,7 @@ public class SynAn extends Phase {
             case ELSE:
             case SEMIC:
             case EOF:
-                break;
+                return null;
 
             default:
                 throw new Report.Error(currSymb.location(), "Unrecognized symbol " + currSymb.stringify() + " in parseExpr60");
@@ -658,7 +658,7 @@ public class SynAn extends Phase {
     private DerNode parseExpr7() {
         currSymb = currSymb == null ? lexAn.lexer() : currSymb;
         DerNode node = new DerNode(Nont.Expr7);
-        Report.info("parseExpr7 " + currSymb.stringify());
+        //Report.info("parseExpr7 " + currSymb.stringify());
 
         switch (currSymb.token) {
             // expr7 → idenexprmulti
@@ -705,7 +705,7 @@ public class SynAn extends Phase {
     private DerNode parseExprWhere() {
         currSymb = currSymb == null ? lexAn.lexer() : currSymb;
         DerNode node = new DerNode(Nont.ExprWhere);
-        Report.info("parseExprWhere " + currSymb.stringify());
+        //Report.info("parseExprWhere " + currSymb.stringify());
 
         switch (currSymb.token) {
 
@@ -741,13 +741,13 @@ public class SynAn extends Phase {
     private DerNode parseExprWhere0() {
         currSymb = currSymb == null ? lexAn.lexer() : currSymb;
         DerNode node = new DerNode(Nont.ExprWhere0);
-        Report.info("parseExprWhere0 " + currSymb.stringify());
+        //Report.info("parseExprWhere0 " + currSymb.stringify());
 
         switch (currSymb.token) {
 
             // exprwhere0 → ε
             case RBRACE:
-                break;
+                return null;
 
             // exprwhere0 → where declmulti
             case WHERE:
@@ -765,7 +765,7 @@ public class SynAn extends Phase {
     private DerNode parseExprMulti() {
         currSymb = currSymb == null ? lexAn.lexer() : currSymb;
         DerNode node = new DerNode(Nont.ExprMulti);
-        Report.info("parseExprMulti " + currSymb.stringify());
+        //Report.info("parseExprMulti " + currSymb.stringify());
 
         switch (currSymb.token) {
 
@@ -792,7 +792,7 @@ public class SynAn extends Phase {
 
             // exprmulti → ε
             case RPARENTHESIS:
-                break;
+                return null;
 
             default:
                 throw new Report.Error(currSymb.location(), "Unrecognized symbol " + currSymb.stringify() + " in parseExprMulti");
@@ -804,7 +804,7 @@ public class SynAn extends Phase {
     private DerNode parseExprMulti0() {
         currSymb = currSymb == null ? lexAn.lexer() : currSymb;
         DerNode node = new DerNode(Nont.ExprMulti0);
-        Report.info("parseExprMulti0 " + currSymb.stringify());
+        //Report.info("parseExprMulti0 " + currSymb.stringify());
 
         switch (currSymb.token) {
 
@@ -817,7 +817,7 @@ public class SynAn extends Phase {
 
             // exprmulti0 → ε
             case RPARENTHESIS:
-                break;
+                return null;
 
             default:
                 throw new Report.Error(currSymb.location(), "Unrecognized symbol " + currSymb.stringify() + " in parseExprMulti0");
@@ -829,13 +829,13 @@ public class SynAn extends Phase {
     private DerNode parseExprAssign() {
         currSymb = currSymb == null ? lexAn.lexer() : currSymb;
         DerNode node = new DerNode(Nont.ExprAssign);
-        Report.info("parseExprAssign " + currSymb.stringify());
+        //Report.info("parseExprAssign " + currSymb.stringify());
 
         switch (currSymb.token) {
 
             // exprassign → ε
             case RBRACE:
-                break;
+                return null;
 
             // exprassign → = expr
             case ASSIGN:
@@ -853,7 +853,7 @@ public class SynAn extends Phase {
     private DerNode parseType() {
         currSymb = currSymb == null ? lexAn.lexer() : currSymb;
         DerNode node = new DerNode(Nont.Type);
-        Report.info("parseType " + currSymb.stringify());
+        //Report.info("parseType " + currSymb.stringify());
 
         switch (currSymb.token) {
 
@@ -903,7 +903,7 @@ public class SynAn extends Phase {
     private DerNode parseStmt() {
         currSymb = currSymb == null ? lexAn.lexer() : currSymb;
         DerNode node = new DerNode(Nont.Stmt);
-        Report.info("parseStmt " + currSymb.stringify());
+        //Report.info("parseStmt " + currSymb.stringify());
 
         switch (currSymb.token) {
 
@@ -961,7 +961,7 @@ public class SynAn extends Phase {
     private DerNode parseStmt0() {
         currSymb = currSymb == null ? lexAn.lexer() : currSymb;
         DerNode node = new DerNode(Nont.Stmt0);
-        Report.info("parseStmt0 " + currSymb.stringify());
+        //Report.info("parseStmt0 " + currSymb.stringify());
 
         switch (currSymb.token) {
 
@@ -976,7 +976,7 @@ public class SynAn extends Phase {
             case SEMIC:
             case ELSE:
             case COLON:
-                break;
+                return null;
 
             default:
                 throw new Report.Error(currSymb.location(), "Unrecognized symbol " + currSymb.stringify() + " in parseStmt0");
@@ -988,7 +988,7 @@ public class SynAn extends Phase {
     private DerNode parseStmtMulti() {
         currSymb = currSymb == null ? lexAn.lexer() : currSymb;
         DerNode node = new DerNode(Nont.StmtMulti);
-        Report.info("parseStmtMulti " + currSymb.stringify());
+        //Report.info("parseStmtMulti " + currSymb.stringify());
 
         switch (currSymb.token) {
 
@@ -1025,7 +1025,7 @@ public class SynAn extends Phase {
     private DerNode parseStmtMulti0() {
         currSymb = currSymb == null ? lexAn.lexer() : currSymb;
         DerNode node = new DerNode(Nont.StmtMulti0);
-        Report.info("parseStmtMulti0 " + currSymb.stringify());
+        //Report.info("parseStmtMulti0 " + currSymb.stringify());
 
         switch (currSymb.token) {
 
@@ -1033,7 +1033,7 @@ public class SynAn extends Phase {
             case COLON:
             case ELSE:
             case END:
-                break;
+                return null;
 
             // stmtmulti0 → ; stmtmulti
             case SEMIC:
@@ -1051,7 +1051,7 @@ public class SynAn extends Phase {
     private DerNode parseStmtElse() {
         currSymb = currSymb == null ? lexAn.lexer() : currSymb;
         DerNode node = new DerNode(Nont.StmtElse);
-        Report.info("parseStmtElse " + currSymb.stringify());
+        //Report.info("parseStmtElse " + currSymb.stringify());
 
         switch (currSymb.token) {
             // stmtelse → else stmtmulti
@@ -1062,7 +1062,7 @@ public class SynAn extends Phase {
 
             // stmtelse → ε
             case END:
-                break;
+                return null;
 
             default:
                 throw new Report.Error(currSymb.location(), "Unrecognized symbol " + currSymb.stringify() + " in parseStmtElse");
@@ -1074,7 +1074,7 @@ public class SynAn extends Phase {
     private DerNode parseDecl() {
         currSymb = currSymb == null ? lexAn.lexer() : currSymb;
         DerNode node = new DerNode(Nont.Decl);
-        Report.info("parseDecl " + currSymb.stringify());
+        //Report.info("parseDecl " + currSymb.stringify());
 
         switch (currSymb.token) {
             // decl → typ identifier : type
@@ -1122,7 +1122,7 @@ public class SynAn extends Phase {
     private DerNode parseDeclMulti() {
         currSymb = currSymb == null ? lexAn.lexer() : currSymb;
         DerNode node = new DerNode(Nont.DeclMulti);
-        Report.info("parseDeclMulti " + currSymb.stringify());
+        //Report.info("parseDeclMulti " + currSymb.stringify());
 
         switch (currSymb.token) {
             // declmulti → decl declmulti0
@@ -1143,7 +1143,7 @@ public class SynAn extends Phase {
     private DerNode parseDeclMulti0() {
         currSymb = currSymb == null ? lexAn.lexer() : currSymb;
         DerNode node = new DerNode(Nont.DeclMulti0);
-        Report.info("parseDeclMulti0 " + currSymb.stringify());
+        //Report.info("parseDeclMulti0 " + currSymb.stringify());
 
         switch (currSymb.token) {
 
@@ -1155,7 +1155,7 @@ public class SynAn extends Phase {
 
             // declmulti0 → ε
             case RBRACE:
-                break;
+                return null;
 
             default:
                 throw new Report.Error(currSymb.location(), "Unrecognized symbol " + currSymb.stringify() + " in parseDeclMulti0");
@@ -1167,7 +1167,7 @@ public class SynAn extends Phase {
     private DerNode parseIdenTypeMulti() {
         currSymb = currSymb == null ? lexAn.lexer() : currSymb;
         DerNode node = new DerNode(Nont.IdenTypeMulti);
-        Report.info("parseIdenTypeMulti " + currSymb.stringify());
+        //Report.info("parseIdenTypeMulti " + currSymb.stringify());
 
         switch (currSymb.token) {
 
@@ -1190,7 +1190,7 @@ public class SynAn extends Phase {
     private DerNode parseIdenTypeMulti0() {
         currSymb = currSymb == null ? lexAn.lexer() : currSymb;
         DerNode node = new DerNode(Nont.IdenTypeMulti0);
-        Report.info("parseIdenTypeMulti0 " + currSymb.stringify());
+        //Report.info("parseIdenTypeMulti0 " + currSymb.stringify());
 
         switch (currSymb.token) {
             // identypemulti0 → , identypemulti
@@ -1201,7 +1201,7 @@ public class SynAn extends Phase {
 
             // identypemulti0 → ε
             case RPARENTHESIS:
-                break;
+                return null;
 
             default:
                 throw new Report.Error(currSymb.location(), "Unrecognized symbol " + currSymb.stringify() + " in parseIdenTypeMulti0");
@@ -1213,7 +1213,7 @@ public class SynAn extends Phase {
     private DerNode parseIdenExprMulti() {
         currSymb = currSymb == null ? lexAn.lexer() : currSymb;
         DerNode node = new DerNode(Nont.IdenExprMulti);
-        Report.info("parseIdenExprMulti " + currSymb.stringify());
+        //Report.info("parseIdenExprMulti " + currSymb.stringify());
 
         switch (currSymb.token) {
 
@@ -1233,7 +1233,7 @@ public class SynAn extends Phase {
     private DerNode parseIdenExprMulti0() {
         currSymb = currSymb == null ? lexAn.lexer() : currSymb;
         DerNode node = new DerNode(Nont.IdenExprMulti0);
-        Report.info("parseIdenExprMulti0 " + currSymb.stringify());
+        //Report.info("parseIdenExprMulti0 " + currSymb.stringify());
 
         switch (currSymb.token) {
 
@@ -1276,7 +1276,7 @@ public class SynAn extends Phase {
             case MOD:
             case DOT:
             case EOF:
-                break;
+                return null;
 
             default:
                 throw new Report.Error(currSymb.location(), "Unrecognized symbol " + currSymb.stringify() + " in parseIdenExprMulti0");

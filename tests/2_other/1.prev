@@ -1,0 +1,6 @@
+{
+    if(a==b) then
+        a = a+b
+    end
+    : a*10 
+}

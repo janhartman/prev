@@ -1,5 +1,6 @@
 .idea
 out
+*.class
 source.prev
 source.lexan.xml
 source.synan.xml
