@@ -79,7 +79,7 @@ public class SynAn extends Phase {
             throw new Report.Error(currSymb, "Unexpected '" + currSymb + "' at the end of a program.");
         derTree.accept(new DerLogger(logger), null);
 
-        derTree.accept(new DerPrinter(), null);
+        //derTree.accept(new DerPrinter(), null);
 
         return derTree;
     }
