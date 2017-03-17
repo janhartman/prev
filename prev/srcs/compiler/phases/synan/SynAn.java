@@ -1180,6 +1180,10 @@ public class SynAn extends Phase {
                 node.add(parseIdenTypeMulti0());
                 break;
 
+            //identypemulti → ε
+            case RPARENTHESIS:
+                break;
+
             default:
                 throw new Report.Error(currSymb.location(), "Unrecognized symbol " + currSymb.stringify() + " in parseIdenTypeMulti");
 
