@@ -184,7 +184,7 @@ public class SynAn extends Phase {
             case ELSE:
             case SEMIC:
             case EOF:
-                return null;
+                break;
 
             default:
                 throw new Report.Error(currSymb.location(), "Unrecognized symbol " + currSymb.stringify() + " in parseExpr0");
@@ -258,7 +258,7 @@ public class SynAn extends Phase {
             case ELSE:
             case SEMIC:
             case EOF:
-                return null;
+                break;
 
             default:
                 throw new Report.Error(currSymb.location(), "Unrecognized symbol " + currSymb.stringify() + " in parseExpr10");
@@ -339,7 +339,7 @@ public class SynAn extends Phase {
             case ELSE:
             case SEMIC:
             case EOF:
-                return null;
+                break;
 
             default:
                 throw new Report.Error(currSymb.location(), "Unrecognized symbol " + currSymb.stringify() + " in parseExpr20");
@@ -420,7 +420,7 @@ public class SynAn extends Phase {
             case ELSE:
             case SEMIC:
             case EOF:
-                return null;
+                break;
 
             default:
                 throw new Report.Error(currSymb.location(), "Unrecognized symbol " + currSymb.stringify() + " in parseExpr30");
@@ -504,7 +504,7 @@ public class SynAn extends Phase {
             case ELSE:
             case SEMIC:
             case EOF:
-                return null;
+                break;
 
             default:
                 throw new Report.Error(currSymb.location(), "Unrecognized symbol " + currSymb.stringify() + " in parseExpr40");
@@ -646,7 +646,7 @@ public class SynAn extends Phase {
             case ELSE:
             case SEMIC:
             case EOF:
-                return null;
+                break;
 
             default:
                 throw new Report.Error(currSymb.location(), "Unrecognized symbol " + currSymb.stringify() + " in parseExpr60");
@@ -747,7 +747,7 @@ public class SynAn extends Phase {
 
             // exprwhere0 → ε
             case RBRACE:
-                return null;
+                break;
 
             // exprwhere0 → where declmulti
             case WHERE:
@@ -792,7 +792,7 @@ public class SynAn extends Phase {
 
             // exprmulti → ε
             case RPARENTHESIS:
-                return null;
+                break;
 
             default:
                 throw new Report.Error(currSymb.location(), "Unrecognized symbol " + currSymb.stringify() + " in parseExprMulti");
@@ -817,7 +817,7 @@ public class SynAn extends Phase {
 
             // exprmulti0 → ε
             case RPARENTHESIS:
-                return null;
+                break;
 
             default:
                 throw new Report.Error(currSymb.location(), "Unrecognized symbol " + currSymb.stringify() + " in parseExprMulti0");
@@ -835,7 +835,7 @@ public class SynAn extends Phase {
 
             // exprassign → ε
             case RBRACE:
-                return null;
+                break;
 
             // exprassign → = expr
             case ASSIGN:
@@ -976,7 +976,7 @@ public class SynAn extends Phase {
             case SEMIC:
             case ELSE:
             case COLON:
-                return null;
+                break;
 
             default:
                 throw new Report.Error(currSymb.location(), "Unrecognized symbol " + currSymb.stringify() + " in parseStmt0");
@@ -1033,7 +1033,7 @@ public class SynAn extends Phase {
             case COLON:
             case ELSE:
             case END:
-                return null;
+                break;
 
             // stmtmulti0 → ; stmtmulti
             case SEMIC:
@@ -1062,7 +1062,7 @@ public class SynAn extends Phase {
 
             // stmtelse → ε
             case END:
-                return null;
+                break;
 
             default:
                 throw new Report.Error(currSymb.location(), "Unrecognized symbol " + currSymb.stringify() + " in parseStmtElse");
@@ -1155,7 +1155,7 @@ public class SynAn extends Phase {
 
             // declmulti0 → ε
             case RBRACE:
-                return null;
+                break;
 
             default:
                 throw new Report.Error(currSymb.location(), "Unrecognized symbol " + currSymb.stringify() + " in parseDeclMulti0");
@@ -1201,7 +1201,7 @@ public class SynAn extends Phase {
 
             // identypemulti0 → ε
             case RPARENTHESIS:
-                return null;
+                break;
 
             default:
                 throw new Report.Error(currSymb.location(), "Unrecognized symbol " + currSymb.stringify() + " in parseIdenTypeMulti0");
@@ -1276,7 +1276,7 @@ public class SynAn extends Phase {
             case MOD:
             case DOT:
             case EOF:
-                return null;
+                break;
 
             default:
                 throw new Report.Error(currSymb.location(), "Unrecognized symbol " + currSymb.stringify() + " in parseIdenExprMulti0");
