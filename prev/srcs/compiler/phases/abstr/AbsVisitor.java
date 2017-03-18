@@ -139,4 +139,7 @@ public interface AbsVisitor<Result, Arg> {
 		throw new Report.InternalError();
 	};
 
+	public default Result visit(AbsExprDecl exprDecl, Arg visArg) {
+		throw new Report.InternalError();
+	};
 }

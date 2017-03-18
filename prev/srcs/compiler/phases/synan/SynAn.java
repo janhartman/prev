@@ -236,6 +236,7 @@ public class SynAn extends Phase {
 
         switch (currSymb.token) {
 
+            // expr10 -> expr2 expr10
             case AND:
                 currSymb = skip(node);
                 node.add(parseExpr2());
@@ -322,7 +323,7 @@ public class SynAn extends Phase {
                 node.add(parseExpr20());
                 break;
 
-            // expr0 → ε
+            // expr20 → ε
             case XOR:
             case IOR:
             case AND:
@@ -550,7 +551,7 @@ public class SynAn extends Phase {
             // expr5 → del expr5
             case DEL:
 
-                // expr5 → unop expr5
+            // expr5 → unop expr5
             case NOT:
             case ADD:
             case SUB:
@@ -859,6 +860,8 @@ public class SynAn extends Phase {
 
             // type → identifier
             case IDENTIFIER:
+
+            // type → void | bool | char | int
             case BOOL:
             case VOID:
             case CHAR:
@@ -888,6 +891,11 @@ public class SynAn extends Phase {
                 currSymb = skip(node);
                 currSymb = currSymb == null ? lexAn.lexer() : currSymb;
                 currSymb = check(node, Term.LPARENTHESIS);
+
+                currSymb = currSymb == null ? lexAn.lexer() : currSymb;
+                if (currSymb.token == Term.RPARENTHESIS)
+                    throw new Report.Error(currSymb.location(), "Unrecognized symbol " + currSymb.stringify() + " in parseType");
+
                 node.add(parseIdenTypeMulti());
                 currSymb = currSymb == null ? lexAn.lexer() : currSymb;
                 currSymb = check(node, Term.RPARENTHESIS);
