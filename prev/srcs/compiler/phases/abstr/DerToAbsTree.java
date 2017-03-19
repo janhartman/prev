@@ -26,13 +26,10 @@ public class DerToAbsTree implements DerVisitor<AbsTree, AbsTree> {
             return visArg;
         }
 
-        AbsTree subtree1;
-        AbsUnExpr.Oper operUn;
-        AbsBinExpr.Oper operBin;
-        DerTree first = node.subtree(0);
+        AbsTree subtree;
         String name;
-        AbsParDecls parDecls;
-        AbsCompDecls compDecls;
+        Location location;
+        DerTree first = node.subtree(0);
 
         int idx1 = 999;
         int idx2 = 999;
@@ -61,8 +58,8 @@ public class DerToAbsTree implements DerVisitor<AbsTree, AbsTree> {
 
             // expr6 → expr7 expr60
             case Expr6:
-                subtree1 = first.accept(this, null);
-                return node.subtree(1).accept(this, subtree1);
+                subtree = first.accept(this, null);
+                return node.subtree(1).accept(this, subtree);
 
 
             // expr5 → expr6
@@ -75,7 +72,7 @@ public class DerToAbsTree implements DerVisitor<AbsTree, AbsTree> {
                 if (first instanceof DerLeaf) {
                     AbsType type;
                     AbsExpr expr;
-                    operUn = AbsUnExpr.Oper.NOT;
+                    AbsUnExpr.Oper operUn = AbsUnExpr.Oper.NOT;
                     switch (((DerLeaf) first).symb.token) {
 
                         case NEW:
@@ -131,9 +128,10 @@ public class DerToAbsTree implements DerVisitor<AbsTree, AbsTree> {
 
             // expr40 → multdivmod expr5 expr40
             case Expr40:
-                subtree1 = node.subtree(1).accept(this, null);
-                operBin = getBinOper(((DerLeaf)first).symb.token);
-                AbsBinExpr binExpr = new AbsBinExpr(node.location(), operBin, (AbsExpr)visArg, (AbsExpr)subtree1);
+                subtree = node.subtree(1).accept(this, null);
+                location = new Location(visArg.location.getBegLine(), visArg.location.getBegColumn(), subtree.location().getEndLine(), subtree.location().getEndColumn());
+                AbsBinExpr.Oper operBin = getBinOper(((DerLeaf)first).symb.token);
+                AbsBinExpr binExpr = new AbsBinExpr(location, operBin, (AbsExpr)visArg, (AbsExpr)subtree);
                 return node.subtree(2).accept(this, binExpr);
 
 
@@ -142,14 +140,16 @@ public class DerToAbsTree implements DerVisitor<AbsTree, AbsTree> {
             case Expr60:
                 switch (((DerLeaf) first).symb.token) {
                     case LBRACKET:
-                        subtree1 = node.subtree(1).accept(this, null);
-                        AbsArrExpr arrExpr = new AbsArrExpr(node.location(), (AbsExpr)visArg, (AbsExpr)subtree1);
+                        subtree = node.subtree(1).accept(this, null);
+                        location = new Location(visArg.location.getBegLine(), visArg.location.getBegColumn(), subtree.location().getEndLine(), subtree.location().getEndColumn());
+                        AbsArrExpr arrExpr = new AbsArrExpr(location, (AbsExpr)visArg, (AbsExpr)subtree);
                         return node.subtree(3).accept(this, arrExpr);
 
                     case DOT:
                         name = ((DerLeaf) node.subtree(1)).symb.lexeme;
                         AbsVarName varName =  new AbsVarName(node.subtree(1).location(), name);
-                        AbsRecExpr recExpr = new AbsRecExpr(node.location(), (AbsExpr)visArg, varName);
+                        location = new Location(visArg.location.getBegLine(), visArg.location.getBegColumn(), varName.location().getEndLine(), varName.location().getEndColumn());
+                        AbsRecExpr recExpr = new AbsRecExpr(location, (AbsExpr)visArg, varName);
                         return node.subtree(2).accept(this, recExpr);
                 }
 
@@ -209,7 +209,7 @@ public class DerToAbsTree implements DerVisitor<AbsTree, AbsTree> {
                 AbsExpr expr =  (AbsExpr) first.accept(this, null);
 
                 AbsDecls decls = (AbsDecls) node.subtree(1).accept(this, null);
-                decls = decls == null ? new AbsDecls(node.location(), new Vector<AbsDecl>()) : decls;
+                decls = decls == null ? new AbsDecls(node.location(), new Vector<>()) : decls;
 
                 return new AbsExprDecl(node.location(), decls, expr);
 
@@ -280,8 +280,8 @@ public class DerToAbsTree implements DerVisitor<AbsTree, AbsTree> {
                         return new AbsArrType(node.location(), len, elemType);
 
                     case REC:
-                        AbsCompDecls acd = new AbsCompDecls(node.subtree(2).location(), new Vector<AbsCompDecl>());
-                        compDecls = (AbsCompDecls) node.subtree(2).accept(this, acd);
+                        AbsCompDecls compDecls = new AbsCompDecls(node.subtree(2).location(), new Vector<>());
+                        compDecls = (AbsCompDecls) node.subtree(2).accept(this, compDecls);
                         return new AbsRecType(node.location(), compDecls);
 
                 }
@@ -393,7 +393,7 @@ public class DerToAbsTree implements DerVisitor<AbsTree, AbsTree> {
                     AbsParDecl parDecl = new AbsParDecl(node.location(), name, type);
 
                     vec.add(parDecl);
-                    parDecls = new AbsParDecls(visArg.location(), vec);
+                    AbsParDecls parDecls = new AbsParDecls(visArg.location(), vec);
 
                     return node.subtree(3).accept(this, parDecls);
                 }
@@ -402,7 +402,7 @@ public class DerToAbsTree implements DerVisitor<AbsTree, AbsTree> {
                     AbsCompDecl compDecl = new AbsCompDecl(node.location(), name, type);
 
                     vec.add(compDecl);
-                    compDecls = new AbsCompDecls(visArg.location(), vec);
+                    AbsCompDecls compDecls = new AbsCompDecls(visArg.location(), vec);
 
                     return node.subtree(3).accept(this, compDecls);
                 }

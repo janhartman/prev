@@ -1,0 +1,25 @@
+# expressions and statements
+{
+    a = new int;
+    b = del a;
+    c = 1 + 2 * 3 / 4 - 5 % 6 + !d;
+
+    if e == f
+    then
+        none
+    else
+        null ; bla
+    end
+    ;
+
+    method(arg1, arg2 + arg3) ;
+    variable ;
+    '@'         ;
+    +-((number))
+
+
+    : array[index].component
+
+
+
+}

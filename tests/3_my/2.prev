@@ -1,0 +1,16 @@
+# declarations and types
+
+{
+    0 : 0
+    where
+
+    typ integer : int ; typ c:char ;
+
+    var A : arr[i*i] ptr bool ;
+
+    var B: rec(one: two, three: four)
+
+    ;fun MyFirstPrevFunction (no: arguments , just:kidding) : void = !no
+
+
+}

@@ -34,6 +34,22 @@ public class Location implements Locatable, Loggable {
 	 */
 	private final int endColumn;
 
+	public int getBegLine() {
+		return begLine;
+	}
+
+	public int getBegColumn() {
+		return begColumn;
+	}
+
+	public int getEndLine() {
+		return endLine;
+	}
+
+	public int getEndColumn() {
+		return endColumn;
+	}
+
 	/**
 	 * Constructs a new location if the position of the first and the last
 	 * characters are given.
