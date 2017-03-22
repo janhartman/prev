@@ -1,0 +1,16 @@
+
+#test nested enclosed expression
+#test if statement
+
+((({
+
+ 1 + 1 = 2;
+ if 2 == 2 & [void]obj[not_void+2] then
+    new arr[18+!18] sometype
+ else
+    2 = !3
+ end
+
+ : 1
+
+}))) + 12 & 0242

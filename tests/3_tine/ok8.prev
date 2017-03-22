@@ -1,0 +1,1 @@
+{ a=3*4; i[j] : [ptr int] a + b where typ a:char; var b:int }

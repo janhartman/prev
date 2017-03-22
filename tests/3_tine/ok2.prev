@@ -1,0 +1,16 @@
+#test compound expr with prefix operator
+#test recursive type, parameterless function, function with parameters
+
+del !-{
+    new ptr ptr ptr my_pointer;
+    struct = func();
+    my_pointer = -(struct).member : func_call(!2, [void] void_obj)
+
+    where typ some_obj:ptr ptr ptr my_pointer;
+    fun func_call(num_param:int, useless:void):boolean = [void] variable;
+
+    fun func2() : int = (-18 + del new void)
+
+
+
+}
