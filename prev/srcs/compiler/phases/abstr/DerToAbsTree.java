@@ -316,7 +316,8 @@ public class DerToAbsTree implements DerVisitor<AbsTree, AbsTree> {
             // stmt0 → = expr
             case Stmt0:
                 AbsExpr expr1 = (AbsExpr) node.subtree(1).accept(this ,null);
-                return new AbsAssignStmt(node.location(), (AbsExpr) visArg, expr1);
+                location = new Location(visArg.location.getBegLine(), visArg.location.getBegColumn(), expr1.location().getEndLine(), expr1.location().getEndColumn());
+                return new AbsAssignStmt(location, (AbsExpr) visArg, expr1);
 
             // stmtmulti → stmt stmtmulti0
             case StmtMulti:
@@ -419,7 +420,8 @@ public class DerToAbsTree implements DerVisitor<AbsTree, AbsTree> {
 
                 // function call
                 else {
-                    AbsArgs args = new AbsArgs(node.subtree(1).location(), new Vector<>());
+                    location = ((DerNode)node.subtree(1)).subtree(1).location();
+                    AbsArgs args = new AbsArgs(location, new Vector<>());
                     args = (AbsArgs) node.subtree(1).accept(this, args);
                     return new AbsFunName(node.location(), name, args);
                 }
@@ -439,8 +441,8 @@ public class DerToAbsTree implements DerVisitor<AbsTree, AbsTree> {
     @Override
     public AbsTree visit(DerLeaf leaf, AbsTree visArg) {
 
-        throw new Report.Error(leaf.location(), leaf.symb.stringify() + " Visited a derivation leaf. This should not happen");
-
+        Report.warning(leaf.location(), leaf.symb.stringify() + " Visited a derivation leaf. This should not happen");
+        return visArg;
     }
 
     private AbsBinExpr.Oper getBinOper (Term token) {
