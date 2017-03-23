@@ -5,6 +5,7 @@ import common.report.*;
 import compiler.phases.lexan.*;
 import compiler.phases.synan.*;
 import compiler.phases.abstr.*;
+import compiler.phases.seman.*;
 
 /**
  * The compiler.
@@ -15,7 +16,7 @@ import compiler.phases.abstr.*;
 public class Main {
 
 	/** All valid phases of the compiler. */
-	private static final String phases = "lexan|synan|abstr";
+	private static final String phases = "lexan|synan|abstr|seman";
 
 	/** Values of command line arguments. */
 	private static HashMap<String, String> cmdLine = new HashMap<String, String>();
@@ -116,6 +117,14 @@ public class Main {
 					abstr.fromDerTree(SynAn.derTree());
 				}
 				if (cmdLine.get("--target-phase").equals("abstr"))
+					break;
+
+				// Semantic analysis.
+				try (SemAn semAn = new SemAn()) {
+					Abstr.absTree().accept(new NameChecker(new SymbTable()), null);
+
+				}
+				if (cmdLine.get("--target-phase").equals("seman"))
 					break;
 
 				int endWarnings = Report.numOfWarnings();
