@@ -18,7 +18,7 @@ public class NameDefiner implements AbsVisitor<Object, Object> {
 	private final SymbTable symbTable;
 
 	/**
-	 * Constructs a new name checker using the specified symbol table.
+	 * Constructs a new name definer using the specified symbol table.
 	 * 
 	 * @param symbTable
 	 *            The symbol table.
@@ -27,6 +27,112 @@ public class NameDefiner implements AbsVisitor<Object, Object> {
 		this.symbTable = symbTable;
 	}
 
-	// TODO
+	/**
+	 *  just declarations
+	 */
+
+	public Object visit(AbsCompDecl node, Object visArg) {
+		node.type.accept((NameChecker) visArg, null);
+		return null;
+	}
+
+
+	public Object visit(AbsCompDecls node, Object visArg) {
+		for (AbsCompDecl compDecl : node.compDecls()) {
+			compDecl.accept(this, null);
+		}
+		return null;
+	}
+
+
+	public Object visit(AbsDecls node, Object visArg) {
+		for (AbsDecl decl: node.decls()) {
+			decl.accept(this, null);
+		}
+		return null;
+	}
+
+	// TODO is the second part (newScope) needed?
+	public Object visit(AbsFunDecl node, Object visArg) {
+		try {
+			symbTable.ins(node.name, node);
+		}
+		catch (SymbTable.CannotInsNameException cine) {
+			throw new Report.Error(node.location(), "Function with name " + node.name +" already declared");
+		}
+
+		node.type.accept((NameChecker) visArg, null);
+
+		for (AbsParDecl parDecl : node.parDecls.parDecls()) {
+			parDecl.type.accept((NameChecker) visArg, null);
+		}
+
+		return null;
+	}
+
+
+	public Object visit(AbsFunDef node, Object visArg) {
+		try {
+			symbTable.ins(node.name, node);
+		}
+		catch (SymbTable.CannotInsNameException cine) {
+			throw new Report.Error(node.location(), "Function with name " + node.name +" already declared");
+		}
+
+		node.type.accept((NameChecker) visArg, null);
+
+		for (AbsParDecl parDecl : node.parDecls.parDecls()) {
+			parDecl.type.accept((NameChecker) visArg, null);
+		}
+
+		symbTable.newScope();
+
+		node.value.accept((NameChecker) visArg, null);
+
+		for (AbsParDecl parDecl : node.parDecls.parDecls()) {
+			try {
+				symbTable.ins(parDecl.name, parDecl);
+			}
+			catch (SymbTable.CannotInsNameException cine) {
+				throw new Report.Error(node.location(), "Parameter with name " + node.name +" already declared");
+			}
+		}
+
+		symbTable.oldScope();
+
+		return null;
+	}
+
+	// TODO is it ok to insert type name?
+	public Object visit(AbsTypeDecl node, Object visArg) {
+		node.type.accept((NameChecker) visArg, null);
+		try {
+			symbTable.ins(node.name, node);
+		}
+		catch (SymbTable.CannotInsNameException cine) {
+			throw new Report.Error(node.location(), "Type with name " + node.name +" already declared");
+		}
+		return null;
+	}
+
+
+	public Object visit(AbsVarDecl node, Object visArg) {
+		node.type.accept((NameChecker) visArg, null);
+		try {
+			symbTable.ins(node.name, node);
+		}
+		catch (SymbTable.CannotInsNameException cine) {
+			throw new Report.Error(node.location(), "Variable with name " + node.name +" already declared");
+		}
+		return null;
+	}
+
+	// TODO are these needed?
+	public Object visit(AbsParDecl node, Object visArg) {
+		return null;
+	}
+	public Object visit(AbsParDecls node, Object visArg) {
+		return null;
+	}
 
 }
