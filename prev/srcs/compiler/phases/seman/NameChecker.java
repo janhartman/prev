@@ -4,6 +4,8 @@ import common.report.*;
 import compiler.phases.abstr.*;
 import compiler.phases.abstr.abstree.*;
 
+import javax.lang.model.element.Name;
+
 /**
  * A visitor that traverses (a part of) the AST and checks if all names used are
  * visible where they are used. This visitor uses another visitor, namely
@@ -27,8 +29,6 @@ public class NameChecker implements AbsVisitor<Object, Object> {
 	public NameChecker(SymbTable symbTable) {
 		this.symbTable = symbTable;
 	}
-
-
 
 
 	/**
@@ -75,20 +75,6 @@ public class NameChecker implements AbsVisitor<Object, Object> {
 		return null;
 	}
 
-	// function call - check if it is in symbTable here
-	public Object visit(AbsFunName node, Object visArg) {
-		try {
-			AbsDecl decl = symbTable.fnd(node.name);
-			SemAn.declAt().put(node, decl);
-		}
-		catch (SymbTable.CannotFndNameException cfne) {
-			throw new Report.Error(node.location(), "Function " + node.name + " was not declared");
-		}
-
-		node.args.accept(this, null);
-		return null;
-	}
-
 
 	public Object visit(AbsNewExpr node, Object visArg) {
 		node.type.accept(this, null);
@@ -109,7 +95,7 @@ public class NameChecker implements AbsVisitor<Object, Object> {
 	}
 
 
-	// variable access - check if it is in symbTable here
+	// variable access - check name
 	public Object visit(AbsVarName node, Object visArg) {
 		try {
 			AbsDecl decl = symbTable.fnd(node.name);
@@ -118,6 +104,21 @@ public class NameChecker implements AbsVisitor<Object, Object> {
 		catch (SymbTable.CannotFndNameException cfne) {
 			throw new Report.Error(node.location(), "Variable " + node.name + " was not declared");
 		}
+		return null;
+	}
+
+
+	// function call - check name
+	public Object visit(AbsFunName node, Object visArg) {
+		try {
+			AbsDecl decl = symbTable.fnd(node.name);
+			SemAn.declAt().put(node, decl);
+		}
+		catch (SymbTable.CannotFndNameException cfne) {
+			throw new Report.Error(node.location(), "Function " + node.name + " was not declared");
+		}
+
+		node.args.accept(this, null);
 		return null;
 	}
 
@@ -147,18 +148,6 @@ public class NameChecker implements AbsVisitor<Object, Object> {
 	}
 
 
-	// the only class to have declarations
-	public Object visit(AbsStmtExpr node, Object visArg) {
-		symbTable.newScope();
-		node.decls.accept(this, null);
-		node.expr.accept(this, null);
-		node.stmts.accept(this, null);
-		symbTable.oldScope();
-
-		return null;
-	}
-
-
 	public Object visit(AbsStmts node, Object visArg) {
 		for (AbsStmt stmt : node.stmts()) {
 			stmt.accept(this, null);
@@ -170,6 +159,18 @@ public class NameChecker implements AbsVisitor<Object, Object> {
 	public Object visit(AbsWhileStmt node, Object visArg) {
 		node.cond.accept(this, null);
 		node.body.accept(this, null);
+		return null;
+	}
+
+	// the only class to have declarations
+	// initialize a new scope
+	public Object visit(AbsStmtExpr node, Object visArg) {
+		symbTable.newScope();
+		node.decls.accept(this, null);
+		node.expr.accept(this, null);
+		node.stmts.accept(this, null);
+		symbTable.oldScope();
+
 		return null;
 	}
 
@@ -209,7 +210,7 @@ public class NameChecker implements AbsVisitor<Object, Object> {
 			SemAn.declAt().put(node, decl);
 		}
 		catch (SymbTable.CannotFndNameException cfne) {
-			throw new Report.Error(node.location(), "Variable " + node.name + " was not declared");
+			throw new Report.Error(node.location(), "Type " + node.name + " was not declared");
 		}
 		return null;
 	}
@@ -219,9 +220,17 @@ public class NameChecker implements AbsVisitor<Object, Object> {
 	 * declarations
 	 */
 
+	public Object visit(AbsDecls node, Object visArg) {
+		NameDefiner nameDefiner = new NameDefiner(symbTable);
+		for (AbsDecl decl: node.decls()) {
+			decl.accept(nameDefiner, this);
+		}
+		return null;
+	}
+
 
 	public Object visit(AbsCompDecl node, Object visArg) {
-		node.accept(new NameDefiner(symbTable), this);
+		node.type.accept(this, null);
 		return null;
 	}
 
@@ -233,14 +242,7 @@ public class NameChecker implements AbsVisitor<Object, Object> {
 		return null;
 	}
 
-
-	public Object visit(AbsDecls node, Object visArg) {
-		for (AbsDecl decl: node.decls()) {
-			decl.accept(this, null);
-		}
-		return null;
-	}
-
+	/*
 	public Object visit(AbsFunDecl node, Object visArg) {
 		node.accept(new NameDefiner(symbTable), this);
 		return null;
@@ -252,11 +254,12 @@ public class NameChecker implements AbsVisitor<Object, Object> {
 		return null;
 	}
 
-	// TODO are these needed?
+
 	public Object visit(AbsParDecl node, Object visArg) {
 		node.accept(new NameDefiner(symbTable), this);
 		return null;
 	}
+
 
 	public Object visit(AbsParDecls node, Object visArg) {
 		for (AbsParDecl parDecl : node.parDecls()) {
@@ -276,7 +279,7 @@ public class NameChecker implements AbsVisitor<Object, Object> {
 		node.accept(new NameDefiner(symbTable), this);
 		return null;
 	}
-
+	*/
 
 
 }

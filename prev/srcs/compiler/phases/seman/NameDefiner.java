@@ -31,28 +31,31 @@ public class NameDefiner implements AbsVisitor<Object, Object> {
 	 *  just declarations
 	 */
 
-	public Object visit(AbsCompDecl node, Object visArg) {
+	// TODO is it ok to insert type name?
+	public Object visit(AbsTypeDecl node, Object visArg) {
 		node.type.accept((NameChecker) visArg, null);
-		return null;
-	}
-
-
-	public Object visit(AbsCompDecls node, Object visArg) {
-		for (AbsCompDecl compDecl : node.compDecls()) {
-			compDecl.accept(this, null);
+		try {
+			symbTable.ins(node.name, node);
+		}
+		catch (SymbTable.CannotInsNameException cine) {
+			throw new Report.Error(node.location(), "Type with name " + node.name +" already declared");
 		}
 		return null;
 	}
 
 
-	public Object visit(AbsDecls node, Object visArg) {
-		for (AbsDecl decl: node.decls()) {
-			decl.accept(this, null);
+	public Object visit(AbsVarDecl node, Object visArg) {
+		node.type.accept((NameChecker) visArg, null);
+		try {
+			symbTable.ins(node.name, node);
+		}
+		catch (SymbTable.CannotInsNameException cine) {
+			throw new Report.Error(node.location(), "Variable with name " + node.name +" already declared");
 		}
 		return null;
 	}
 
-	// TODO is the second part (newScope) needed?
+
 	public Object visit(AbsFunDecl node, Object visArg) {
 		try {
 			symbTable.ins(node.name, node);
@@ -103,34 +106,32 @@ public class NameDefiner implements AbsVisitor<Object, Object> {
 		return null;
 	}
 
-	// TODO is it ok to insert type name?
-	public Object visit(AbsTypeDecl node, Object visArg) {
-		node.type.accept((NameChecker) visArg, null);
-		try {
-			symbTable.ins(node.name, node);
-		}
-		catch (SymbTable.CannotInsNameException cine) {
-			throw new Report.Error(node.location(), "Type with name " + node.name +" already declared");
-		}
-		return null;
-	}
-
-
-	public Object visit(AbsVarDecl node, Object visArg) {
-		node.type.accept((NameChecker) visArg, null);
-		try {
-			symbTable.ins(node.name, node);
-		}
-		catch (SymbTable.CannotInsNameException cine) {
-			throw new Report.Error(node.location(), "Variable with name " + node.name +" already declared");
-		}
-		return null;
-	}
 
 	// TODO are these needed?
+	// TODO how to deal with components
+	public Object visit(AbsCompDecl node, Object visArg) {
+		node.type.accept((NameChecker) visArg, null);
+		return null;
+	}
+
+	public Object visit(AbsCompDecls node, Object visArg) {
+		for (AbsCompDecl compDecl : node.compDecls()) {
+			compDecl.accept(this, null);
+		}
+		return null;
+	}
+
+	public Object visit(AbsDecls node, Object visArg) {
+		for (AbsDecl decl: node.decls()) {
+			decl.accept(this, null);
+		}
+		return null;
+	}
+
 	public Object visit(AbsParDecl node, Object visArg) {
 		return null;
 	}
+
 	public Object visit(AbsParDecls node, Object visArg) {
 		return null;
 	}
