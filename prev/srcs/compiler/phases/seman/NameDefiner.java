@@ -31,39 +31,36 @@ public class NameDefiner implements AbsVisitor<Object, Object> {
 	 *  just declarations
 	 */
 
-	// TODO is it ok to insert type name?
+	public Object visit(AbsDecls node, Object visArg) {
+		for (AbsDecl decl: node.decls()) {
+			try {
+				symbTable.ins(decl.name, decl);
+			}
+			catch (SymbTable.CannotInsNameException cine) {
+				throw new Report.Error(node.location(), "Name " + decl.name +" already declared");
+			}
+		}
+
+
+		for (AbsDecl decl: node.decls()) {
+			decl.accept(this, visArg);
+		}
+		return null;
+	}
+
 	public Object visit(AbsTypeDecl node, Object visArg) {
 		node.type.accept((NameChecker) visArg, null);
-		try {
-			symbTable.ins(node.name, node);
-		}
-		catch (SymbTable.CannotInsNameException cine) {
-			throw new Report.Error(node.location(), "Type with name " + node.name +" already declared");
-		}
 		return null;
 	}
 
 
 	public Object visit(AbsVarDecl node, Object visArg) {
 		node.type.accept((NameChecker) visArg, null);
-		try {
-			symbTable.ins(node.name, node);
-		}
-		catch (SymbTable.CannotInsNameException cine) {
-			throw new Report.Error(node.location(), "Variable with name " + node.name +" already declared");
-		}
 		return null;
 	}
 
 
 	public Object visit(AbsFunDecl node, Object visArg) {
-		try {
-			symbTable.ins(node.name, node);
-		}
-		catch (SymbTable.CannotInsNameException cine) {
-			throw new Report.Error(node.location(), "Function with name " + node.name +" already declared");
-		}
-
 		node.type.accept((NameChecker) visArg, null);
 
 		for (AbsParDecl parDecl : node.parDecls.parDecls()) {
@@ -75,13 +72,6 @@ public class NameDefiner implements AbsVisitor<Object, Object> {
 
 
 	public Object visit(AbsFunDef node, Object visArg) {
-		try {
-			symbTable.ins(node.name, node);
-		}
-		catch (SymbTable.CannotInsNameException cine) {
-			throw new Report.Error(node.location(), "Function with name " + node.name +" already declared");
-		}
-
 		node.type.accept((NameChecker) visArg, null);
 
 		for (AbsParDecl parDecl : node.parDecls.parDecls()) {
@@ -89,8 +79,6 @@ public class NameDefiner implements AbsVisitor<Object, Object> {
 		}
 
 		symbTable.newScope();
-
-		node.value.accept((NameChecker) visArg, null);
 
 		for (AbsParDecl parDecl : node.parDecls.parDecls()) {
 			try {
@@ -101,8 +89,9 @@ public class NameDefiner implements AbsVisitor<Object, Object> {
 			}
 		}
 
-		symbTable.oldScope();
+		node.value.accept((NameChecker) visArg, null);
 
+		symbTable.oldScope();
 		return null;
 	}
 
@@ -121,12 +110,7 @@ public class NameDefiner implements AbsVisitor<Object, Object> {
 		return null;
 	}
 
-	public Object visit(AbsDecls node, Object visArg) {
-		for (AbsDecl decl: node.decls()) {
-			decl.accept(this, null);
-		}
-		return null;
-	}
+
 
 	public Object visit(AbsParDecl node, Object visArg) {
 		return null;

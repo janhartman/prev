@@ -1,0 +1,24 @@
+{
+    # stmts
+    array[i][j] = 0;
+
+    a = 5
+
+    :
+    # expr
+    myFun(array, a)
+
+
+    where
+    # decls
+    var array : arr[2 + 4 * 18] bool ;
+    var a : int ;
+    var i : int ;
+    var j : int ;
+
+
+    fun myFun (a: int, array: arr [0] bool) : char
+
+
+
+}

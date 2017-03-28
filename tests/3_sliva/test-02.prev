@@ -1,0 +1,7 @@
+{none
+ : a.i+1
+ where var a:r;
+       typ integer:int;
+       fun f():int=1;
+       fun g(a:int,b:int):integer=a+b*1;
+       typ r:rec(i:integer,j:integer,c:char)}

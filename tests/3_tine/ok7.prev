@@ -1,1 +1,0 @@
-new rec (a:char, b:arr[f(1+1)]int, c:somethingelse)

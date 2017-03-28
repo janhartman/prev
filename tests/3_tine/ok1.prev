@@ -1,2 +1,0 @@
-#check casting, operator precedence, operand access
--[char]-18.this_is_ident | 1 + 2 * 3 & del 5[6]

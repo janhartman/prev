@@ -20,6 +20,9 @@ public class NameChecker implements AbsVisitor<Object, Object> {
 	/** The symbol table. */
 	private final SymbTable symbTable;
 
+	/** The name definer. */
+	private final NameDefiner nameDefiner;
+
 	/**
 	 * Constructs a new name checker using the specified symbol table.
 	 *
@@ -28,13 +31,13 @@ public class NameChecker implements AbsVisitor<Object, Object> {
 	 */
 	public NameChecker(SymbTable symbTable) {
 		this.symbTable = symbTable;
+		this.nameDefiner = new NameDefiner(symbTable);
 	}
 
 
 	/**
 	 * expressions
 	 */
-
 
 	public Object visit(AbsArgs node, Object visArg) {
 		for (AbsExpr expr : node.args()) {
@@ -127,6 +130,7 @@ public class NameChecker implements AbsVisitor<Object, Object> {
 	/**
 	 * statements
 	 */
+
 	public Object visit(AbsAssignStmt node, Object visArg) {
 		node.dst.accept(this, null);
 		node.src.accept(this, null);
@@ -179,7 +183,6 @@ public class NameChecker implements AbsVisitor<Object, Object> {
 	 * types
 	 */
 
-
 	public Object visit(AbsArrType node, Object visArg) {
 		node.elemType.accept(this, null);
 		node.len.accept(this, null);
@@ -221,10 +224,7 @@ public class NameChecker implements AbsVisitor<Object, Object> {
 	 */
 
 	public Object visit(AbsDecls node, Object visArg) {
-		NameDefiner nameDefiner = new NameDefiner(symbTable);
-		for (AbsDecl decl: node.decls()) {
-			decl.accept(nameDefiner, this);
-		}
+		node.accept(this.nameDefiner, this);
 		return null;
 	}
 
