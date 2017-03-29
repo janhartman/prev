@@ -102,6 +102,9 @@ public class NameChecker implements AbsVisitor<Object, Object> {
 	public Object visit(AbsVarName node, Object visArg) {
 		try {
 			AbsDecl decl = symbTable.fnd(node.name);
+			if (!(decl instanceof AbsVarDecl)) {
+				throw new Report.Error(node.location(), "Name " + node.name + " used as variable name but not declared as a variable");
+			}
 			SemAn.declAt().put(node, decl);
 		}
 		catch (SymbTable.CannotFndNameException cfne) {
@@ -115,6 +118,9 @@ public class NameChecker implements AbsVisitor<Object, Object> {
 	public Object visit(AbsFunName node, Object visArg) {
 		try {
 			AbsDecl decl = symbTable.fnd(node.name);
+			if (!(decl instanceof AbsFunDef) && !(decl instanceof AbsFunDecl)) {
+				throw new Report.Error(node.location(), "Name " + node.name + " used as function name but not declared as a function");
+			}
 			SemAn.declAt().put(node, decl);
 		}
 		catch (SymbTable.CannotFndNameException cfne) {
@@ -132,8 +138,8 @@ public class NameChecker implements AbsVisitor<Object, Object> {
 	 */
 
 	public Object visit(AbsAssignStmt node, Object visArg) {
-		node.dst.accept(this, null);
 		node.src.accept(this, null);
+		node.dst.accept(this, null);
 		return null;
 	}
 
@@ -171,8 +177,8 @@ public class NameChecker implements AbsVisitor<Object, Object> {
 	public Object visit(AbsStmtExpr node, Object visArg) {
 		symbTable.newScope();
 		node.decls.accept(this, null);
-		node.expr.accept(this, null);
 		node.stmts.accept(this, null);
+		node.expr.accept(this, null);
 		symbTable.oldScope();
 
 		return null;
@@ -206,10 +212,13 @@ public class NameChecker implements AbsVisitor<Object, Object> {
 		return null;
 	}
 
-	// check if the type name is declared TODO is this ok?
+	// check if the type name is declared
 	public Object visit(AbsTypeName node, Object visArg) {
 		try {
 			AbsDecl decl = symbTable.fnd(node.name);
+			if (!(decl instanceof AbsTypeDecl)) {
+				throw new Report.Error(node.location(), "Name " + node.name + " used as type name but not declared as a type");
+			}
 			SemAn.declAt().put(node, decl);
 		}
 		catch (SymbTable.CannotFndNameException cfne) {
@@ -241,45 +250,6 @@ public class NameChecker implements AbsVisitor<Object, Object> {
 		}
 		return null;
 	}
-
-	/*
-	public Object visit(AbsFunDecl node, Object visArg) {
-		node.accept(new NameDefiner(symbTable), this);
-		return null;
-	}
-
-
-	public Object visit(AbsFunDef node, Object visArg) {
-		node.accept(new NameDefiner(symbTable), this);
-		return null;
-	}
-
-
-	public Object visit(AbsParDecl node, Object visArg) {
-		node.accept(new NameDefiner(symbTable), this);
-		return null;
-	}
-
-
-	public Object visit(AbsParDecls node, Object visArg) {
-		for (AbsParDecl parDecl : node.parDecls()) {
-			parDecl.accept(this, null);
-		}
-		return null;
-	}
-
-
-	public Object visit(AbsTypeDecl node, Object visArg) {
-		node.accept(new NameDefiner(symbTable), this);
-		return null;
-	}
-
-
-	public Object visit(AbsVarDecl node, Object visArg) {
-		node.accept(new NameDefiner(symbTable), this);
-		return null;
-	}
-	*/
 
 
 }

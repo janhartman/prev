@@ -37,7 +37,7 @@ public class NameDefiner implements AbsVisitor<Object, Object> {
 				symbTable.ins(decl.name, decl);
 			}
 			catch (SymbTable.CannotInsNameException cine) {
-				throw new Report.Error(node.location(), "Name " + decl.name +" already declared");
+				throw new Report.Error(decl.location(), "Name " + decl.name +" already declared");
 			}
 		}
 
@@ -85,7 +85,7 @@ public class NameDefiner implements AbsVisitor<Object, Object> {
 				symbTable.ins(parDecl.name, parDecl);
 			}
 			catch (SymbTable.CannotInsNameException cine) {
-				throw new Report.Error(node.location(), "Parameter with name " + node.name +" already declared");
+				throw new Report.Error(node.location(), "Name " + node.name +" already declared");
 			}
 		}
 
@@ -95,9 +95,6 @@ public class NameDefiner implements AbsVisitor<Object, Object> {
 		return null;
 	}
 
-
-	// TODO are these needed?
-	// TODO how to deal with components
 	public Object visit(AbsCompDecl node, Object visArg) {
 		node.type.accept((NameChecker) visArg, null);
 		return null;
