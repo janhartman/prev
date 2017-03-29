@@ -1,0 +1,14 @@
+# j not defined in outer scope
+{
+    i % j
+    :
+    {
+        j - i  : 0
+        where
+        var i: int;
+        var j: int
+
+    }
+    where
+    var i: char
+}

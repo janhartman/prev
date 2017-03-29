@@ -1,0 +1,10 @@
+# function return type is declared inside function
+{
+    0 : 0
+    where
+    fun wrong() : myType = {
+        none : none
+        where
+        typ myType: void
+    }
+}

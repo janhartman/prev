@@ -1,0 +1,13 @@
+# no type checking yet, type names are in the same namespace
+{
+
+    y [y[1024]] = 2 ^ 10
+    :
+    [x] y
+
+    where
+    typ x : integer;
+    typ integer: int;
+
+    var y : arr[1024] x
+}
