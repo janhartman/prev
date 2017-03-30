@@ -4,8 +4,6 @@ import common.report.*;
 import compiler.phases.abstr.*;
 import compiler.phases.abstr.abstree.*;
 
-import javax.lang.model.element.Name;
-
 /**
  * A visitor that traverses (a part of) the AST and checks if all names used are
  * visible where they are used. This visitor uses another visitor, namely
