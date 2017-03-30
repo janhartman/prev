@@ -122,7 +122,12 @@ public class Main {
 				// Semantic analysis.
 				try (SemAn semAn = new SemAn()) {
 					Abstr.absTree().accept(new NameChecker(new SymbTable()), null);
+					Abstr.absTree().accept(new AddrChecker(), null);
+					Abstr.absTree().accept(new TypeChecker(), null);
 
+					compiler.phases.seman.type.SemType typeOfPrg = SemAn.isOfType().get(Abstr.absTree());
+					if (!typeOfPrg.isAKindOf(compiler.phases.seman.type.SemIntType.class))
+						Report.warning("The program must return a result of type int.");
 				}
 				if (cmdLine.get("--target-phase").equals("seman"))
 					break;

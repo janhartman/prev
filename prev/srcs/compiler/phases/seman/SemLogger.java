@@ -43,6 +43,11 @@ public class SemLogger implements AbsVisitor<Object, Object> {
 		SemType type = SemAn.isOfType().get(arrExpr);
 		if (type != null)
 			type.log(logger);
+		Boolean hasAddr = SemAn.isLValue().get(arrExpr);
+		if ((hasAddr != null) && (hasAddr == true)) {
+			logger.begElement("lvalue");
+			logger.endElement();
+		}
 		return null;
 	}
 
@@ -64,6 +69,11 @@ public class SemLogger implements AbsVisitor<Object, Object> {
 		SemType type = SemAn.isOfType().get(atomExpr);
 		if (type != null)
 			type.log(logger);
+		Boolean hasAddr = SemAn.isLValue().get(atomExpr);
+		if ((hasAddr != null) && (hasAddr == true)) {
+			logger.begElement("lvalue");
+			logger.endElement();
+		}
 		return null;
 	}
 
@@ -80,6 +90,11 @@ public class SemLogger implements AbsVisitor<Object, Object> {
 		SemType type = SemAn.isOfType().get(binExpr);
 		if (type != null)
 			type.log(logger);
+		Boolean hasAddr = SemAn.isLValue().get(binExpr);
+		if ((hasAddr != null) && (hasAddr == true)) {
+			logger.begElement("lvalue");
+			logger.endElement();
+		}
 		return null;
 	}
 
@@ -88,6 +103,11 @@ public class SemLogger implements AbsVisitor<Object, Object> {
 		SemType type = SemAn.isOfType().get(castExpr);
 		if (type != null)
 			type.log(logger);
+		Boolean hasAddr = SemAn.isLValue().get(castExpr);
+		if ((hasAddr != null) && (hasAddr == true)) {
+			logger.begElement("lvalue");
+			logger.endElement();
+		}
 		return null;
 	}
 
@@ -111,6 +131,11 @@ public class SemLogger implements AbsVisitor<Object, Object> {
 		SemType type = SemAn.isOfType().get(delExpr);
 		if (type != null)
 			type.log(logger);
+		Boolean hasAddr = SemAn.isLValue().get(delExpr);
+		if ((hasAddr != null) && (hasAddr == true)) {
+			logger.begElement("lvalue");
+			logger.endElement();
+		}
 		return null;
 	}
 
@@ -140,6 +165,11 @@ public class SemLogger implements AbsVisitor<Object, Object> {
 		SemType type = SemAn.isOfType().get(funName);
 		if (type != null)
 			type.log(logger);
+		Boolean hasAddr = SemAn.isLValue().get(funName);
+		if ((hasAddr != null) && (hasAddr == true)) {
+			logger.begElement("lvalue");
+			logger.endElement();
+		}
 		return null;
 	}
 
@@ -153,6 +183,11 @@ public class SemLogger implements AbsVisitor<Object, Object> {
 		SemType type = SemAn.isOfType().get(newExpr);
 		if (type != null)
 			type.log(logger);
+		Boolean hasAddr = SemAn.isLValue().get(newExpr);
+		if ((hasAddr != null) && (hasAddr == true)) {
+			logger.begElement("lvalue");
+			logger.endElement();
+		}
 		return null;
 	}
 
@@ -179,6 +214,11 @@ public class SemLogger implements AbsVisitor<Object, Object> {
 		SemType type = SemAn.isOfType().get(recExpr);
 		if (type != null)
 			type.log(logger);
+		Boolean hasAddr = SemAn.isLValue().get(recExpr);
+		if ((hasAddr != null) && (hasAddr == true)) {
+			logger.begElement("lvalue");
+			logger.endElement();
+		}
 		return null;
 	}
 
@@ -195,6 +235,11 @@ public class SemLogger implements AbsVisitor<Object, Object> {
 		SemType type = SemAn.isOfType().get(stmtExpr);
 		if (type != null)
 			type.log(logger);
+		Boolean hasAddr = SemAn.isLValue().get(stmtExpr);
+		if ((hasAddr != null) && (hasAddr == true)) {
+			logger.begElement("lvalue");
+			logger.endElement();
+		}
 		return null;
 	}
 
@@ -230,6 +275,11 @@ public class SemLogger implements AbsVisitor<Object, Object> {
 		SemType type = SemAn.isOfType().get(unExpr);
 		if (type != null)
 			type.log(logger);
+		Boolean hasAddr = SemAn.isLValue().get(unExpr);
+		if ((hasAddr != null) && (hasAddr == true)) {
+			logger.begElement("lvalue");
+			logger.endElement();
+		}
 		return null;
 	}
 
@@ -249,6 +299,11 @@ public class SemLogger implements AbsVisitor<Object, Object> {
 		SemType type = SemAn.isOfType().get(varName);
 		if (type != null)
 			type.log(logger);
+		Boolean hasAddr = SemAn.isLValue().get(varName);
+		if ((hasAddr != null) && (hasAddr == true)) {
+			logger.begElement("lvalue");
+			logger.endElement();
+		}
 		return null;
 	}
 

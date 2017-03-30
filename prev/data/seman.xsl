@@ -54,6 +54,7 @@
 	  <br/>
 	  <table width="100%">
 	    <xsl:apply-templates select="declAt"/>
+	    <xsl:apply-templates select="lvalue"/>
 	    <tr>
 	      <xsl:apply-templates select="type"/>
 	    </tr>
@@ -77,6 +78,18 @@
       </nobr>
     </td>
   </tr>	
+</xsl:template>
+
+<xsl:template match="lvalue">
+  <tr bgcolor="FFCF00">
+    <td>
+      <nobr>
+	<xsl:text>&#xA0;</xsl:text>
+	LVALUE
+	<xsl:text>&#xA0;</xsl:text>
+      </nobr>
+    </td>
+  </tr>
 </xsl:template>
 
 <xsl:template match="type">
