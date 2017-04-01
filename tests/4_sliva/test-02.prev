@@ -1,0 +1,12 @@
+{ if i==2*j then
+    while i<5*j do
+      i=i*1
+    end;
+    print(i)
+  else
+    print(i)
+  end
+  : 0*(i+j)
+  where var i:int;
+        var j:int;
+        fun print(i:int):void }
