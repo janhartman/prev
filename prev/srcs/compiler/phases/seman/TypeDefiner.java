@@ -26,7 +26,11 @@ public class TypeDefiner implements AbsVisitor<SemType, Object> {
         Long len = node.len.accept(new ConstIntEvaluator(), null);
         SemType elemType = node.elemType.accept(this, null);
 
-        if (len == null || elemType == null) {
+        if (len == null) {
+            throw new Report.Error(node.len.location(), "Array length must be a constant integet expression");
+        }
+
+        if (elemType == null) {
             return null;
         }
         else {
@@ -109,7 +113,7 @@ public class TypeDefiner implements AbsVisitor<SemType, Object> {
         AbsTypeDecl typeDecl = (AbsTypeDecl) SemAn.declAt().get(node);
         SemNamedType semNamedType = SemAn.declType().get(typeDecl);
         if (semNamedType == null) {
-            throw new Report.Error(node.location(), "Type not declared");
+            throw new Report.Error(node.location(), "Named type not declared");
         }
         SemAn.descType().put(node, semNamedType);
         return semNamedType;
@@ -155,16 +159,24 @@ public class TypeDefiner implements AbsVisitor<SemType, Object> {
     }
 
     public SemType visit(AbsFunDef node, Object visArg) {
-        node.type.accept(this, null);
+        SemType returnType = node.type.accept(this, null);
         node.parDecls.accept(this, null);
+        SemType valueType = node.value.accept((TypeChecker) visArg, null);
 
-        // TODO is this ok?
-        node.value.accept((TypeChecker) visArg, null);
+        if (! returnType.matches(valueType)) {
+            throw new Report.Error(node.location(), "Required matching types for declared returned type and actual returned type, got " + returnType + " and " + valueType);
+        }
         return null;
     }
 
     public SemType visit(AbsParDecl node, Object visArg) {
-        return node.type.accept(this, null);
+        SemType parType = node.type.accept(this, null);
+        if (! (parType.isAKindOf(SemBoolType.class) || parType.isAKindOf(SemIntType.class)
+            || parType.isAKindOf(SemCharType.class) || parType.isAKindOf(SemPtrType.class))) {
+            throw new Report.Error(node.location(), "Parameter type " + parType + " not allowed");
+        }
+
+        return parType;
     }
 
     public SemType visit(AbsParDecls node, Object visArg) {

@@ -1,0 +1,10 @@
+{
+    a = f(547, 1)
+    : 0
+    where
+    var a: int ;
+    fun f(i:int, j:int) : int = {
+        j = 2
+        : 0
+    }
+}
