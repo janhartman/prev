@@ -58,9 +58,9 @@ public class ConstIntEvaluator implements AbsVisitor<Long, Object> {
             case MOD:
                 return val1 % val2;
             default:
-                break;
+                return null;
         }
-        return null;
+
     }
 
     public Long visit(AbsUnExpr node, Object visArg) {

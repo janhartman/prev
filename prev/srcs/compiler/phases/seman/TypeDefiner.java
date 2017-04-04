@@ -18,6 +18,164 @@ import compiler.phases.seman.type.*;
  */
 public class TypeDefiner implements AbsVisitor<SemType, Object> {
 
-	// TODO
+    /**
+     * types
+     */
+
+    public SemType visit(AbsArrType node, Object visArg) {
+        Long len = node.len.accept(new ConstIntEvaluator(), null);
+        SemType elemType = node.elemType.accept(this, null);
+
+        if (len == null || elemType == null) {
+            return null;
+        }
+        else {
+            SemArrType arrType = new SemArrType(len, elemType);
+            SemAn.descType().put(node, arrType);
+            return arrType;
+        }
+    }
+
+    public SemType visit(AbsAtomType node, Object visArg) {
+        SemType atomType;
+
+        switch(node.type) {
+            case BOOL:
+                atomType = new SemBoolType();
+                break;
+
+            case CHAR:
+                atomType = new SemCharType();
+                break;
+
+            case INT:
+                atomType = new SemIntType();
+                break;
+
+            case VOID:
+                atomType = new SemVoidType();
+                break;
+
+            default:
+                atomType = null;
+        }
+        SemAn.descType().put(node, atomType);
+        return atomType;
+    }
+
+    public SemType visit(AbsPtrType node, Object visArg) {
+        SemType subType = node.subType.accept(this, null);
+
+        if (subType == null) {
+            return null;
+        }
+        else {
+            SemPtrType ptrType = new SemPtrType(subType);
+            SemAn.descType().put(node, ptrType);
+            return ptrType;
+        }
+    }
+
+    public SemType visit(AbsRecType node, Object visArg) {
+        Vector<SemType> comps = new Vector<>();
+        Vector<String> names = new Vector<>();
+
+        SymbTable symbTable = new SymbTable();
+        symbTable.newScope();
+
+        for (AbsCompDecl compDecl : node.compDecls.compDecls()) {
+            SemType type = compDecl.accept(this, null);
+            if (type == null) {
+                return null;
+            }
+            comps.add(type);
+            names.add(compDecl.name);
+
+            try {
+                symbTable.ins(compDecl.name, compDecl);
+            }
+            catch (SymbTable.CannotInsNameException cine) {
+                throw new Report.Error(compDecl.location(), "Component with name " + compDecl.name + " exists");
+            }
+        }
+
+        SemRecType recType = new SemRecType(names, comps);
+        SemAn.descType().put(node, recType);
+        SemAn.recSymbTable().put(node, symbTable);
+        return recType;
+    }
+
+    public SemType visit(AbsTypeName node, Object visArg) {
+        AbsTypeDecl typeDecl = (AbsTypeDecl) SemAn.declAt().get(node);
+        SemNamedType semNamedType = SemAn.declType().get(typeDecl);
+        if (semNamedType == null) {
+            throw new Report.Error(node.location(), "Type not declared");
+        }
+        SemAn.descType().put(node, semNamedType);
+        return semNamedType;
+    }
+
+
+    /**
+     * declarations
+     */
+
+    public SemType visit(AbsDecls node, Object visArg) {
+        for (AbsDecl decl : node.decls()) {
+            if (decl instanceof AbsTypeDecl) {
+                decl.accept(new TypeDeclarator(), this);
+            }
+        }
+
+        for (AbsDecl decl : node.decls()) {
+            decl.accept(this, visArg);
+        }
+        return null;
+    }
+
+    public SemType visit(AbsTypeDecl node, Object visArg) {
+        return node.type.accept(this, null);
+    }
+
+    public SemType visit(AbsCompDecl node, Object visArg) {
+        return node.type.accept(this, null);
+    }
+
+    public SemType visit(AbsCompDecls node, Object visArg) {
+        for (AbsCompDecl compDecl : node.compDecls()) {
+            compDecl.accept(this, null);
+        }
+        return null;
+    }
+
+    public SemType visit(AbsFunDecl node, Object visArg) {
+        node.type.accept(this, null);
+        node.parDecls.accept(this, null);
+        return null;
+    }
+
+    public SemType visit(AbsFunDef node, Object visArg) {
+        node.type.accept(this, null);
+        node.parDecls.accept(this, null);
+
+        // TODO is this ok?
+        node.value.accept((TypeChecker) visArg, null);
+        return null;
+    }
+
+    public SemType visit(AbsParDecl node, Object visArg) {
+        return node.type.accept(this, null);
+    }
+
+    public SemType visit(AbsParDecls node, Object visArg) {
+        for (AbsParDecl parDecl : node.parDecls()) {
+            parDecl.accept(this, null);
+        }
+        return null;
+    }
+
+    public SemType visit(AbsVarDecl node, Object visArg) {
+        return node.type.accept(this, null);
+    }
 
 }
