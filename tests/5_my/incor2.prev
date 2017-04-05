@@ -1,0 +1,14 @@
+# wrong argument types for function call
+{
+    a = f(y, x)
+    : 255
+
+    where
+     var x : bool;
+     var y : char;
+     var a : int;
+     fun f(i:bool, y:char) : int = {
+        i = false
+        : 1
+     }
+}

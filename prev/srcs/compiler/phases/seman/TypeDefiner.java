@@ -99,7 +99,7 @@ public class TypeDefiner implements AbsVisitor<SemType, Object> {
                 symbTable.ins(compDecl.name, compDecl);
             }
             catch (SymbTable.CannotInsNameException cine) {
-                throw new Report.Error(compDecl.location(), "Component with name " + compDecl.name + " exists");
+                throw new Report.Error(compDecl.location(), "Component with name " + compDecl.name + " already exists in record");
             }
         }
 
@@ -115,8 +115,9 @@ public class TypeDefiner implements AbsVisitor<SemType, Object> {
         if (semNamedType == null) {
             throw new Report.Error(node.location(), "Named type not declared");
         }
-        SemAn.descType().put(node, semNamedType);
-        return semNamedType;
+        SemType type = typeDecl.type.accept(this, visArg);
+        SemAn.descType().put(node, type);
+        return type;
     }
 
 

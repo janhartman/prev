@@ -70,15 +70,16 @@ public class AddrChecker implements AbsVisitor<Boolean, Object> {
     }
 
     public Boolean visit(AbsUnExpr node, Object visArg) {
-        boolean isLValue = (node.oper == AbsUnExpr.Oper.VAL && node.subExpr.accept(this, null));
+        boolean isLValue = (node.subExpr.accept(this, null) && node.oper == AbsUnExpr.Oper.VAL);
         SemAn.isLValue().put(node, isLValue);
         return isLValue;
     }
 
-    // TODO check for any edge cases where it might not be true?
     public Boolean visit(AbsVarName node, Object visArg) {
-        SemAn.isLValue().put(node, true);
-        return true;
+        AbsDecl decl = SemAn.declAt().get(node);
+        boolean isLValue = (decl instanceof AbsVarDecl) || (decl instanceof AbsParDecl);
+        SemAn.isLValue().put(node, isLValue);
+        return isLValue;
     }
 
 

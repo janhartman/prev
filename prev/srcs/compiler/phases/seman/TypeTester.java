@@ -66,9 +66,11 @@ public class TypeTester implements AbsVisitor<Object, Object> {
         if (namedType == null)  {
             throw new Report.Error(node.location(), "Semantic named type not found");
         }
+        /*
         else if (!(namedType instanceof SemNamedType)) {
             throw new Report.Error(node.location(), "Type is not a semantic named type, got " + namedType);
         }
+        */
         return null;
     }
 
@@ -142,15 +144,14 @@ public class TypeTester implements AbsVisitor<Object, Object> {
         for (AbsDecl decl : decls) {
             if (decl instanceof AbsTypeDecl) {
                 for (AbsDecl decl2 : decls) {
-                    if (decl.equals(decl2))
-                        continue;
-
-                    addToHierarchy(decl, decl2, typeRelations);
+                    if (decl2 instanceof AbsTypeDecl && ! decl.equals(decl2))
+                        addToHierarchy(decl, decl2, typeRelations);
                 }
             }
         }
 
-        // a "flattened" hierarchy - a value must not appear more than once in the chainif the hierarchy is not recursive
+
+        // a "flattened" hierarchy - a value must not appear more than once in the chain if the hierarchy is not recursive
         Vector<String> hierarchy = new Vector<>();
         for (String key : typeRelations.keySet()) {
             hierarchy.add(key);
@@ -177,6 +178,8 @@ public class TypeTester implements AbsVisitor<Object, Object> {
             AbsRecType recType = (AbsRecType) srcDecl.type;
             for (AbsCompDecl compDecl : recType.compDecls.compDecls()) {
 
+                if (compDecl.type instanceof AbsAtomType)
+                    continue;
                 if (compDecl.type.getClass() == dstDecl.type.getClass()) {
                     typeRelations.put(srcDecl.name, dstDecl.name);
                 }

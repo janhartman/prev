@@ -16,7 +16,6 @@ import compiler.phases.seman.type.*;
  */
 public class TypeChecker implements AbsVisitor<SemType, Object> {
 
-    // TODO implement
 
     private TypeDefiner typeDefiner;
 
@@ -49,7 +48,7 @@ public class TypeChecker implements AbsVisitor<SemType, Object> {
 
     public SemType visit(AbsArrExpr node, Object visArg) {
         SemType indexType = node.index.accept(this, null);
-        if (! indexType.isAKindOf(SemIntType.class)) {
+        if (!indexType.isAKindOf(SemIntType.class)) {
             throw new Report.Error(node.index.location(), "Int required for array index, got " + indexType);
         }
 
@@ -105,8 +104,8 @@ public class TypeChecker implements AbsVisitor<SemType, Object> {
             case GTH:
             case LEQ:
             case GEQ:
-                if (type1.matches(type2) && (type.isAKindOf(SemBoolType.class) || type.isAKindOf(SemIntType.class) ||
-                        type.isAKindOf(SemCharType.class) || type.isAKindOf(SemPtrType.class))) {
+                if (type1.matches(type2) && (type1.isAKindOf(SemBoolType.class) || type1.isAKindOf(SemIntType.class) ||
+                        type1.isAKindOf(SemCharType.class) || type1.isAKindOf(SemPtrType.class))) {
 
                     type = new SemBoolType();
                 } else {
@@ -142,7 +141,7 @@ public class TypeChecker implements AbsVisitor<SemType, Object> {
                 exprType.isAKindOf(SemBoolType.class) || exprType.isAKindOf(SemCharType.class));
 
         if (!(isVoid || isPtrToVoid || isToInt)) {
-            throw new Report.Error(node.location(), "Wrong types for operand CAST , got " + exprType + " to " + castType);
+            throw new Report.Error(node.location(), "Wrong types for operand CAST, got " + exprType + " to " + castType);
         }
 
         SemAn.isOfType().put(node, castType);
@@ -152,7 +151,7 @@ public class TypeChecker implements AbsVisitor<SemType, Object> {
     public SemType visit(AbsDelExpr node, Object visArg) {
         SemType subType = node.expr.accept(this, null);
         SemType type;
-        if (!subType.isAKindOf(SemPtrType.class) && !((SemPtrType) subType).subType.isAKindOf(SemVoidType.class)) {
+        if (subType.isAKindOf(SemPtrType.class) && !((SemPtrType) subType).subType.isAKindOf(SemVoidType.class)) {
             type = new SemVoidType();
         } else {
             throw new Report.Error(node.location(), "Non-void pointer type required for operand DEL, got " + subType);
@@ -167,7 +166,6 @@ public class TypeChecker implements AbsVisitor<SemType, Object> {
         node.args.accept(this, decl);
         SemType type = SemAn.descType().get(decl.type);
         SemAn.isOfType().put(node, type);
-
         return type;
     }
 
@@ -184,7 +182,6 @@ public class TypeChecker implements AbsVisitor<SemType, Object> {
         return type;
     }
 
-    // TODO is searching in vectors ok?
     // component access
     public SemType visit(AbsRecExpr node, Object visArg) {
         SemRecType recType = (SemRecType) node.record.accept(this, null);
@@ -222,7 +219,7 @@ public class TypeChecker implements AbsVisitor<SemType, Object> {
                 break;
 
             case MEM:
-                if (!exprType.isAKindOf(SemVoidType.class) && SemAn.isLValue().get(node)) {
+                if (!exprType.isAKindOf(SemVoidType.class) && SemAn.isLValue().get(node.subExpr)) {
                     type = new SemPtrType(exprType);
                 } else {
                     throw new Report.Error(node.location(), "Non-void lvalue required for unary operand MEM, got " + exprType);
@@ -257,6 +254,7 @@ public class TypeChecker implements AbsVisitor<SemType, Object> {
 
     public SemType visit(AbsArrType node, Object visArg) {
         SemType type = node.accept(typeDefiner, this);
+        node.accept(typeTester, this);
         if (type == null) {
             throw new Report.Error(node.location(), "Wrong array type");
         }
