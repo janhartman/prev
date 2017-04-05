@@ -118,7 +118,8 @@ public class TypeChecker implements AbsVisitor<SemType, Object> {
             case MUL:
             case DIV:
             case MOD:
-                if (type1.isAKindOf(SemIntType.class) && type2.isAKindOf(SemIntType.class)) {
+                if (type1.isAKindOf(SemIntType.class)
+                        && type2.isAKindOf(SemIntType.class)) {
                     type = new SemIntType();
                 } else {
                     throw new Report.Error(node.location(), "Ints required for operand " + node.oper + ", got " + type1 + " and " + type2);

@@ -24,7 +24,7 @@ public class TypeDefiner implements AbsVisitor<SemType, Object> {
 
     public SemType visit(AbsArrType node, Object visArg) {
         Long len = node.len.accept(new ConstIntEvaluator(), null);
-        SemType elemType = node.elemType.accept(this, null);
+        SemType elemType = node.elemType.accept(this, visArg);
 
         if (len == null) {
             throw new Report.Error(node.len.location(), "Array length must be a constant integet expression");
@@ -68,7 +68,7 @@ public class TypeDefiner implements AbsVisitor<SemType, Object> {
     }
 
     public SemType visit(AbsPtrType node, Object visArg) {
-        SemType subType = node.subType.accept(this, null);
+        SemType subType = node.subType.accept(this, visArg);
 
         if (subType == null) {
             return null;
@@ -88,7 +88,7 @@ public class TypeDefiner implements AbsVisitor<SemType, Object> {
         symbTable.newScope();
 
         for (AbsCompDecl compDecl : node.compDecls.compDecls()) {
-            SemType type = compDecl.accept(this, null);
+            SemType type = compDecl.accept(this, visArg);
             if (type == null) {
                 return null;
             }
@@ -110,12 +110,44 @@ public class TypeDefiner implements AbsVisitor<SemType, Object> {
     }
 
     public SemType visit(AbsTypeName node, Object visArg) {
+        //Report.info(node.name);
+        HashMap <String, AbsTypeName> hierarchy;
         AbsTypeDecl typeDecl = (AbsTypeDecl) SemAn.declAt().get(node);
         SemNamedType semNamedType = SemAn.declType().get(typeDecl);
+        SemType type;
+
         if (semNamedType == null) {
             throw new Report.Error(node.location(), "Named type not declared");
         }
-        SemType type = typeDecl.type.accept(this, visArg);
+
+        if (visArg != null && visArg instanceof HashMap) {
+            hierarchy = (HashMap<String, AbsTypeName>) visArg;
+        }
+        else {
+            hierarchy = new HashMap<>();
+        }
+
+        // Report.info(hierarchy.toString());
+        if (hierarchy.get(node.name) != null) {
+            for (String s : hierarchy.keySet()) {
+                AbsTypeName typeName = hierarchy.get(s);
+                AbsTypeDecl decl = (AbsTypeDecl) SemAn.declAt().get(typeName);
+                if (decl.type instanceof AbsPtrType) {
+                    if (((AbsPtrType) decl.type).subType instanceof AbsTypeName) {
+                        type = semNamedType;
+                        SemAn.descType().put(node, type);
+                        return type;
+                    }
+                }
+            }
+
+            throw new Report.Error(node.location(), "Recursive type hierarchy found");
+        }
+        else {
+            hierarchy.put(node.name, node);
+            type = typeDecl.type.accept(this, hierarchy);
+        }
+
         SemAn.descType().put(node, type);
         return type;
     }
@@ -130,6 +162,14 @@ public class TypeDefiner implements AbsVisitor<SemType, Object> {
             if (decl instanceof AbsTypeDecl) {
                 decl.accept(new TypeDeclarator(), this);
             }
+
+        }
+
+        for (AbsDecl decl : node.decls()) {
+            if (decl instanceof AbsFunDecl) {
+                ((AbsFunDecl) decl).type.accept(this, null);
+                ((AbsFunDecl) decl).parDecls.accept(this, null);
+            }
         }
 
         for (AbsDecl decl : node.decls()) {
@@ -143,7 +183,7 @@ public class TypeDefiner implements AbsVisitor<SemType, Object> {
     }
 
     public SemType visit(AbsCompDecl node, Object visArg) {
-        return node.type.accept(this, null);
+        return node.type.accept(this, visArg);
     }
 
     public SemType visit(AbsCompDecls node, Object visArg) {
@@ -155,13 +195,13 @@ public class TypeDefiner implements AbsVisitor<SemType, Object> {
 
     public SemType visit(AbsFunDecl node, Object visArg) {
         node.type.accept(this, null);
-        node.parDecls.accept(this, null);
+        //node.parDecls.accept(this, null);
         return null;
     }
 
     public SemType visit(AbsFunDef node, Object visArg) {
         SemType returnType = node.type.accept(this, null);
-        node.parDecls.accept(this, null);
+        //node.parDecls.accept(this, null);
         SemType valueType = node.value.accept((TypeChecker) visArg, null);
 
         if (! returnType.matches(valueType)) {
