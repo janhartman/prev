@@ -80,7 +80,7 @@ public class TypeTester implements AbsVisitor<Object, Object> {
      */
 
     public Object visit(AbsDecls node, Object visArg) {
-        checkTypeHierarchy(node);
+        // checkTypeHierarchy(node);
 
         for (AbsDecl decl : node.decls()) {
             decl.accept(this, visArg);
@@ -133,73 +133,5 @@ public class TypeTester implements AbsVisitor<Object, Object> {
         return node.type.accept(this, null);
     }
 
-    /**
-     * checks the type declaration hierarchy for recursive relationships
-     */
-    private void checkTypeHierarchy(AbsDecls node) {
-        Vector <AbsDecl> decls = node.decls();
-
-        // the hashmap represents relations
-        HashMap<String, String> typeRelations = new HashMap<>();
-        for (AbsDecl decl : decls) {
-            if (decl instanceof AbsTypeDecl) {
-                for (AbsDecl decl2 : decls) {
-                    if (decl2 instanceof AbsTypeDecl && ! decl.equals(decl2))
-                        addToHierarchy(decl, decl2, typeRelations);
-                }
-            }
-        }
-
-
-        // a "flattened" hierarchy - a value must not appear more than once in the chain if the hierarchy is not recursive
-        Vector<String> hierarchy = new Vector<>();
-        for (String key : typeRelations.keySet()) {
-            hierarchy.add(key);
-            String value = typeRelations.get(key);
-
-            if (! hierarchy.contains(value)) {
-                hierarchy.add(value);
-            }
-            else {
-                throw new Report.Error(node.location(), "Recursive type hierarchy found");
-            }
-        }
-    }
-
-    private void addToHierarchy(AbsDecl srcDecl, AbsDecl dstDecl, HashMap<String, String> typeRelations) {
-
-        if (srcDecl.type instanceof AbsTypeName) {
-            if (dstDecl.name.equals(((AbsTypeName) srcDecl.type).name)) {
-                typeRelations.put(srcDecl.name, dstDecl.name);
-            }
-        }
-
-        else if (srcDecl.type instanceof AbsRecType) {
-            AbsRecType recType = (AbsRecType) srcDecl.type;
-            for (AbsCompDecl compDecl : recType.compDecls.compDecls()) {
-
-                if (compDecl.type instanceof AbsAtomType)
-                    continue;
-                if (compDecl.type.getClass() == dstDecl.type.getClass()) {
-                    typeRelations.put(srcDecl.name, dstDecl.name);
-                }
-
-                // if record / array, go deeper
-                else if (compDecl.type instanceof AbsArrType || compDecl.type instanceof AbsRecType){
-                    addToHierarchy(compDecl, dstDecl, typeRelations);
-                }
-            }
-        }
-
-        else if (srcDecl.type instanceof AbsArrType) {
-            AbsArrType arrType = (AbsArrType) srcDecl.type;
-            if (arrType.elemType.getClass() == dstDecl.type.getClass()) {
-                typeRelations.put(srcDecl.name, dstDecl.name);
-            }
-            // TODO if nested record / array ?
-
-        }
-
-    }
 
 }

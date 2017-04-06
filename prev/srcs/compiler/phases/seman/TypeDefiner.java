@@ -109,9 +109,8 @@ public class TypeDefiner implements AbsVisitor<SemType, Object> {
         return recType;
     }
 
+    @SuppressWarnings("unchecked")
     public SemType visit(AbsTypeName node, Object visArg) {
-        //Report.info(node.name);
-        HashMap <String, AbsTypeName> hierarchy;
         AbsTypeDecl typeDecl = (AbsTypeDecl) SemAn.declAt().get(node);
         SemNamedType semNamedType = SemAn.declType().get(typeDecl);
         SemType type;
@@ -120,6 +119,13 @@ public class TypeDefiner implements AbsVisitor<SemType, Object> {
             throw new Report.Error(node.location(), "Named type not declared");
         }
 
+        /**
+         * Resolves any possible recursive types by sending a HashMap containing String - AbsTypeName pairs.
+         * If the current type name is already in the hashmap and it does not resolve to a PtrType, the
+         * hierarchy is recursive.
+         */
+        HashMap <String, AbsTypeName> hierarchy;
+
         if (visArg != null && visArg instanceof HashMap) {
             hierarchy = (HashMap<String, AbsTypeName>) visArg;
         }
@@ -127,7 +133,6 @@ public class TypeDefiner implements AbsVisitor<SemType, Object> {
             hierarchy = new HashMap<>();
         }
 
-        // Report.info(hierarchy.toString());
         if (hierarchy.get(node.name) != null) {
             for (String s : hierarchy.keySet()) {
                 AbsTypeName typeName = hierarchy.get(s);
