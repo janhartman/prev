@@ -125,5 +125,14 @@ public class SemRecType extends SemType {
 		name.append(")");
 		return name.toString();
 	}
+	
+	@Override
+	public long size() {
+		long size = 0;
+		for (int comp = 0; comp < compTypes.size(); comp++) {
+			size = size + compTypes.elementAt(comp).size();
+		}
+		return size;
+	}
 
 }

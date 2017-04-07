@@ -46,5 +46,10 @@ public class SemErrorType extends SemType {
 	public String toString() {
 		return "?";
 	}
+	
+	@Override
+	public long size() {
+		return 0;
+	}
 
 }

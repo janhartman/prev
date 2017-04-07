@@ -5,6 +5,7 @@ import common.report.*;
 import compiler.phases.lexan.*;
 import compiler.phases.synan.*;
 import compiler.phases.abstr.*;
+import compiler.phases.frames.*;
 import compiler.phases.seman.*;
 
 /**
@@ -16,7 +17,7 @@ import compiler.phases.seman.*;
 public class Main {
 
 	/** All valid phases of the compiler. */
-	private static final String phases = "lexan|synan|abstr|seman";
+	private static final String phases = "lexan|synan|abstr|seman|frames";
 
 	/** Values of command line arguments. */
 	private static HashMap<String, String> cmdLine = new HashMap<String, String>();
@@ -131,7 +132,14 @@ public class Main {
 				}
 				if (cmdLine.get("--target-phase").equals("seman"))
 					break;
-
+				
+				// Frames.
+				try (Frames frames = new Frames()) {
+					Abstr.absTree().accept(new FrameEvaluator(), null);
+				}
+				if (cmdLine.get("--target-phase").equals("frames"))
+					break;
+				
 				int endWarnings = Report.numOfWarnings();
 				if (begWarnings != endWarnings)
 					throw new Report.Error("Compilation stopped.");

@@ -43,5 +43,10 @@ public class SemIntType extends SemType {
 	public String toString() {
 		return "int";
 	}
+	
+	@Override
+	public long size() {
+		return 8;
+	}
 
 }

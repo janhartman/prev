@@ -79,4 +79,11 @@ public abstract class SemType implements Loggable {
 		return this.actualType().getClass() == that;
 	}
 
+	/**
+	 * Returns the size of this type.
+	 * 
+	 * @return The size of this type.
+	 */
+	public abstract long size();
+
 }

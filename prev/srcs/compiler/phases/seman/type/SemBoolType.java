@@ -44,4 +44,9 @@ public class SemBoolType extends SemType {
 		return "bool";
 	}
 
+	@Override
+	public long size() {
+		return 8;
+	}
+
 }

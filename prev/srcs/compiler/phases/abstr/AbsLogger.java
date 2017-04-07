@@ -36,7 +36,7 @@ public class AbsLogger implements AbsVisitor<Object, Object> {
 	 *            The subvisitor.
 	 * @return This visitor.
 	 */
-	public AbsVisitor<Object, Object> addSubvisitor(AbsVisitor<Object, Object> subvisitor) {
+	public AbsLogger addSubvisitor(AbsVisitor<Object, Object> subvisitor) {
 		subvisitors.addLast(subvisitor);
 		return this;
 	}

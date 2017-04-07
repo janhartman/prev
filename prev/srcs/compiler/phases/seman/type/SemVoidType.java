@@ -43,5 +43,10 @@ public class SemVoidType extends SemType {
 	public String toString() {
 		return "void";
 	}
+	
+	@Override
+	public long size() {
+		return 0;
+	}
 
 }

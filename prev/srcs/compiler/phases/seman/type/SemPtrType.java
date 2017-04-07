@@ -72,4 +72,9 @@ public class SemPtrType extends SemType {
 			return "ptr(" + subType.toString() + ")";
 	}
 
+	@Override
+	public long size() {
+		return 8;
+	}
+
 }

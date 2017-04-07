@@ -43,5 +43,10 @@ public class SemCharType extends SemType {
 	public String toString() {
 		return "char";
 	}
+	
+	@Override
+	public long size() {
+		return 8;
+	}
 
 }

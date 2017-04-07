@@ -75,4 +75,9 @@ public class SemNamedType extends SemType {
 		return typeDecl.name;
 	}
 
+	@Override
+	public long size() {
+		return type().size();
+	}
+
 }

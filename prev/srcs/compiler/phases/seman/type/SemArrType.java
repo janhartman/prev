@@ -75,4 +75,9 @@ public class SemArrType extends SemType {
 		return "arr(" + len + "," + elemType.toString() + ")";
 	}
 
+	@Override
+	public long size() {
+		return len * elemType.size();
+	}
+
 }
