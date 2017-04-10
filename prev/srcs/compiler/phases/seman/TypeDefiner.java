@@ -200,13 +200,11 @@ public class TypeDefiner implements AbsVisitor<SemType, Object> {
 
     public SemType visit(AbsFunDecl node, Object visArg) {
         node.type.accept(this, null);
-        //node.parDecls.accept(this, null);
         return null;
     }
 
     public SemType visit(AbsFunDef node, Object visArg) {
         SemType returnType = node.type.accept(this, null);
-        //node.parDecls.accept(this, null);
         SemType valueType = node.value.accept((TypeChecker) visArg, null);
 
         if (! returnType.matches(valueType)) {
@@ -218,7 +216,8 @@ public class TypeDefiner implements AbsVisitor<SemType, Object> {
     public SemType visit(AbsParDecl node, Object visArg) {
         SemType parType = node.type.accept(this, null);
         if (! (parType.isAKindOf(SemBoolType.class) || parType.isAKindOf(SemIntType.class)
-            || parType.isAKindOf(SemCharType.class) || parType.isAKindOf(SemPtrType.class))) {
+            || parType.isAKindOf(SemCharType.class) || parType.isAKindOf(SemPtrType.class)
+            || parType.isAKindOf(SemVoidType.class))) {
             throw new Report.Error(node.location(), "Parameter type " + parType + " not allowed");
         }
 

@@ -2,59 +2,59 @@
  * expressions
  */
 
-public Boolean visit(AbsArgs node, Object visArg) {
+public Object visit(AbsArgs node, Long visArg) {
 
-        return false;
+        return null;
         }
 
-public Boolean visit(AbsArrExpr node, Object visArg) {
+public Object visit(AbsArrExpr node, Long visArg) {
 
-        return false;
+        return null;
         }
 
-public Boolean visit(AbsAtomExpr node, Object visArg) {
+public Object visit(AbsAtomExpr node, Long visArg) {
 
-        return false;
+        return null;
         }
 
-public Boolean visit(AbsBinExpr node, Object visArg) {
+public Object visit(AbsBinExpr node, Long visArg) {
 
-        return false;
+        return null;
         }
 
-public Boolean visit(AbsCastExpr node, Object visArg) {
+public Object visit(AbsCastExpr node, Long visArg) {
 
-        return false;
+        return null;
         }
 
-public Boolean visit(AbsDelExpr node, Object visArg) {
+public Object visit(AbsDelExpr node, Long visArg) {
 
-        return false;
+        return null;
         }
 
-public Boolean visit(AbsFunName node, Object visArg) {
+public Object visit(AbsFunName node, Long visArg) {
 
-        return false;
+        return null;
         }
 
-public Boolean visit(AbsNewExpr node, Object visArg) {
+public Object visit(AbsNewExpr node, Long visArg) {
 
-        return false;
+        return null;
         }
 
-public Boolean visit(AbsRecExpr node, Object visArg) {
+public Object visit(AbsRecExpr node, Long visArg) {
 
-        return false;
+        return null;
         }
 
-public Boolean visit(AbsUnExpr node, Object visArg) {
+public Object visit(AbsUnExpr node, Long visArg) {
 
-        return false;
+        return null;
         }
 
-public Boolean visit(AbsVarName node, Object visArg) {
+public Object visit(AbsVarName node, Long visArg) {
 
-        return false;
+        return null;
         }
 
 
@@ -63,29 +63,29 @@ public Boolean visit(AbsVarName node, Object visArg) {
  * types
  */
 
-public Boolean visit(AbsArrType node, Object visArg) {
+public Object visit(AbsArrType node, Long visArg) {
 
-        return false;
+        return null;
         }
 
-public Boolean visit(AbsAtomType node, Object visArg) {
+public Object visit(AbsAtomType node, Long visArg) {
 
-        return false;
+        return null;
         }
 
-public Boolean visit(AbsPtrType node, Object visArg) {
+public Object visit(AbsPtrType node, Long visArg) {
 
-        return false;
+        return null;
         }
 
-public Boolean visit(AbsRecType node, Object visArg) {
+public Object visit(AbsRecType node, Long visArg) {
 
-        return false;
+        return null;
         }
 
-public Boolean visit(AbsTypeName node, Object visArg) {
+public Object visit(AbsTypeName node, Long visArg) {
 
-        return false;
+        return null;
         }
 
 
@@ -94,34 +94,34 @@ public Boolean visit(AbsTypeName node, Object visArg) {
  * statements
  */
 
-public Boolean visit(AbsAssignStmt node, Object visArg) {
+public Object visit(AbsAssignStmt node, Long visArg) {
 
-        return false;
+        return null;
         }
 
-public Boolean visit(AbsExprStmt node, Object visArg) {
+public Object visit(AbsExprStmt node, Long visArg) {
 
-        return false;
+        return null;
         }
 
-public Boolean visit(AbsIfStmt node, Object visArg) {
+public Object visit(AbsIfStmt node, Long visArg) {
 
-        return false;
+        return null;
         }
 
-public Boolean visit(AbsStmtExpr node, Object visArg) {
+public Object visit(AbsStmtExpr node, Long visArg) {
 
-        return false;
+        return null;
         }
 
-public Boolean visit(AbsStmts node, Object visArg) {
+public Object visit(AbsStmts node, Long visArg) {
 
-        return false;
+        return null;
         }
 
-public Boolean visit(AbsWhileStmt node, Object visArg) {
+public Object visit(AbsWhileStmt node, Long visArg) {
 
-        return false;
+        return null;
         }
 
 
@@ -132,47 +132,47 @@ public Boolean visit(AbsWhileStmt node, Object visArg) {
  */
 
 
-public Boolean visit(AbsCompDecl node, Object visArg) {
+public Object visit(AbsCompDecl node, Long visArg) {
 
-        return false;
+        return null;
         }
 
-public Boolean visit(AbsCompDecls node, Object visArg) {
+public Object visit(AbsCompDecls node, Long visArg) {
 
-        return false;
+        return null;
         }
 
-public Boolean visit(AbsDecls node, Object visArg) {
+public Object visit(AbsDecls node, Long visArg) {
 
-        return false;
+        return null;
         }
 
-public Boolean visit(AbsFunDecl node, Object visArg) {
+public Object visit(AbsFunDecl node, Long visArg) {
 
-        return false;
+        return null;
         }
 
-public Boolean visit(AbsFunDef node, Object visArg) {
+public Object visit(AbsFunDef node, Long visArg) {
 
-        return false;
+        return null;
         }
 
-public Boolean visit(AbsParDecl node, Object visArg) {
+public Object visit(AbsParDecl node, Long visArg) {
 
-        return false;
+        return null;
         }
 
-public Boolean visit(AbsParDecls node, Object visArg) {
+public Object visit(AbsParDecls node, Long visArg) {
 
-        return false;
+        return null;
         }
 
-public Boolean visit(AbsTypeDecl node, Object visArg) {
+public Object visit(AbsTypeDecl node, Long visArg) {
 
-        return false;
+        return null;
         }
 
-public Boolean visit(AbsVarDecl node, Object visArg) {
+public Object visit(AbsVarDecl node, Long visArg) {
 
-        return false;
+        return null;
         }

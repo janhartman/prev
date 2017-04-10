@@ -66,11 +66,7 @@ public class TypeTester implements AbsVisitor<Object, Object> {
         if (namedType == null)  {
             throw new Report.Error(node.location(), "Semantic named type not found");
         }
-        /*
-        else if (!(namedType instanceof SemNamedType)) {
-            throw new Report.Error(node.location(), "Type is not a semantic named type, got " + namedType);
-        }
-        */
+
         return null;
     }
 
