@@ -1,0 +1,16 @@
+#check nested compound expressions in all allowable forms
+#static link is taken to be of size 8
+{
+    foo2(1,2,3):
+    1
+    where
+    var b:int;
+    fun foo2(a:int,b:int,c:int):void={
+        a=@{none:a where var a:arr[2]ptr int}[0]
+        :
+        none
+        where
+        var a:int
+    };
+    var a:rec(a:arr[2]int,b:char)
+}

@@ -34,6 +34,12 @@ public class TypeChecker implements AbsVisitor<SemType, Object> {
     public SemType visit(AbsArgs node, Object visArg) {
         AbsFunDecl decl = (AbsFunDecl) visArg;
 
+        int parCount = decl.parDecls.parDecls().size();
+        int argCount = node.args().size();
+        if (parCount != argCount) {
+            throw new Report.Error(node.location(), "Wrong number of arguments for function call, expected " + parCount + ", got " + argCount);
+        }
+
         // function call: check if the argument types match the parameter types
         for (int i = 0; i < node.args().size(); i++) {
             SemType argType = node.arg(i).accept(this, null);
