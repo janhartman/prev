@@ -1,6 +1,6 @@
 package compiler.phases.frames;
 
-import common.g.*;
+import common.report.*;
 import compiler.phases.abstr.*;
 import compiler.phases.abstr.abstree.*;
 import compiler.phases.seman.*;
@@ -157,7 +157,7 @@ public class FrameEvaluator extends AbsFullVisitor<Object, Long> {
         FrameSize newFrame = stack.pop();
 
         //Report.info("new frame, name: " + label.name + " depth: " + fs.depth + " locs: " + newFrame.locsSize + " args: " + newFrame.argsSize);
-        Frames.frames.put(node, new Frame(label, fs.depth, newFrame.locsSize, fs.argsSize));
+        Frames.frames.put(node, new Frame(label, fs.depth, newFrame.locsSize, newFrame.argsSize));
 
         return null;
     }
@@ -166,9 +166,10 @@ public class FrameEvaluator extends AbsFullVisitor<Object, Long> {
         long size =  SemAn.descType().get(node.type).size();
         node.type.accept(this, null);
         FrameSize fs = stack.peek();
+        Label label = (fs.depth == 1 && scope == 1) ? new Label(node.name) : new Label();
 
         //Report.info("new " + ((fs.depth == 1 && scope == 1) ? "abs access, " + node.name : "rel access, offset: " + fs.offset + " depth: " + fs.depth));
-        Access access = (fs.depth == 1 && scope == 1) ? new AbsAccess(size, new Label(node.name)) : new RelAccess(size, fs.offset-size, fs.depth);
+        Access access = (fs.depth == 1) ? new AbsAccess(size, label) : new RelAccess(size, fs.offset-size, fs.depth);
 
         Frames.accesses.put(node, access);
         return size;
@@ -182,7 +183,7 @@ public class FrameEvaluator extends AbsFullVisitor<Object, Long> {
 
         //Report.info("new parameter access, parName: " + node.name +", offset: " + offset + " depth: " + fs.depth);
         if (offset != -1)
-            Frames.accesses.put(node, new RelAccess(size, offset, fs.depth));
+            Frames.accesses.put(node, new RelAccess(size, offset, fs.depth+1t));
         return size;
     }
 

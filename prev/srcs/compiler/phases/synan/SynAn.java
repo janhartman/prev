@@ -836,6 +836,7 @@ public class SynAn extends Phase {
 
             // exprassign → ε
             case RBRACE:
+            case SEMIC:
                 break;
 
             // exprassign → = expr
