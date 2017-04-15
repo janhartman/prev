@@ -1,0 +1,16 @@
+{ none : f1(i)
+  where
+    var i:int;
+    fun f1(p1:int):int =
+        { none : f1(p1+i)+f11(p1+i)+f2(p1,1)
+          where
+            var i:int;
+            fun f11(p11:int):int =
+              { none : f1(1)+f11(i)+f111(i+1)
+                where
+                  fun f111(p111:int):int =
+                    f111(1)+f11(i+1)+f1(i+i)
+              }
+        };
+    fun f2(p1:int,p2:int):int = p1+p2
+}

@@ -1,0 +1,1 @@
+{ [void]i : i+a[i] where var i:int; var a:arr[10]int }

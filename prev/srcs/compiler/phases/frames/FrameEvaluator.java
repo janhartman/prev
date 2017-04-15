@@ -88,7 +88,10 @@ public class FrameEvaluator extends AbsFullVisitor<Object, Long> {
 
     public Object visit(AbsFunName node, Long visArg) {
         node.args.accept(this, 1L);
-        AbsFunDef def = (AbsFunDef) SemAn.declAt().get(node);
+        AbsFunDecl def = (AbsFunDecl) SemAn.declAt().get(node);
+        if (! (def instanceof AbsFunDef)) {
+            return null;
+        }
         long argsSize = (Long) def.parDecls.accept(this, -1L) + new SemPtrType(new SemVoidType()).size();
 
         FrameSize fs = stack.peek();
@@ -183,7 +186,7 @@ public class FrameEvaluator extends AbsFullVisitor<Object, Long> {
 
         //Report.info("new parameter access, parName: " + node.name +", offset: " + offset + " depth: " + fs.depth);
         if (offset != -1)
-            Frames.accesses.put(node, new RelAccess(size, offset, fs.depth+1t));
+            Frames.accesses.put(node, new RelAccess(size, offset, fs.depth+1));
         return size;
     }
 
