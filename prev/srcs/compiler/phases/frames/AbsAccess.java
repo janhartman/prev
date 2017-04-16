@@ -19,7 +19,7 @@ public class AbsAccess extends Access {
 	 * @param size
 	 *            The size of a variable.
 	 * @param label
-	 *            The label of a variable.
+	 *            Offset of a variable at an absolute address.
 	 */
 	public AbsAccess(long size, Label label) {
 		super(size);

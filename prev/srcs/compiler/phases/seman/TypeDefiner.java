@@ -134,16 +134,47 @@ public class TypeDefiner implements AbsVisitor<SemType, Object> {
         }
 
         if (hierarchy.get(node.name) != null) {
+            Report.info(hierarchy.toString());
             for (String s : hierarchy.keySet()) {
                 AbsTypeName typeName = hierarchy.get(s);
                 AbsTypeDecl decl = (AbsTypeDecl) SemAn.declAt().get(typeName);
+
                 if (decl.type instanceof AbsPtrType) {
-                    if (((AbsPtrType) decl.type).subType instanceof AbsTypeName) {
+                    AbsPtrType ptrType = (AbsPtrType) decl.type;
+                    if (ptrType.subType instanceof AbsTypeName && ((AbsTypeName) ptrType.subType).name.equals(node.name)) {
                         type = semNamedType;
                         SemAn.descType().put(node, type);
                         return type;
                     }
                 }
+
+                if (decl.type instanceof AbsRecType) {
+                    AbsRecType recType = (AbsRecType) decl.type;
+                    for (AbsCompDecl compDecl : recType.compDecls.compDecls()) {
+                        if (compDecl.type instanceof AbsPtrType) {
+                            AbsType subType = ((AbsPtrType) compDecl.type).subType;
+                            if (subType instanceof AbsTypeName && ((AbsTypeName) subType).name.equals(node.name)) {
+                                type = semNamedType;
+                                SemAn.descType().put(node, type);
+                                return type;
+                            }
+                        }
+                    }
+                }
+
+                if (decl.type instanceof AbsArrType) {
+                    AbsArrType arrType = (AbsArrType) decl.type;
+                    if (arrType.elemType instanceof AbsPtrType) {
+                        AbsType subType = ((AbsPtrType) arrType.elemType).subType;
+                        if (subType instanceof AbsTypeName && ((AbsTypeName) subType).name.equals(node.name)) {
+                            type = semNamedType;
+                            SemAn.descType().put(node, type);
+                            return type;
+                        }
+                    }
+                }
+
+
             }
 
             throw new Report.Error(node.location(), "Recursive type hierarchy found");
