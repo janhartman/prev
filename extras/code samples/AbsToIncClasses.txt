@@ -1,0 +1,32 @@
+AbsArgs         -> vector(ImcExpr)
+AbsArrExpr      -> BINOP +, array, (BINOP *, index, sizeof(elemType))
+AbsAssignStmt   -> MOVE(dst, src)
+AbsAtomExpr     -> CONST
+AbsBinExpr      -> BINOP(fst, snd)
+AbsCastExpr     -> ?
+AbsDelExpr      -> free(expr)
+AbsExprStmt     -> ESTMT(expr)
+AbsFunName      -> CALL(label, args)
+AbsIfStmt       -> CJUMP(cond, thenBody, elseBody)
+AbsNewExpr      -> CALL(malloc, sizeof(type)
+AbsRecExpr      -> BINOP +, record, component.offset
+AbsStmtExpr     -> SEXPR(stmt, expr)
+AbsStmts        -> STMTS
+AbsUnExpr       -> UNOP
+AbsVarName      -> MEM(varName)
+AbsWhileStmt    -> CJUMP(cond, body + JUMP)
+
+AbsArrType      ->
+AbsAtomType     ->
+AbsCompDecl     ->
+AbsCompDecls    ->
+AbsDecls        ->
+AbsFunDecl      ->
+AbsFunDef       ->
+AbsParDecl      ->
+AbsParDecls     ->
+AbsPtrType      ->
+AbsRecType      ->
+AbsTypeDecl     ->
+AbsTypeName     ->
+AbsVarDecl      ->
