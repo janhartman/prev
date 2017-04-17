@@ -58,7 +58,11 @@ public class TypeChecker implements AbsVisitor<SemType, Object> {
             throw new Report.Error(node.index.location(), "Int required for array index, got " + indexType);
         }
 
-        SemArrType arrType = (SemArrType) node.array.accept(this, null);
+        SemType type = node.array.accept(this, null);
+        if (! type.isAKindOf(SemArrType.class)) {
+            throw new Report.Error(node.location(), "Array type required for array expression, got " + type);
+        }
+        SemArrType arrType = (SemArrType) type;
         SemAn.isOfType().put(node, arrType.elemType);
         return arrType.elemType;
     }
@@ -191,14 +195,18 @@ public class TypeChecker implements AbsVisitor<SemType, Object> {
 
     // component access
     public SemType visit(AbsRecExpr node, Object visArg) {
-        SemRecType recType = (SemRecType) node.record.accept(this, null);
+        SemType type = node.record.accept(this, null);
+        if (!type.isAKindOf(SemRecType.class)) {
+            throw new Report.Error(node.location(), "Record type required for record expression, got "+ type);
+        }
+        SemRecType recType = (SemRecType) type;
         int idx = recType.compNames().indexOf(node.comp.name);
 
         if (idx == -1) {
             throw new Report.Error(node.location(), "Component " + node.comp.name + " does not exist in record");
         }
 
-        SemType type = recType.compTypes().get(idx);
+        type = recType.compTypes().get(idx);
         SemAn.isOfType().put(node, type);
         return type;
     }

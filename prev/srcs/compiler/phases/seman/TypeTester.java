@@ -62,6 +62,7 @@ public class TypeTester implements AbsVisitor<Object, Object> {
 
     public Object visit(AbsTypeName node, Object visArg) {
         SemType namedType = SemAn.descType().get(node);
+        node.accept(new TypeDefiner(), null);
 
         if (namedType == null)  {
             throw new Report.Error(node.location(), "Semantic named type not found");
