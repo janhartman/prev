@@ -56,7 +56,15 @@ public class SemNamedType extends SemType {
 
 	@Override
 	public boolean matches(SemType that) {
+		if (that instanceof SemNamedType) {
+			return ((SemNamedType) that).matchesDecl(this.typeDecl);
+		}
+
 		return this.actualType().matches(that.actualType());
+	}
+
+	private boolean matchesDecl(AbsDecl declThat) {
+		return this.typeDecl.equals(declThat);
 	}
 
 	@Override
