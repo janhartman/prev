@@ -1,0 +1,17 @@
+{
+        n = 10
+        : fib(n)
+        where
+        var n: int;
+        fun fib(n: int): int = {
+            if (n < 2)
+            then
+                ret = 1
+            else
+                ret = fib(n-1) + fib(n-2)
+            end
+            : ret
+            where
+            var ret: int
+        }
+}

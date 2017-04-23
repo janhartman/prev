@@ -1,0 +1,18 @@
+{
+        n = 10;
+        a = 1;
+        b = 1;
+        while (n > 0)
+        do
+            tmp = a;
+            a = a + b;
+            b = a;
+            n = n - 1
+        end
+        : a
+        where
+        var a: int;
+        var b: int;
+        var n: int;
+        var tmp: int
+}
