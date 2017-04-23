@@ -132,17 +132,35 @@ public class ImcExprGenerator implements AbsVisitor<ImcExpr, Stack<Frame>> {
 
 
     public ImcExpr visit(AbsFunName node, Stack<Frame> stack) {
+        AbsFunDecl decl = (AbsFunDecl) SemAn.declAt().get(node);
         Vector<ImcExpr> args = new Vector<>(node.args.args().size());
-        args.add(new ImcTEMP(ImcGen.FP));
+        Label label;
+        ImcExpr staticLink = new ImcTEMP(ImcGen.FP);
 
+        if (! (decl instanceof AbsFunDef)) {
+            label = new Label(node.name);
+        }
+
+        else {
+            AbsFunDef funDef = (AbsFunDef) decl;
+            Frame frame = Frames.frames.get(funDef);
+            label = frame.label;
+
+            if (stack != null) {
+                int depth = stack.size() + 1;
+                while (depth > frame.depth) {
+                    staticLink = new ImcMEM(staticLink);
+                    depth--;
+                }
+            }
+        }
+
+        args.add(staticLink);
         for (AbsExpr expr : node.args.args()) {
             args.add(expr.accept(this, stack));
         }
 
-        AbsFunDef funDef = (AbsFunDef) SemAn.declAt().get(node);
-        Frame frame = Frames.frames.get(funDef);
-
-        ImcCALL funCall = new ImcCALL(frame.label, args);
+        ImcCALL funCall = new ImcCALL(label, args);
         ImcGen.exprImCode.put(node, funCall);
         return funCall;
     }
@@ -154,7 +172,7 @@ public class ImcExprGenerator implements AbsVisitor<ImcExpr, Stack<Frame>> {
         vec.add(new ImcTEMP(ImcGen.FP));
         vec.add(new ImcCONST(semType.size()));
 
-        ImcCALL mallocCall =  new ImcCALL(new Label("malloc"), vec);
+        ImcCALL mallocCall = new ImcCALL(new Label("malloc"), vec);
         ImcGen.exprImCode.put(node, mallocCall);
         return mallocCall;
     }
@@ -177,6 +195,7 @@ public class ImcExprGenerator implements AbsVisitor<ImcExpr, Stack<Frame>> {
     }
 
 
+    // TODO add labels for global variables
     public ImcExpr visit(AbsStmtExpr node, Stack<Frame> stack) {
         node.decls.accept(this, stack);
         ImcStmt stmts = node.stmts.accept(new ImcStmtGenerator(), stack);
@@ -218,17 +237,19 @@ public class ImcExprGenerator implements AbsVisitor<ImcExpr, Stack<Frame>> {
         AbsVarDecl decl = (AbsVarDecl) SemAn.declAt().get(node);
         Access access = Frames.accesses.get(decl);
         ImcExpr expr;
+
         if (access instanceof AbsAccess) {
-            expr =  new ImcNAME(((AbsAccess) access).label);
-        }
-        else {
+            expr = new ImcNAME(((AbsAccess) access).label);
+        } else {
             RelAccess relAccess = (RelAccess) access;
             expr = new ImcTEMP(ImcGen.FP);
-            int depth = stack.size();
+
+            int depth = stack.size() + 1;
             while (depth > relAccess.depth) {
                 expr = new ImcMEM(expr);
                 depth--;
             }
+
             expr = new ImcBINOP(ImcBINOP.Oper.ADD, expr, new ImcCONST(relAccess.offset));
         }
 
@@ -238,17 +259,20 @@ public class ImcExprGenerator implements AbsVisitor<ImcExpr, Stack<Frame>> {
     }
 
 
-
-
     /**
      * declarations
      */
 
 
     public ImcExpr visit(AbsDecls node, Stack<Frame> stack) {
-        for (AbsDecl decl: node.decls()) {
+        Vector<String> vec = new Vector<>();
+
+        for (AbsDecl decl : node.decls()) {
             if (decl instanceof AbsFunDef) {
                 decl.accept(this, stack);
+            }
+            if (decl instanceof AbsVarDecl && (stack == null || stack.empty())) {
+                vec.add(decl.name);
             }
         }
         return null;
@@ -262,7 +286,9 @@ public class ImcExprGenerator implements AbsVisitor<ImcExpr, Stack<Frame>> {
 
         Frame frame = Frames.frames.get(node);
         stack.add(frame);
-        node.value.accept(this, stack);
+        ImcExpr expr = node.value.accept(this, stack);
+        ImcSEXPR sexpr = new ImcSEXPR(new ImcLABEL(frame.label), expr);
+        ImcGen.exprImCode.put(node.value, sexpr);
         stack.pop();
         return null;
     }

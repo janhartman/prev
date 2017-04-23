@@ -140,7 +140,7 @@ public class TypeDefiner implements AbsVisitor<SemType, Object> {
 
                 if (decl.type instanceof AbsPtrType) {
                     AbsPtrType ptrType = (AbsPtrType) decl.type;
-                    if (ptrType.subType instanceof AbsTypeName && ((AbsTypeName) ptrType.subType).name.equals(node.name)) {
+                    if (ptrType.subType instanceof AbsTypeName) {
                         type = semNamedType;
                         SemAn.descType().put(node, type);
                         return type;
@@ -152,7 +152,7 @@ public class TypeDefiner implements AbsVisitor<SemType, Object> {
                     for (AbsCompDecl compDecl : recType.compDecls.compDecls()) {
                         if (compDecl.type instanceof AbsPtrType) {
                             AbsType subType = ((AbsPtrType) compDecl.type).subType;
-                            if (subType instanceof AbsTypeName && ((AbsTypeName) subType).name.equals(node.name)) {
+                            if (subType instanceof AbsTypeName) {
                                 type = semNamedType;
                                 SemAn.descType().put(node, type);
                                 return type;
@@ -165,7 +165,7 @@ public class TypeDefiner implements AbsVisitor<SemType, Object> {
                     AbsArrType arrType = (AbsArrType) decl.type;
                     if (arrType.elemType instanceof AbsPtrType) {
                         AbsType subType = ((AbsPtrType) arrType.elemType).subType;
-                        if (subType instanceof AbsTypeName && ((AbsTypeName) subType).name.equals(node.name)) {
+                        if (subType instanceof AbsTypeName) {
                             type = semNamedType;
                             SemAn.descType().put(node, type);
                             return type;

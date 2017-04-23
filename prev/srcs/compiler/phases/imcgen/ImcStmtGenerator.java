@@ -24,7 +24,9 @@ public class ImcStmtGenerator implements AbsVisitor<ImcStmt, Stack<Frame>> {
 
 
     public ImcStmt visit(AbsExprStmt node, Stack<Frame> stack) {
-        return new ImcESTMT(node.expr.accept(new ImcExprGenerator(), stack));
+        ImcESTMT estmt = new ImcESTMT(node.expr.accept(new ImcExprGenerator(), stack));
+        ImcGen.stmtImCode.put(node, estmt);
+        return estmt;
     }
 
 
@@ -43,7 +45,9 @@ public class ImcStmtGenerator implements AbsVisitor<ImcStmt, Stack<Frame>> {
         stmts.add(new ImcLABEL(l2));
         stmts.add(elseBody);
 
-        return new ImcSTMTS(stmts);
+        ImcSTMTS ifStmt = new ImcSTMTS(stmts);
+        ImcGen.stmtImCode.put(node, ifStmt);
+        return ifStmt;
     }
 
 
@@ -73,7 +77,9 @@ public class ImcStmtGenerator implements AbsVisitor<ImcStmt, Stack<Frame>> {
         stmts.add(new ImcJUMP(l0));
         stmts.add(new ImcLABEL(l2));
 
-        return new ImcSTMTS(stmts);
+        ImcSTMTS whileStmt = new ImcSTMTS(stmts);
+        ImcGen.stmtImCode.put(node, whileStmt);
+        return whileStmt;
     }
 
 }

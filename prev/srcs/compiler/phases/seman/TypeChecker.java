@@ -62,6 +62,11 @@ public class TypeChecker implements AbsVisitor<SemType, Object> {
         if (! type.isAKindOf(SemArrType.class)) {
             throw new Report.Error(node.location(), "Array type required for array expression, got " + type);
         }
+
+        if (type instanceof SemNamedType) {
+            type = ((SemNamedType) type).type();
+        }
+
         SemArrType arrType = (SemArrType) type;
         SemAn.isOfType().put(node, arrType.elemType);
         return arrType.elemType;
@@ -199,6 +204,11 @@ public class TypeChecker implements AbsVisitor<SemType, Object> {
         if (!type.isAKindOf(SemRecType.class)) {
             throw new Report.Error(node.location(), "Record type required for record expression, got "+ type);
         }
+
+        if (type instanceof SemNamedType) {
+            type = ((SemNamedType) type).type();
+        }
+
         SemRecType recType = (SemRecType) type;
         int idx = recType.compNames().indexOf(node.comp.name);
 
@@ -209,6 +219,7 @@ public class TypeChecker implements AbsVisitor<SemType, Object> {
         type = recType.compTypes().get(idx);
         SemAn.isOfType().put(node, type);
         node.accept(new RecordNamer(), null);
+
         return type;
     }
 

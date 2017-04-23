@@ -169,10 +169,9 @@ public class FrameEvaluator extends AbsFullVisitor<Object, Long> {
         long size =  SemAn.descType().get(node.type).size();
         node.type.accept(this, null);
         FrameSize fs = stack.peek();
-        Label label = (fs.depth == 1 && scope == 1) ? new Label(node.name) : new Label();
 
         //Report.info("new " + ((fs.depth == 1 && scope == 1) ? "abs access, " + node.name : "rel access, offset: " + fs.offset + " depth: " + fs.depth));
-        Access access = (fs.depth == 1) ? new AbsAccess(size, label) : new RelAccess(size, fs.offset-size, fs.depth);
+        Access access = (fs.depth == 1) ? new AbsAccess(size, (scope == 1) ? new Label(node.name) : new Label()) : new RelAccess(size, fs.offset-size, fs.depth);
 
         Frames.accesses.put(node, access);
         return size;
