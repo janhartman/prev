@@ -16,7 +16,10 @@ public class ImcStmtGenerator implements AbsVisitor<ImcStmt, Stack<Frame>> {
     public ImcStmt visit(AbsAssignStmt node, Stack<Frame> stack) {
         ImcExpr dst = node.dst.accept(new ImcExprGenerator(), stack);
         ImcExpr src = node.src.accept(new ImcExprGenerator(), stack);
-        return new ImcMOVE(dst, src);
+
+        ImcMOVE move = new ImcMOVE(dst, src);
+        ImcGen.stmtImCode.put(node, move);
+        return move;
     }
 
 
@@ -25,13 +28,22 @@ public class ImcStmtGenerator implements AbsVisitor<ImcStmt, Stack<Frame>> {
     }
 
 
-    // TODO label ?
     public ImcStmt visit(AbsIfStmt node, Stack<Frame> stack) {
         ImcExpr cond = node.cond.accept(new ImcExprGenerator(), stack);
         ImcStmt thenBody = node.thenBody.accept(this, stack);
         ImcStmt elseBody = node.elseBody.accept(this, stack);
-        //return new ImcCJUMP(cond, thenBody, elseBody);
-        return null;
+
+        Vector<ImcStmt> stmts = new Vector<>();
+        Label l1 = new Label();
+        Label l2 = new Label();
+
+        stmts.add(new ImcCJUMP(cond, l1, l2));
+        stmts.add(new ImcLABEL(l1));
+        stmts.add(thenBody);
+        stmts.add(new ImcLABEL(l2));
+        stmts.add(elseBody);
+
+        return new ImcSTMTS(stmts);
     }
 
 
@@ -46,7 +58,22 @@ public class ImcStmtGenerator implements AbsVisitor<ImcStmt, Stack<Frame>> {
 
 
     public ImcStmt visit(AbsWhileStmt node, Stack<Frame> stack) {
-        return null;
+        ImcExpr cond = node.cond.accept(new ImcExprGenerator(), stack);
+        ImcStmt body = node.body.accept(this, stack);
+
+        Vector<ImcStmt> stmts = new Vector<>();
+        Label l0 = new Label();
+        Label l1 = new Label();
+        Label l2 = new Label();
+
+        stmts.add(new ImcLABEL(l0));
+        stmts.add(new ImcCJUMP(cond, l1, l2));
+        stmts.add(new ImcLABEL(l1));
+        stmts.add(body);
+        stmts.add(new ImcJUMP(l0));
+        stmts.add(new ImcLABEL(l2));
+
+        return new ImcSTMTS(stmts);
     }
 
 }

@@ -120,7 +120,7 @@ public class FrameEvaluator extends AbsFullVisitor<Object, Long> {
         }
 
         for (AbsDecl decl : node.decls()) {
-            if (decl instanceof AbsFunDecl) {
+            if (decl instanceof AbsFunDecl || decl instanceof AbsTypeDecl) {
                 decl.accept(this, null);
             }
         }

@@ -5,7 +5,7 @@ import compiler.phases.abstr.AbsFullVisitor;
 import compiler.phases.abstr.abstree.*;
 
 
-public class RecNamer extends AbsFullVisitor<Object, Object> {
+public class RecordNamer extends AbsFullVisitor<Object, Object> {
 
     public Object visit(AbsArrExpr arrExpr, Object visArg) {
         arrExpr.index.accept(this, visArg);
@@ -66,16 +66,13 @@ public class RecNamer extends AbsFullVisitor<Object, Object> {
     }
 
     public Object visit(AbsRecExpr recExpr, Object visArg) {
-        Object raw_type = recExpr.record.accept(this, visArg);
-        if (!(raw_type instanceof AbsRecType))
-            throw new Report.Error(recExpr.record.location(),"Internal Error -> Not a record type, but this would have been resolved in the TypeChecker");
-        AbsRecType type = (AbsRecType) raw_type;
+        AbsRecType type = (AbsRecType) recExpr.record.accept(this, visArg);
         try {
             AbsDecl compDecl = SemAn.recSymbTable().get(type).fnd(recExpr.comp.name);
             SemAn.declAt().put(recExpr.comp, compDecl);
             return compDecl.type;
         } catch (SymbTable.CannotFndNameException e) {
-            throw new Report.Error(recExpr.comp.location(), "CompName:" + recExpr.comp.name + " not found in the symbol table");
+            throw new Report.Error(recExpr.comp.location(), "Component" + recExpr.comp.name + " not found in the symbol table");
         }
     }
 
@@ -94,8 +91,9 @@ public class RecNamer extends AbsFullVisitor<Object, Object> {
 
     public Object visit(AbsTypeName typeName, Object visArg) {
         AbsType type = typeName;
-        while (type instanceof AbsTypeName)
+        while (type instanceof AbsTypeName) {
             type = SemAn.declAt().get((AbsTypeName) type).type;
+        }
         return type;
     }
 

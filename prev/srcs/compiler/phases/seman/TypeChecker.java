@@ -208,6 +208,7 @@ public class TypeChecker implements AbsVisitor<SemType, Object> {
 
         type = recType.compTypes().get(idx);
         SemAn.isOfType().put(node, type);
+        node.accept(new RecordNamer(), null);
         return type;
     }
 

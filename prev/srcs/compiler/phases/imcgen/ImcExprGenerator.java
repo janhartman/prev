@@ -17,10 +17,20 @@ public class ImcExprGenerator implements AbsVisitor<ImcExpr, Stack<Frame>> {
      */
 
 
-    // TODO what is actually done here
     public ImcExpr visit(AbsArrExpr node, Stack<Frame> stack) {
+        ImcExpr array = node.array.accept(this, stack);
+        ImcExpr index = node.index.accept(this, stack);
 
-        return null;
+        if (array instanceof ImcMEM) {
+            array = ((ImcMEM) array).addr;
+        }
+
+        SemType exprType = SemAn.isOfType().get(node);
+        ImcBINOP times = new ImcBINOP(ImcBINOP.Oper.MUL, index, new ImcCONST(exprType.size()));
+        ImcBINOP plus = new ImcBINOP(ImcBINOP.Oper.ADD, array, times);
+        ImcGen.exprImCode.put(node, plus);
+
+        return new ImcMEM(plus);
     }
 
 
@@ -42,7 +52,9 @@ public class ImcExprGenerator implements AbsVisitor<ImcExpr, Stack<Frame>> {
                 break;
         }
 
-        return new ImcCONST(value);
+        ImcCONST constant = new ImcCONST(value);
+        ImcGen.exprImCode.put(node, constant);
+        return constant;
     }
 
 
@@ -96,165 +108,162 @@ public class ImcExprGenerator implements AbsVisitor<ImcExpr, Stack<Frame>> {
                 break;
         }
 
-        return new ImcBINOP(oper, fst, snd);
+        ImcBINOP binop = new ImcBINOP(oper, fst, snd);
+        ImcGen.exprImCode.put(node, binop);
+        return binop;
     }
 
 
-    // TODO what is actually done here
     public ImcExpr visit(AbsCastExpr node, Stack<Frame> stack) {
-        return null;
+        return node.expr.accept(this, stack);
     }
 
 
     public ImcExpr visit(AbsDelExpr node, Stack<Frame> stack) {
-        Vector<ImcExpr> vec = new Vector<>(1);
-        vec.add(node.expr.accept(this, stack));
-        return new ImcCALL(new Label("malloc"), vec);
+        ImcMEM mem = (ImcMEM) node.expr.accept(this, stack);
+        Vector<ImcExpr> vec = new Vector<>(2);
+        vec.add(new ImcTEMP(ImcGen.FP));
+        vec.add(mem.addr);
+
+        ImcCALL freeCall = new ImcCALL(new Label("free"), vec);
+        ImcGen.exprImCode.put(node, freeCall);
+        return freeCall;
     }
 
 
     public ImcExpr visit(AbsFunName node, Stack<Frame> stack) {
         Vector<ImcExpr> args = new Vector<>(node.args.args().size());
+        args.add(new ImcTEMP(ImcGen.FP));
 
         for (AbsExpr expr : node.args.args()) {
             args.add(expr.accept(this, stack));
         }
 
-        return new ImcCALL(stack.peek().label, args);
+        AbsFunDef funDef = (AbsFunDef) SemAn.declAt().get(node);
+        Frame frame = Frames.frames.get(funDef);
+
+        ImcCALL funCall = new ImcCALL(frame.label, args);
+        ImcGen.exprImCode.put(node, funCall);
+        return funCall;
     }
 
 
     public ImcExpr visit(AbsNewExpr node, Stack<Frame> stack) {
-        Vector<ImcExpr> vec = new Vector<>(1);
         SemType semType = SemAn.descType().get(node.type);
+        Vector<ImcExpr> vec = new Vector<>(2);
+        vec.add(new ImcTEMP(ImcGen.FP));
         vec.add(new ImcCONST(semType.size()));
-        return new ImcCALL(new Label("malloc"), vec);
+
+        ImcCALL mallocCall =  new ImcCALL(new Label("malloc"), vec);
+        ImcGen.exprImCode.put(node, mallocCall);
+        return mallocCall;
     }
 
 
-    // TODO what is actually done here
     public ImcExpr visit(AbsRecExpr node, Stack<Frame> stack) {
-        return null;
+        ImcExpr record = node.record.accept(this, stack);
+
+        if (record instanceof ImcMEM) {
+            record = ((ImcMEM) record).addr;
+        }
+
+        AbsCompDecl compDecl = (AbsCompDecl) SemAn.declAt().get(node.comp);
+        RelAccess relAccess = (RelAccess) Frames.accesses.get(compDecl);
+        ImcCONST offset = new ImcCONST(relAccess.offset);
+        ImcBINOP plus = new ImcBINOP(ImcBINOP.Oper.ADD, record, offset);
+        ImcGen.exprImCode.put(node, plus);
+
+        return new ImcMEM(plus);
     }
 
 
     public ImcExpr visit(AbsStmtExpr node, Stack<Frame> stack) {
+        node.decls.accept(this, stack);
         ImcStmt stmts = node.stmts.accept(new ImcStmtGenerator(), stack);
         ImcExpr expr = node.expr.accept(this, stack);
-        return new ImcSEXPR(stmts, expr);
+        ImcSEXPR sexpr = new ImcSEXPR(stmts, expr);
+        ImcGen.exprImCode.put(node, sexpr);
+        return sexpr;
     }
 
 
     public ImcExpr visit(AbsUnExpr node, Stack<Frame> stack) {
         ImcExpr subExpr = node.subExpr.accept(this, stack);
+        ImcExpr expr = null;
 
         switch (node.oper) {
             case NOT:
-                return new ImcUNOP(ImcUNOP.Oper.NOT, subExpr);
+                expr = new ImcUNOP(ImcUNOP.Oper.NOT, subExpr);
+                break;
             case ADD:
-                return subExpr;
+                expr = subExpr;
+                break;
             case SUB:
-                return new ImcUNOP(ImcUNOP.Oper.NEG, subExpr);
+                expr = new ImcUNOP(ImcUNOP.Oper.NEG, subExpr);
+                break;
             case MEM:
+                expr = ((ImcMEM) subExpr).addr;
+                break;
             case VAL:
-                return new ImcMEM(subExpr);
+                expr = new ImcMEM(subExpr);
+                break;
         }
 
-        return null;
+        ImcGen.exprImCode.put(node, expr);
+        return expr;
     }
 
 
-    // TODO get right label?
     public ImcExpr visit(AbsVarName node, Stack<Frame> stack) {
-        return new ImcNAME(new Label(node.name));
+        AbsVarDecl decl = (AbsVarDecl) SemAn.declAt().get(node);
+        Access access = Frames.accesses.get(decl);
+        ImcExpr expr;
+        if (access instanceof AbsAccess) {
+            expr =  new ImcNAME(((AbsAccess) access).label);
+        }
+        else {
+            RelAccess relAccess = (RelAccess) access;
+            expr = new ImcTEMP(ImcGen.FP);
+            int depth = stack.size();
+            while (depth > relAccess.depth) {
+                expr = new ImcMEM(expr);
+                depth--;
+            }
+            expr = new ImcBINOP(ImcBINOP.Oper.ADD, expr, new ImcCONST(relAccess.offset));
+        }
+
+        expr = new ImcMEM(expr);
+        ImcGen.exprImCode.put(node, expr);
+        return expr;
     }
 
 
-
-
-    // TODO do we need these?
-
-    /**
-     * types
-     */
-
-    public ImcExpr visit(AbsArrType node, Stack<Frame> stack) {
-        return null;
-    }
-
-
-    public ImcExpr visit(AbsAtomType node, Stack<Frame> stack) {
-        return null;
-    }
-
-
-    public ImcExpr visit(AbsPtrType node, Stack<Frame> stack) {
-        return null;
-    }
-
-
-    public ImcExpr visit(AbsRecType node, Stack<Frame> stack) {
-        return null;
-    }
-
-
-    public ImcExpr visit(AbsTypeName node, Stack<Frame> stack) {
-        return null;
-    }
 
 
     /**
      * declarations
      */
 
-    public ImcExpr visit(AbsCompDecl node, Stack<Frame> stack) {
-        return null;
-    }
-
-
-    public ImcExpr visit(AbsCompDecls node, Stack<Frame> stack) {
-        return null;
-    }
-
 
     public ImcExpr visit(AbsDecls node, Stack<Frame> stack) {
-        return null;
-    }
-
-
-    public ImcExpr visit(AbsFunDecl node, Stack<Frame> stack) {
+        for (AbsDecl decl: node.decls()) {
+            if (decl instanceof AbsFunDef) {
+                decl.accept(this, stack);
+            }
+        }
         return null;
     }
 
 
     public ImcExpr visit(AbsFunDef node, Stack<Frame> stack) {
+        if (stack == null) {
+            stack = new Stack<>();
+        }
+
+        Frame frame = Frames.frames.get(node);
+        stack.add(frame);
+        node.value.accept(this, stack);
+        stack.pop();
         return null;
     }
-
-
-    public ImcExpr visit(AbsParDecl node, Stack<Frame> stack) {
-        return null;
-    }
-
-
-    public ImcExpr visit(AbsParDecls node, Stack<Frame> stack) {
-        return null;
-    }
-
-
-    public ImcExpr visit(AbsTypeDecl node, Stack<Frame> stack) {
-        return null;
-    }
-
-
-    public ImcExpr visit(AbsVarDecl node, Stack<Frame> stack) {
-        return null;
-    }
-
-
-
-    public ImcExpr visit(AbsArgs node, Stack<Frame> stack) {
-        return null;
-    }
-
 }
