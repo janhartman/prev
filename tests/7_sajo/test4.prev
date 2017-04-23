@@ -1,0 +1,17 @@
+#checks nested functions
+#with calls
+{
+ none:foo_1(1) where fun foo_1(a1:int):int={
+    none:1 where
+    var r:int;
+      fun foo_2(a2:int):int={
+        none:1 where
+        fun foo_3(a3:int):int={
+            r=foo_1(1);
+            r=foo_2(1);
+            r=foo_3(1)
+            :1
+        }
+    }
+ }
+}

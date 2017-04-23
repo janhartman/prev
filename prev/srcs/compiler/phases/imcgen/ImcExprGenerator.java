@@ -195,12 +195,15 @@ public class ImcExprGenerator implements AbsVisitor<ImcExpr, Stack<Frame>> {
     }
 
 
-    // TODO add labels for global variables
     public ImcExpr visit(AbsStmtExpr node, Stack<Frame> stack) {
         node.decls.accept(this, stack);
+        ImcSTMTS decls = (ImcSTMTS) node.decls.accept(new ImcStmtGenerator(), stack);
         ImcStmt stmts = node.stmts.accept(new ImcStmtGenerator(), stack);
         ImcExpr expr = node.expr.accept(this, stack);
-        ImcSEXPR sexpr = new ImcSEXPR(stmts, expr);
+
+        Vector<ImcStmt> vec = decls.stmts();
+        vec.addAll(((ImcSTMTS) stmts).stmts());
+        ImcSEXPR sexpr = new ImcSEXPR(new ImcSTMTS(vec), expr);
         ImcGen.exprImCode.put(node, sexpr);
         return sexpr;
     }
@@ -265,15 +268,12 @@ public class ImcExprGenerator implements AbsVisitor<ImcExpr, Stack<Frame>> {
 
 
     public ImcExpr visit(AbsDecls node, Stack<Frame> stack) {
-        Vector<String> vec = new Vector<>();
 
         for (AbsDecl decl : node.decls()) {
             if (decl instanceof AbsFunDef) {
                 decl.accept(this, stack);
             }
-            if (decl instanceof AbsVarDecl && (stack == null || stack.empty())) {
-                vec.add(decl.name);
-            }
+
         }
         return null;
     }

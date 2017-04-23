@@ -1,0 +1,11 @@
+#checks switching of MEM and VAL
+#with array indexing
+{
+ @((@$@p)[2])=i:1
+ where
+ typ K:arr[3]ptr L;
+ typ L:arr[2] int;
+ typ I:ptr K;
+ var p: I;
+ var i:arr[2]int
+}
