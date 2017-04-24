@@ -6,8 +6,48 @@ import compiler.phases.abstr.*;
 import compiler.phases.abstr.abstree.*;
 import compiler.phases.frames.*;
 import compiler.phases.imcgen.code.*;
+import compiler.phases.seman.SemAn;
+import compiler.phases.seman.type.SemArrType;
+import compiler.phases.seman.type.SemRecType;
+import compiler.phases.seman.type.SemType;
 
 public class ImcStmtGenerator implements AbsVisitor<ImcStmt, Stack<Frame>> {
+
+    private ImcSTMTS copyArrRec (ImcExpr dst, ImcExpr src, SemType type) {
+        long typeSize = type.size();
+        Vector<ImcStmt> vec = new Vector<>();
+
+        if (dst instanceof ImcMEM) {
+            dst = ((ImcMEM) dst).addr;
+        }
+        if (src instanceof ImcMEM) {
+            src = ((ImcMEM) src).addr;
+        }
+
+        Label l0 = new Label();
+        Label l1 = new Label();
+        Label l2 = new Label();
+
+        ImcTEMP offset = new ImcTEMP(new Temp());
+        ImcTEMP size = new ImcTEMP(new Temp());
+
+        ImcBINOP dstOp = new ImcBINOP(ImcBINOP.Oper.ADD, dst, new ImcMEM(offset));
+        ImcBINOP srcOp = new ImcBINOP(ImcBINOP.Oper.ADD, src, new ImcMEM(offset));
+        ImcBINOP offsetOp = new ImcBINOP(ImcBINOP.Oper.ADD, new ImcMEM(offset), new ImcCONST(8));
+        ImcBINOP cond = new ImcBINOP(ImcBINOP.Oper.LTH, new ImcMEM(offset), new ImcMEM(size));
+
+        vec.add(new ImcMOVE(new ImcMEM(offset), new ImcCONST(0)));
+        vec.add(new ImcMOVE(new ImcMEM(size), new ImcCONST(typeSize)));
+        vec.add(new ImcLABEL(l0));
+        vec.add(new ImcCJUMP(cond, l1, l2));
+        vec.add(new ImcLABEL(l1));
+        vec.add(new ImcMOVE(new ImcMEM(dstOp), new ImcMEM(srcOp)));
+        vec.add(new ImcMOVE(new ImcMEM(offset), new ImcMEM(offsetOp)));
+        vec.add(new ImcJUMP(l0));
+        vec.add(new ImcLABEL(l2));
+
+        return new ImcSTMTS(vec);
+    }
 
     /**
      * statements
@@ -16,8 +56,12 @@ public class ImcStmtGenerator implements AbsVisitor<ImcStmt, Stack<Frame>> {
     public ImcStmt visit(AbsAssignStmt node, Stack<Frame> stack) {
         ImcExpr dst = node.dst.accept(new ImcExprGenerator(), stack);
         ImcExpr src = node.src.accept(new ImcExprGenerator(), stack);
+        ImcStmt move = new ImcMOVE(dst, src);
 
-        ImcMOVE move = new ImcMOVE(dst, src);
+        SemType type = SemAn.isOfType().get(node.dst);
+        if (type.isAKindOf(SemArrType.class) || type.isAKindOf(SemRecType.class)) {
+            move = copyArrRec(dst, src, type);
+        }
         ImcGen.stmtImCode.put(node, move);
         return move;
     }
