@@ -8,6 +8,7 @@ import compiler.phases.abstr.*;
 import compiler.phases.seman.*;
 import compiler.phases.frames.*;
 import compiler.phases.imcgen.*;
+import compiler.phases.lincode.*;
 
 /**
  * The compiler.
@@ -18,7 +19,7 @@ import compiler.phases.imcgen.*;
 public class Main {
 
 	/** All valid phases of the compiler. */
-	private static final String phases = "lexan|synan|abstr|seman|frames|imcgen";
+	private static final String phases = "lexan|synan|abstr|seman|frames|imcgen|lincode";
 
 	/** Values of command line arguments. */
 	private static HashMap<String, String> cmdLine = new HashMap<String, String>();
@@ -127,9 +128,9 @@ public class Main {
 					Abstr.absTree().accept(new AddrChecker(), null);
 					Abstr.absTree().accept(new TypeChecker(), null);
 
-					compiler.phases.seman.type.SemType typeOfPrg = SemAn.isOfType().get(Abstr.absTree());
-					if (!typeOfPrg.isAKindOf(compiler.phases.seman.type.SemIntType.class))
-						Report.warning("The program must return a result of type int.");
+					//compiler.phases.seman.type.SemType typeOfPrg = SemAn.isOfType().get(Abstr.absTree());
+					//if (!typeOfPrg.isAKindOf(compiler.phases.seman.type.SemIntType.class))
+					//	Report.warning("The program must return a result of type int.");
 				}
 				if (cmdLine.get("--target-phase").equals("seman"))
 					break;
@@ -143,8 +144,16 @@ public class Main {
 
 				// Intermediate code generation.
 				try (ImcGen imCode = new ImcGen()) {
-					Abstr.absTree().accept(new ImcExprGenerator(), null);
+					Abstr.absTree().accept(new ImcDeclGenerator(), new Stack<Frame>());
 				}
+				if (cmdLine.get("--target-phase").equals("imcgen"))
+					break;
+				
+				// Linear intermediate code.
+				try (LinCode linCode = new LinCode()) {
+					Abstr.absTree().accept(new Fragmenter(), null);
+				}
+				new Interpreter().execute();
 				if (cmdLine.get("--target-phase").equals("imcgen"))
 					break;
 

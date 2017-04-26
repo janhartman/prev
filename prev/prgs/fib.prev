@@ -1,0 +1,54 @@
+{ i=0;
+  while i<10 do
+    { i=i+1;
+      printint(ifib(i));println()
+      : none }
+    end;
+  i=0;
+  while i<10 do
+    { i=i+1;
+      printint(rfib(i));println()
+      : none }
+    end
+  : 0
+  where
+    var i:int;
+    fun ifib(n:int):int =
+        { 
+          if n==1 then f=1 else
+          if n==2 then f=1 else
+            {
+              f1=1; f2=1;
+              i=2;
+              while i<n  do
+                { 
+                  f=f1+f2; f1=f2; f2=f;
+                  i=i+1
+                  : none
+                  where
+                    var tmp:int
+                }
+              end;
+              f=f2
+              : none
+              where
+                var i:int;
+                var f1:int;
+                var f2:int
+            }
+          end
+          end
+          : f
+          where var f:int
+        };
+    fun rfib(n:int):int =
+        {
+          if n==1 then f=1 else if n==2 then f=1 else f=rfib(n-2)+rfib(n-1) end end
+          : f
+          where
+            var f:int
+        };
+    fun printchar(c:char):void;
+    fun printint(i:int):void;
+    fun println():void
+}
