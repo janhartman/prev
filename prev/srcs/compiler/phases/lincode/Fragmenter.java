@@ -15,11 +15,12 @@ public class Fragmenter extends AbsFullVisitor<Object, Object> {
 		Temp RV = new Temp();
 		Label begLabel = new Label();
 		Label endLabel = new Label();
-		ImcStmt stmt = new ImcMOVE(new ImcTEMP(RV), ImcGen.exprImCode.get(funDef.value));
+		ImcExpr value = ImcGen.exprImCode.get(funDef.value);
+		ImcStmt stmt = new ImcMOVE(new ImcTEMP(RV), value);
 		{
 			Vector<ImcStmt> canStmts = new Vector<ImcStmt>();
 
-			// TODO
+
 
 			CodeFragment fragment = new CodeFragment(frame, canStmts, ImcGen.FP, RV, begLabel, endLabel);
 			LinCode.add(fragment);

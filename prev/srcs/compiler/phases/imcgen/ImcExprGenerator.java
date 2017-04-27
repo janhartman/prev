@@ -197,13 +197,9 @@ public class ImcExprGenerator implements AbsVisitor<ImcExpr, Stack<Frame>> {
 
     public ImcExpr visit(AbsStmtExpr node, Stack<Frame> stack) {
         node.decls.accept(this, stack);
-        ImcSTMTS decls = (ImcSTMTS) node.decls.accept(new ImcStmtGenerator(), stack);
         ImcStmt stmts = node.stmts.accept(new ImcStmtGenerator(), stack);
         ImcExpr expr = node.expr.accept(this, stack);
-
-        Vector<ImcStmt> vec = decls.stmts();
-        vec.addAll(((ImcSTMTS) stmts).stmts());
-        ImcSEXPR sexpr = new ImcSEXPR(new ImcSTMTS(vec), expr);
+        ImcSEXPR sexpr = new ImcSEXPR(stmts, expr);
         ImcGen.exprImCode.put(node, sexpr);
         return sexpr;
     }

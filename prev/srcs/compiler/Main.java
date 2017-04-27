@@ -144,7 +144,7 @@ public class Main {
 
 				// Intermediate code generation.
 				try (ImcGen imCode = new ImcGen()) {
-					Abstr.absTree().accept(new ImcDeclGenerator(), new Stack<Frame>());
+					Abstr.absTree().accept(new ImcExprGenerator(), new Stack<Frame>());
 				}
 				if (cmdLine.get("--target-phase").equals("imcgen"))
 					break;
@@ -154,7 +154,7 @@ public class Main {
 					Abstr.absTree().accept(new Fragmenter(), null);
 				}
 				new Interpreter().execute();
-				if (cmdLine.get("--target-phase").equals("imcgen"))
+				if (cmdLine.get("--target-phase").equals("lincode"))
 					break;
 
 				int endWarnings = Report.numOfWarnings();

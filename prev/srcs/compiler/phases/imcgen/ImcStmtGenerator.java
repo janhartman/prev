@@ -125,16 +125,5 @@ public class ImcStmtGenerator implements AbsVisitor<ImcStmt, Stack<Frame>> {
         ImcGen.stmtImCode.put(node, whileStmt);
         return whileStmt;
     }
-
-
-    public ImcStmt visit(AbsDecls node, Stack<Frame> stack) {
-        Vector<ImcStmt> vec = new Vector<>();
-
-        for (AbsDecl decl : node.decls()) {
-            if (decl instanceof AbsVarDecl && (stack == null || stack.empty())) {
-                vec.add(new ImcLABEL(((AbsAccess) Frames.accesses.get((AbsVarDecl) decl)).label));
-            }
-        }
-        return new ImcSTMTS(vec);
-    }
+    
 }

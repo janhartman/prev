@@ -9,7 +9,7 @@ import compiler.phases.frames.*;
  * @author sliva
  *
  */
-public class bDataFragment extends Fragment {
+public class DataFragment extends Fragment {
 
 	/** The entry label. */
 	public final Label label;
