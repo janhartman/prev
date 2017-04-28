@@ -16,7 +16,7 @@ public class CodeFragment extends Fragment {
 	
 	// The frame pointer.
 	public final Temp FP;
-	
+
 	// The return value.
 	public final Temp RV;
 	

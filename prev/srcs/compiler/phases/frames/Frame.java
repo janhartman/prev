@@ -30,7 +30,7 @@ public class Frame implements Loggable {
 	 * Constructs a new frame with no temporary variables and no saved
 	 * registers.
 	 * 
-	 * @param name
+	 * @param label
 	 *            The function's entry label.
 	 * @param depth
 	 *            The function's static depth (>0).

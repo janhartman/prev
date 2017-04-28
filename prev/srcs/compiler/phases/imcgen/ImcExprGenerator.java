@@ -283,8 +283,7 @@ public class ImcExprGenerator implements AbsVisitor<ImcExpr, Stack<Frame>> {
         Frame frame = Frames.frames.get(node);
         stack.add(frame);
         ImcExpr expr = node.value.accept(this, stack);
-        ImcSEXPR sexpr = new ImcSEXPR(new ImcLABEL(new Label()), expr);
-        ImcGen.exprImCode.put(node.value, sexpr);
+        ImcGen.exprImCode.put(node.value, expr);
         stack.pop();
         return null;
     }
