@@ -28,21 +28,23 @@ public class ImcStmtGenerator implements AbsVisitor<ImcStmt, Stack<Frame>> {
         Label l1 = new Label();
         Label l2 = new Label();
 
+        // temporary variables for offset and size - copying one 8-byte word at a time
         ImcTEMP offset = new ImcTEMP(new Temp());
         ImcTEMP size = new ImcTEMP(new Temp());
 
-        ImcBINOP dstOp = new ImcBINOP(ImcBINOP.Oper.ADD, dst, new ImcMEM(offset));
-        ImcBINOP srcOp = new ImcBINOP(ImcBINOP.Oper.ADD, src, new ImcMEM(offset));
-        ImcBINOP offsetOp = new ImcBINOP(ImcBINOP.Oper.ADD, new ImcMEM(offset), new ImcCONST(8));
-        ImcBINOP cond = new ImcBINOP(ImcBINOP.Oper.LTH, new ImcMEM(offset), new ImcMEM(size));
+        ImcBINOP dstOp = new ImcBINOP(ImcBINOP.Oper.ADD, dst,offset);
+        ImcBINOP srcOp = new ImcBINOP(ImcBINOP.Oper.ADD, src, offset);
+        ImcBINOP offsetOp = new ImcBINOP(ImcBINOP.Oper.ADD, offset, new ImcCONST(8));
+        ImcBINOP cond = new ImcBINOP(ImcBINOP.Oper.LTH, offset, size);
 
-        vec.add(new ImcMOVE(new ImcMEM(offset), new ImcCONST(0)));
-        vec.add(new ImcMOVE(new ImcMEM(size), new ImcCONST(typeSize)));
+        vec.add(new ImcMOVE(offset, new ImcCONST(0)));
+        vec.add(new ImcMOVE(size, new ImcCONST(typeSize)));
+
         vec.add(new ImcLABEL(l0));
         vec.add(new ImcCJUMP(cond, l1, l2));
         vec.add(new ImcLABEL(l1));
         vec.add(new ImcMOVE(new ImcMEM(dstOp), new ImcMEM(srcOp)));
-        vec.add(new ImcMOVE(new ImcMEM(offset), new ImcMEM(offsetOp)));
+        vec.add(new ImcMOVE(offset, offsetOp));
         vec.add(new ImcJUMP(l0));
         vec.add(new ImcLABEL(l2));
 

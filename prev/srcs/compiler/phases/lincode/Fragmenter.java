@@ -31,9 +31,24 @@ public class Fragmenter extends AbsFullVisitor<Object, Object> {
 
 	// TODO
 	public Object visit(AbsArrExpr node, Object visArg) {
-		node.array.accept(this, visArg);
-		node.index.accept(this, visArg);
-		return null;
+		ImcExpr origExpr = ImcGen.exprImCode.get(node);
+		ImcExpr array = (ImcExpr) node.array.accept(this, visArg);
+		ImcExpr index = (ImcExpr) node.index.accept(this, visArg);
+
+		if (array instanceof ImcMEM) {
+			array = ((ImcMEM) array).addr;
+		}
+
+		if (index instanceof ImcCALL) {
+			ImcTEMP t = new ImcTEMP(new Temp());
+			stack.peek().add(new ImcMOVE(t, index));
+			index = t;
+		}
+
+		ImcBINOP times = new ImcBINOP(ImcBINOP.Oper.MUL, index, ((ImcBINOP)((ImcMEM) origExpr).addr).fstExpr);
+		ImcBINOP plus = new ImcBINOP(ImcBINOP.Oper.ADD, array, times);
+
+		return new ImcMEM(plus);
 	}
 
 	public Object visit(AbsAtomExpr node, Object visArg) {
@@ -50,17 +65,19 @@ public class Fragmenter extends AbsFullVisitor<Object, Object> {
 		Vector<ImcStmt> stmts = stack.peek();
 
 		ImcExpr fstExpr = (ImcExpr) node.fstExpr.accept(this, visArg);
-		ImcTEMP t1 = new ImcTEMP(new Temp());
-		stmts.add(new ImcMOVE(t1, fstExpr));
-
 		ImcExpr sndExpr = (ImcExpr) node.sndExpr.accept(this, visArg);
+
+		if (!(origExpr.fstExpr instanceof ImcCONST)) {
+			ImcTEMP t1 = new ImcTEMP(new Temp());
+			stmts.add(new ImcMOVE(t1, fstExpr));
+		}
 		if (!(origExpr.sndExpr instanceof ImcCONST)) {
 			ImcTEMP t2 = new ImcTEMP(new Temp());
 			stmts.add(new ImcMOVE(t2, sndExpr));
 			sndExpr = t2;
 		}
 
-		ImcBINOP newExpr = new ImcBINOP(origExpr.oper, t1, sndExpr);
+		ImcBINOP newExpr = new ImcBINOP(origExpr.oper, fstExpr, sndExpr);
 
 		if (globExpr.equals(origExpr)) {
 			globExpr = newExpr;
@@ -173,10 +190,10 @@ public class Fragmenter extends AbsFullVisitor<Object, Object> {
 		statements
 	 */
 
-	// TODO handle arr/rec
 	public Object visit(AbsAssignStmt node, Object visArg) {
 		ImcExpr dst = (ImcExpr) node.dst.accept(this, visArg);
 		ImcExpr src = (ImcExpr) node.src.accept(this, visArg);
+		ImcStmt origStmt = ImcGen.stmtImCode.get(node);
 
 		if (src instanceof ImcCALL) {
 			ImcTEMP t = new ImcTEMP(new Temp());
@@ -185,7 +202,14 @@ public class Fragmenter extends AbsFullVisitor<Object, Object> {
 			src = t;
 		}
 
-		stack.peek().add(new ImcMOVE(dst, src));
+		// array / record copying
+		if (origStmt instanceof ImcSTMTS) {
+			stack.peek().addAll(((ImcSTMTS) origStmt).stmts());
+		}
+		else {
+			stack.peek().add(new ImcMOVE(dst, src));
+		}
+
 		return null;
 	}
 

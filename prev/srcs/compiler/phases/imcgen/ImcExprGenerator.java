@@ -28,9 +28,10 @@ public class ImcExprGenerator implements AbsVisitor<ImcExpr, Stack<Frame>> {
         SemType exprType = SemAn.isOfType().get(node);
         ImcBINOP times = new ImcBINOP(ImcBINOP.Oper.MUL, index, new ImcCONST(exprType.size()));
         ImcBINOP plus = new ImcBINOP(ImcBINOP.Oper.ADD, array, times);
-        ImcGen.exprImCode.put(node, plus);
 
-        return new ImcMEM(plus);
+        ImcMEM mem = new ImcMEM(plus);
+        ImcGen.exprImCode.put(node, mem);
+        return mem;
     }
 
 
@@ -189,9 +190,10 @@ public class ImcExprGenerator implements AbsVisitor<ImcExpr, Stack<Frame>> {
         RelAccess relAccess = (RelAccess) Frames.accesses.get(compDecl);
         ImcCONST offset = new ImcCONST(relAccess.offset);
         ImcBINOP plus = new ImcBINOP(ImcBINOP.Oper.ADD, record, offset);
-        ImcGen.exprImCode.put(node, plus);
+        ImcMEM mem = new ImcMEM(plus);
+        ImcGen.exprImCode.put(node, mem);
 
-        return new ImcMEM(plus);
+        return mem;
     }
 
 
