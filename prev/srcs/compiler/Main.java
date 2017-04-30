@@ -151,10 +151,7 @@ public class Main {
 				
 				// Linear intermediate code.
 				try (LinCode linCode = new LinCode()) {
-					Fragmenter frag = new Fragmenter();
-					Abstr.absTree().accept(frag, null);
-					new GlobalFragmenter(frag.globStmts, frag.globExpr).add();
-
+					Abstr.absTree().accept(new Fragmenter(), null);
 				}
 				new Interpreter().execute();
 				if (cmdLine.get("--target-phase").equals("lincode"))

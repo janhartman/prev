@@ -49,10 +49,10 @@ public class Interpreter {
 		tmp.push(new HashMap<Temp, Long>());
 		
 		if (debug == DEBUG.FULL)
-			System.err.println("ENTER: " + codeFragment.frame.label.name);
+			System.out.println("ENTER: " + codeFragment.frame.label.name);
 		if (debug == DEBUG.FULL) {
-			// System.err.println("FP=" + new Long(FP));
-			System.err.println("SP=" + new Long(SP));
+			// System.out.println("FP=" + new Long(FP));
+			System.out.println("SP=" + new Long(SP));
 		}
 
 		// Create a stack frame.
@@ -61,8 +61,8 @@ public class Interpreter {
 		SP = SP - codeFragment.frame.size;
 
 		if (debug == DEBUG.FULL) {
-			System.err.println("FP=" + tmpLD(codeFragment.FP));
-			System.err.println("SP=" + new Long(SP));
+			System.out.println("FP=" + tmpLD(codeFragment.FP));
+			System.out.println("SP=" + new Long(SP));
 		}
 
 		// Execute.
@@ -86,7 +86,7 @@ public class Interpreter {
 
 		// Return the result.
 		if (debug == DEBUG.FULL) {
-			System.err.println("RV=" + tmpLD(codeFragment.RV));
+			System.out.println("RV=" + tmpLD(codeFragment.RV));
 		}
 		memST(tmpLD(codeFragment.FP), tmpLD(codeFragment.RV));
 
@@ -95,9 +95,9 @@ public class Interpreter {
 		tmpST(codeFragment.FP, memLD(SP - codeFragment.frame.locsSize - 8));
 
 		if (debug == DEBUG.FULL)
-			System.err.println("LEAVE: " + codeFragment.frame.label.name);
+			System.out.println("LEAVE: " + codeFragment.frame.label.name);
 		if (debug == DEBUG.FULL) {
-			System.err.println("SP=" + new Long(SP));
+			System.out.println("SP=" + new Long(SP));
 		}
 
 		tmp.pop();
@@ -259,7 +259,7 @@ public class Interpreter {
 		}
 
 		public Long visit(ImcNAME name, Object visArg) {
-			Long value = addr.get(name.label.name);
+			Long value = addr.get(name.label);
 			return value;
 		}
 

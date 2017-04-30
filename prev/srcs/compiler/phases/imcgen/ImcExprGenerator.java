@@ -45,7 +45,7 @@ public class ImcExprGenerator implements AbsVisitor<ImcExpr, Stack<Frame>> {
                 value = Boolean.valueOf(node.expr) ? 1 : 0;
                 break;
             case CHAR:
-                value = Character.getNumericValue(node.expr.charAt(1));
+                value = (long)(node.expr.charAt(1));
                 break;
             case INT:
                 value = Long.parseLong(node.expr);

@@ -83,6 +83,9 @@ public class FrameEvaluator extends AbsFullVisitor<Object, Long> {
         node.stmts.accept(this, 1L);
         node.expr.accept(this, 1L);
 
+        if (visArg != null && visArg == 1L) {
+            scope--;
+        }
         return null;
     }
 

@@ -10,11 +10,11 @@ import compiler.phases.imcgen.code.*;
 
 public class Fragmenter extends AbsFullVisitor<Object, Object> {
 
-	public Vector<ImcStmt> globStmts;
-	public ImcExpr globExpr;
+	private Stack<Vector<ImcStmt>> stack;
+	private ImcExpr globExpr;
 
 	public Fragmenter() {
-		this.globStmts = new Vector<>();
+		this.stack = new Stack<>();
 		this.globExpr = null;
 	}
 
@@ -22,12 +22,14 @@ public class Fragmenter extends AbsFullVisitor<Object, Object> {
 	 * 	expressions
 	 */
 
+	// TODO check for any function calls
 	public Object visit(AbsArgs node, Object visArg) {
 		for (AbsExpr expr : node.args())
 			expr.accept(this, visArg);
 		return null;
 	}
 
+	// TODO
 	public Object visit(AbsArrExpr node, Object visArg) {
 		node.array.accept(this, visArg);
 		node.index.accept(this, visArg);
@@ -35,40 +37,64 @@ public class Fragmenter extends AbsFullVisitor<Object, Object> {
 	}
 
 	public Object visit(AbsAtomExpr node, Object visArg) {
-		return null;
+		return ImcGen.exprImCode.get(node);
 	}
 
 	public Object visit(AbsBinExpr node, Object visArg) {
+		ImcBINOP origExpr = (ImcBINOP) ImcGen.exprImCode.get(node);
+
 		if (globExpr == null) {
-			globExpr = ImcGen.exprImCode.get(node);
+			globExpr = origExpr;
+			stack.add(new Vector<>());
+		}
+		Vector<ImcStmt> stmts = stack.peek();
+
+		ImcExpr fstExpr = (ImcExpr) node.fstExpr.accept(this, visArg);
+		ImcTEMP t1 = new ImcTEMP(new Temp());
+		stmts.add(new ImcMOVE(t1, fstExpr));
+
+		ImcExpr sndExpr = (ImcExpr) node.sndExpr.accept(this, visArg);
+		if (!(origExpr.sndExpr instanceof ImcCONST)) {
+			ImcTEMP t2 = new ImcTEMP(new Temp());
+			stmts.add(new ImcMOVE(t2, sndExpr));
+			sndExpr = t2;
 		}
 
-		node.fstExpr.accept(this, visArg);
-		node.sndExpr.accept(this, visArg);
-		return null;
+		ImcBINOP newExpr = new ImcBINOP(origExpr.oper, t1, sndExpr);
+
+		if (globExpr.equals(origExpr)) {
+			globExpr = newExpr;
+			add();
+		}
+
+		return newExpr;
 	}
 
 	public Object visit(AbsCastExpr node, Object visArg) {
-		node.type.accept(this, visArg);
-		node.expr.accept(this, visArg);
-		return null;
+		return node.expr.accept(this, visArg);
 	}
 
+	// TODO check for nested function call
 	public Object visit(AbsDelExpr node, Object visArg) {
-		node.expr.accept(this, visArg);
+		ImcCALL freeCall = (ImcCALL) ImcGen.exprImCode.get(node);
+		ImcMEM mem = (ImcMEM) node.expr.accept(this, visArg);
+		//freeCall.args()
 		return null;
 	}
 
+	// TODO
 	public Object visit(AbsFunName node, Object visArg) {
 		node.args.accept(this, visArg);
-		return null;
+		return ImcGen.exprImCode.get(node);
 	}
 
+	// TODO
 	public Object visit(AbsNewExpr node, Object visArg) {
 		node.type.accept(this, visArg);
 		return null;
 	}
 
+	// TODO
 	public Object visit(AbsRecExpr node, Object visArg) {
 		node.record.accept(this, visArg);
 		node.comp.accept(this, visArg);
@@ -76,28 +102,70 @@ public class Fragmenter extends AbsFullVisitor<Object, Object> {
 	}
 
 	public Object visit(AbsStmtExpr node, Object visArg) {
+		ImcExpr origExpr = ImcGen.exprImCode.get(node);
+
 		if (globExpr == null) {
-			globExpr = ImcGen.exprImCode.get(node.expr);
+			globExpr = origExpr;
+			stack.add(new Vector<>());
 		}
 
 		node.decls.accept(this, visArg);
 		node.stmts.accept(this, visArg);
-		node.expr.accept(this, visArg);
-		return null;
+		ImcExpr newExpr = (ImcExpr) node.expr.accept(this, visArg);
+
+		if (globExpr.equals(origExpr)) {
+			globExpr = newExpr;
+			add();
+		}
+		return newExpr;
 	}
 
 	public Object visit(AbsUnExpr node, Object visArg) {
+		ImcExpr origExpr = ImcGen.exprImCode.get(node);
+
 		if (globExpr == null) {
-			globExpr = ImcGen.exprImCode.get(node);
-			globStmts.add(new ImcESTMT(new ImcCONST(0)));
+			globExpr = origExpr;
+			stack.add(new Vector<>());
 		}
 
-		node.subExpr.accept(this, visArg);
-		return null;
+		ImcExpr subExpr = (ImcExpr) node.subExpr.accept(this, visArg);
+
+		if (subExpr instanceof ImcCALL) {
+			ImcTEMP t = new ImcTEMP(new Temp());
+			Vector<ImcStmt> stmts = stack.peek();
+			stmts.add(new ImcMOVE(t, subExpr));
+			subExpr = t;
+		}
+
+		ImcExpr newExpr = subExpr;
+
+		switch(node.oper) {
+			case NOT:
+				newExpr = new ImcUNOP(ImcUNOP.Oper.NOT, subExpr);
+				break;
+			case SUB:
+				newExpr = new ImcUNOP(ImcUNOP.Oper.NEG, subExpr);
+				break;
+
+			// TODO fix if necessary - subExpr might be a temporary variable
+			case MEM:
+				newExpr = ((ImcMEM) subExpr).addr;
+				break;
+			case VAL:
+				newExpr = new ImcMEM(subExpr);
+				break;
+		}
+
+		if (globExpr.equals(origExpr)) {
+			globExpr = newExpr;
+			add();
+		}
+
+		return newExpr;
 	}
 
 	public Object visit(AbsVarName node, Object visArg) {
-		return null;
+		return ImcGen.exprImCode.get(node);
 	}
 
 
@@ -105,21 +173,44 @@ public class Fragmenter extends AbsFullVisitor<Object, Object> {
 		statements
 	 */
 
-
+	// TODO handle arr/rec
 	public Object visit(AbsAssignStmt node, Object visArg) {
-		node.dst.accept(this, visArg);
-		node.src.accept(this, visArg);
+		ImcExpr dst = (ImcExpr) node.dst.accept(this, visArg);
+		ImcExpr src = (ImcExpr) node.src.accept(this, visArg);
+
+		if (src instanceof ImcCALL) {
+			ImcTEMP t = new ImcTEMP(new Temp());
+			Vector<ImcStmt> stmts = stack.peek();
+			stmts.add(new ImcMOVE(t, src));
+			src = t;
+		}
+
+		stack.peek().add(new ImcMOVE(dst, src));
 		return null;
 	}
 
 	public Object visit(AbsExprStmt node, Object visArg) {
-		node.expr.accept(this, visArg);
+		ImcExpr expr = (ImcExpr) node.expr.accept(this, visArg);
+		stack.peek().add(new ImcESTMT(expr));
 		return null;
 	}
 
 	public Object visit(AbsIfStmt node, Object visArg) {
-		node.cond.accept(this, visArg);
+		ImcExpr cond = (ImcExpr) node.cond.accept(this, visArg);
+		if (cond instanceof ImcCALL) {
+			ImcTEMP t = new ImcTEMP(new Temp());
+			stack.peek().add(new ImcMOVE(t, cond));
+			cond = t;
+		}
+
+		Vector<ImcStmt> stmts = ((ImcSTMTS) ImcGen.stmtImCode.get(node)).stmts();
+		Label l1 = ((ImcLABEL) stmts.get(1)).label;
+		Label l2 = ((ImcLABEL) stmts.get(3)).label;
+
+		stack.peek().add(new ImcCJUMP(cond, l1, l2));
+		stack.peek().add(stmts.get(1));
 		node.thenBody.accept(this, visArg);
+		stack.peek().add(stmts.get(3));
 		node.elseBody.accept(this, visArg);
 		return null;
 	}
@@ -131,8 +222,24 @@ public class Fragmenter extends AbsFullVisitor<Object, Object> {
 	}
 
 	public Object visit(AbsWhileStmt node, Object visArg) {
-		node.cond.accept(this, visArg);
+		Vector<ImcStmt> stmts = ((ImcSTMTS) ImcGen.stmtImCode.get(node)).stmts();
+		stack.peek().add(stmts.get(0));
+
+		ImcExpr cond = (ImcExpr) node.cond.accept(this, visArg);
+		Label l1 = ((ImcLABEL) stmts.get(2)).label;
+		Label l2 = ((ImcLABEL) stmts.get(5)).label;
+
+		if (cond instanceof ImcCALL) {
+			ImcTEMP t = new ImcTEMP(new Temp());
+			stack.peek().add(new ImcMOVE(t, cond));
+			cond = t;
+		}
+
+		stack.peek().add(new ImcCJUMP(cond, l1, l2));
+		stack.peek().add(stmts.get(2));
 		node.body.accept(this, visArg);
+		stack.peek().add(stmts.get(4));
+		stack.peek().add(stmts.get(5));
 		return null;
 	}
 
@@ -162,20 +269,21 @@ public class Fragmenter extends AbsFullVisitor<Object, Object> {
 		Temp RV = new Temp();
 		Label begLabel = new Label();
 		Label endLabel = new Label();
-		ImcExpr value = ImcGen.exprImCode.get(node.value);
-		ImcStmt stmt = new ImcMOVE(new ImcTEMP(RV), value);
 		{
-			Vector<ImcStmt> canStmts = new Vector<ImcStmt>();
+			Vector<ImcStmt> canStmts = new Vector<>();
 			canStmts.add(new ImcLABEL(begLabel));
 
-			canStmts.add(stmt);
+			stack.add(canStmts);
+			ImcExpr value = (ImcExpr) node.value.accept(this, null);
+			canStmts = stack.pop();
 
+			canStmts.add(new ImcMOVE(new ImcTEMP(RV), value));
 			canStmts.add(new ImcJUMP(endLabel));
 			canStmts.add(new ImcLABEL(endLabel));
+
 			CodeFragment fragment = new CodeFragment(frame, canStmts, ImcGen.FP, RV, begLabel, endLabel);
 			LinCode.add(fragment);
 		}
-		node.value.accept(this, null);
 		return null;
 	}
 
@@ -200,4 +308,25 @@ public class Fragmenter extends AbsFullVisitor<Object, Object> {
 		return null;
 	}
 
+
+	/**
+		Adds the global code fragment (not in a frame, so we make a new bogus one)
+	 */
+	public void add() {
+		Frame frame = new Frame(new Label(""), 0, 0, 0);
+		Temp RV = new Temp();
+		Label begLabel = new Label();
+		Label endLabel = new Label();
+		ImcStmt stmt = new ImcMOVE(new ImcTEMP(RV), globExpr);
+
+		Vector<ImcStmt> canStmts = new Vector<>();
+		canStmts.add(new ImcLABEL(begLabel));
+		canStmts.addAll(stack.peek());
+		canStmts.add(stmt);
+		canStmts.add(new ImcJUMP(endLabel));
+		canStmts.add(new ImcLABEL(endLabel));
+
+		CodeFragment fragment = new CodeFragment(frame, canStmts, ImcGen.FP, RV, begLabel, endLabel);
+		LinCode.add(fragment);
+	}
 }
