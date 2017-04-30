@@ -4,11 +4,16 @@
         where
         var n: int;
         fun fib(n: int): int = {
-            if (n < 2)
+            if (n < 1)
             then
-                ret = 1
+                ret = 0
             else
-                ret = fib(n-1) + fib(n-2)
+                if (n == 1)
+                then
+                    ret = 1
+                else
+                    ret = fib(n-1) + fib(n-2)
+                end
             end
             : ret
             where

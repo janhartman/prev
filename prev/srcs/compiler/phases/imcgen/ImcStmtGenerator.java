@@ -84,12 +84,15 @@ public class ImcStmtGenerator implements AbsVisitor<ImcStmt, Stack<Frame>> {
         Vector<ImcStmt> stmts = new Vector<>();
         Label l1 = new Label();
         Label l2 = new Label();
+        Label l3 = new Label();
 
         stmts.add(new ImcCJUMP(cond, l1, l2));
         stmts.add(new ImcLABEL(l1));
         stmts.add(thenBody);
+        stmts.add(new ImcJUMP(l3));
         stmts.add(new ImcLABEL(l2));
         stmts.add(elseBody);
+        stmts.add(new ImcLABEL(l3));
 
         ImcSTMTS ifStmt = new ImcSTMTS(stmts);
         ImcGen.stmtImCode.put(node, ifStmt);

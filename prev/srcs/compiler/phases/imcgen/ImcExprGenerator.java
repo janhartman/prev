@@ -46,7 +46,7 @@ public class ImcExprGenerator implements AbsVisitor<ImcExpr, Stack<Frame>> {
                 value = Boolean.valueOf(node.expr) ? 1 : 0;
                 break;
             case CHAR:
-                value = (long)(node.expr.charAt(1));
+                value = (long) (node.expr.charAt(1));
                 break;
             case INT:
                 value = Long.parseLong(node.expr);
@@ -138,11 +138,9 @@ public class ImcExprGenerator implements AbsVisitor<ImcExpr, Stack<Frame>> {
         Label label;
         ImcExpr staticLink = new ImcTEMP(ImcGen.FP);
 
-        if (! (decl instanceof AbsFunDef)) {
+        if (!(decl instanceof AbsFunDef)) {
             label = new Label(node.name);
-        }
-
-        else {
+        } else {
             AbsFunDef funDef = (AbsFunDef) decl;
             Frame frame = Frames.frames.get(funDef);
             label = frame.label;
