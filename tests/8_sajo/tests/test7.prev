@@ -1,0 +1,16 @@
+#factorial(n)+n
+{
+ i=6;
+ i=i+foo(i):
+ i
+ where
+ var i:int;
+ fun foo(n:int):int={
+    a=1;
+     while n>0 do
+     a=n*a;
+     n=n-1
+     end
+     :a where var a:int
+ }
+}

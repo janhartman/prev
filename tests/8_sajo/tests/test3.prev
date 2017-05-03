@@ -1,0 +1,4 @@
+#nested SEXPR as STMT
+{
+ {{{a=1:none where var a:int}:none}:none}:1
+}

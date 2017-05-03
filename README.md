@@ -5,7 +5,7 @@ To compile:
 create folder out on the same level as the folder prev  
 `mkdir out`  
 `cd prev/srcs`  
-`javac -d ../../out compiler\Main.java`
+`javac -d ../../out compiler/Main.java`
 
 To run:  
 `java -cp out compiler.Main source.prev`

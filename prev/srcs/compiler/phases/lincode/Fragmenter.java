@@ -22,7 +22,6 @@ public class Fragmenter extends AbsFullVisitor<Object, Object> {
      * expressions
      */
 
-    // TODO check for any function calls
     public Object visit(AbsArgs node, Object visArg) {
         Vector<ImcExpr> vec = new Vector<>(node.args().size());
 
@@ -55,7 +54,8 @@ public class Fragmenter extends AbsFullVisitor<Object, Object> {
             index = t;
         }
 
-        ImcBINOP times = new ImcBINOP(ImcBINOP.Oper.MUL, index, ((ImcBINOP) ((ImcMEM) origExpr).addr).fstExpr);
+        ImcExpr size = ((ImcBINOP) ((ImcBINOP) ((ImcMEM) origExpr).addr).sndExpr).sndExpr;
+        ImcBINOP times = new ImcBINOP(ImcBINOP.Oper.MUL, index, size);
         ImcBINOP plus = new ImcBINOP(ImcBINOP.Oper.ADD, array, times);
 
         return new ImcMEM(plus);
@@ -75,13 +75,15 @@ public class Fragmenter extends AbsFullVisitor<Object, Object> {
         Vector<ImcStmt> stmts = stack.peek();
 
         ImcExpr fstExpr = (ImcExpr) node.fstExpr.accept(this, visArg);
-        ImcExpr sndExpr = (ImcExpr) node.sndExpr.accept(this, visArg);
 
         if (!(origExpr.fstExpr instanceof ImcCONST)) {
             ImcTEMP t1 = new ImcTEMP(new Temp());
             stmts.add(new ImcMOVE(t1, fstExpr));
             fstExpr = t1;
         }
+
+        ImcExpr sndExpr = (ImcExpr) node.sndExpr.accept(this, visArg);
+
         if (!(origExpr.sndExpr instanceof ImcCONST)) {
             ImcTEMP t2 = new ImcTEMP(new Temp());
             stmts.add(new ImcMOVE(t2, sndExpr));
@@ -92,7 +94,7 @@ public class Fragmenter extends AbsFullVisitor<Object, Object> {
 
         if (globExpr.equals(origExpr)) {
             globExpr = newExpr;
-            add();
+            addGlobalCodeFragment();
         }
 
         return newExpr;
@@ -150,7 +152,7 @@ public class Fragmenter extends AbsFullVisitor<Object, Object> {
 
         if (globExpr.equals(origExpr)) {
             globExpr = newExpr;
-            add();
+            addGlobalCodeFragment();
         }
         return newExpr;
     }
@@ -192,7 +194,7 @@ public class Fragmenter extends AbsFullVisitor<Object, Object> {
 
         if (globExpr.equals(origExpr)) {
             globExpr = newExpr;
-            add();
+            addGlobalCodeFragment();
         }
 
         return newExpr;
@@ -245,12 +247,15 @@ public class Fragmenter extends AbsFullVisitor<Object, Object> {
         Vector<ImcStmt> stmts = ((ImcSTMTS) ImcGen.stmtImCode.get(node)).stmts();
         Label l1 = ((ImcLABEL) stmts.get(1)).label;
         Label l2 = ((ImcLABEL) stmts.get(4)).label;
+        Label l3 = new Label();
 
         stack.peek().add(new ImcCJUMP(cond, l1, l2));
+        stack.peek().add(stmts.get(4));
+        stack.peek().add(new ImcJUMP(l3));
         stack.peek().add(stmts.get(1));
         node.thenBody.accept(this, visArg);
         stack.peek().add(stmts.get(3));
-        stack.peek().add(stmts.get(4));
+        stack.peek().add(new ImcLABEL(l3));
         node.elseBody.accept(this, visArg);
         stack.peek().add(stmts.get(6));
 
@@ -270,6 +275,7 @@ public class Fragmenter extends AbsFullVisitor<Object, Object> {
         ImcExpr cond = (ImcExpr) node.cond.accept(this, visArg);
         Label l1 = ((ImcLABEL) stmts.get(2)).label;
         Label l2 = ((ImcLABEL) stmts.get(5)).label;
+        Label l3 = new Label();
 
         if (cond instanceof ImcCALL) {
             ImcTEMP t = new ImcTEMP(new Temp());
@@ -278,10 +284,12 @@ public class Fragmenter extends AbsFullVisitor<Object, Object> {
         }
 
         stack.peek().add(new ImcCJUMP(cond, l1, l2));
+        stack.peek().add(stmts.get(5));
+        stack.peek().add(new ImcJUMP(l3));
         stack.peek().add(stmts.get(2));
         node.body.accept(this, visArg);
         stack.peek().add(stmts.get(4));
-        stack.peek().add(stmts.get(5));
+        stack.peek().add(new ImcLABEL(l3));
         return null;
     }
 
@@ -291,12 +299,6 @@ public class Fragmenter extends AbsFullVisitor<Object, Object> {
      */
     public Object visit(AbsCompDecl node, Object visArg) {
         node.type.accept(this, visArg);
-        return null;
-    }
-
-    public Object visit(AbsCompDecls node, Object visArg) {
-        for (AbsCompDecl compDecl : node.compDecls())
-            compDecl.accept(this, visArg);
         return null;
     }
 
@@ -329,17 +331,6 @@ public class Fragmenter extends AbsFullVisitor<Object, Object> {
         return null;
     }
 
-    public Object visit(AbsParDecl node, Object visArg) {
-        node.type.accept(this, visArg);
-        return null;
-    }
-
-    public Object visit(AbsParDecls node, Object visArg) {
-        for (AbsParDecl parDecl : node.parDecls())
-            parDecl.accept(this, visArg);
-        return null;
-    }
-
     public Object visit(AbsVarDecl node, Object visArg) {
         Access access = Frames.accesses.get(node);
         if (access instanceof AbsAccess) {
@@ -354,7 +345,7 @@ public class Fragmenter extends AbsFullVisitor<Object, Object> {
     /**
      * Adds the global code fragment (not in a frame, so we make a new bogus one)
      */
-    public void add() {
+    private void addGlobalCodeFragment() {
         Frame frame = new Frame(new Label(""), 0, 0, 0);
         Temp RV = new Temp();
         Label begLabel = new Label();

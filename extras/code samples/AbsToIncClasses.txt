@@ -15,18 +15,3 @@ AbsStmts        -> STMTS
 AbsUnExpr       -> UNOP
 AbsVarName      -> MEM(varName)
 AbsWhileStmt    -> CJUMP(cond, body + JUMP)
-
-AbsArrType      ->
-AbsAtomType     ->
-AbsCompDecl     ->
-AbsCompDecls    ->
-AbsDecls        ->
-AbsFunDecl      ->
-AbsFunDef       ->
-AbsParDecl      ->
-AbsParDecls     ->
-AbsPtrType      ->
-AbsRecType      ->
-AbsTypeDecl     ->
-AbsTypeName     ->
-AbsVarDecl      ->

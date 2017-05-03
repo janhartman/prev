@@ -1,0 +1,11 @@
+#nested binops
+{
+ none:1+{a=1:a+{
+    b=2:b+{
+        c=3:c+{
+         d=4:d where var d:int
+         }where var c:int
+        } where var b:int
+    } where var a:int
+ }
+}
