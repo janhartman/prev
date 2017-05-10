@@ -175,6 +175,7 @@ public class Fragmenter extends AbsFullVisitor<Object, Object> {
 
         ImcExpr newExpr = subExpr;
 
+
         switch (node.oper) {
             case NOT:
                 newExpr = new ImcUNOP(ImcUNOP.Oper.NOT, subExpr);
@@ -182,8 +183,6 @@ public class Fragmenter extends AbsFullVisitor<Object, Object> {
             case SUB:
                 newExpr = new ImcUNOP(ImcUNOP.Oper.NEG, subExpr);
                 break;
-
-            // TODO fix if necessary - subExpr might be a temporary variable
             case MEM:
                 newExpr = ((ImcMEM) subExpr).addr;
                 break;

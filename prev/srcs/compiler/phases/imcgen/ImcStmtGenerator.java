@@ -27,6 +27,7 @@ public class ImcStmtGenerator implements AbsVisitor<ImcStmt, Stack<Frame>> {
         Label l0 = new Label();
         Label l1 = new Label();
         Label l2 = new Label();
+        Label l3 = new Label();
 
         // temporary variables for offset and size - copying one 8-byte word at a time
         ImcTEMP offset = new ImcTEMP(new Temp());
@@ -42,11 +43,13 @@ public class ImcStmtGenerator implements AbsVisitor<ImcStmt, Stack<Frame>> {
 
         vec.add(new ImcLABEL(l0));
         vec.add(new ImcCJUMP(cond, l1, l2));
+        vec.add(new ImcLABEL(l2));
+        vec.add(new ImcJUMP(l3));
         vec.add(new ImcLABEL(l1));
         vec.add(new ImcMOVE(new ImcMEM(dstOp), new ImcMEM(srcOp)));
         vec.add(new ImcMOVE(offset, offsetOp));
         vec.add(new ImcJUMP(l0));
-        vec.add(new ImcLABEL(l2));
+        vec.add(new ImcLABEL(l3));
 
         return new ImcSTMTS(vec);
     }

@@ -12,7 +12,7 @@ public class Interpreter {
 		NONE, FULL
 	}
 
-	public DEBUG debug = DEBUG.FULL;
+	public DEBUG debug = DEBUG.NONE;
 
 	// Static variables: labels to addresses.
 	private HashMap<Label, Long> addr = new HashMap<Label, Long>();
