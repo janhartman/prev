@@ -83,6 +83,22 @@ public class Location implements Locatable, Loggable {
 		this(that.location().begLine, that.location().begColumn, that.location().endLine, that.location().endColumn);
 	}
 
+	public int getBegLine() {
+		return begLine;
+	}
+
+	public int getBegColumn() {
+		return begColumn;
+	}
+
+	public int getEndLine() {
+		return endLine;
+	}
+
+	public int getEndColumn() {
+		return endColumn;
+	}
+
 	/**
 	 * Constructs a new location given two objects relating to parts of a source
 	 * file.
@@ -115,19 +131,4 @@ public class Location implements Locatable, Loggable {
 		return begLine + "." + begColumn + "--" + endLine + "." + endColumn;
 	}
 
-	public int getBegLine() {
-		return begLine;
-	}
-
-	public int getBegColumn() {
-		return begColumn;
-	}
-
-	public int getEndLine() {
-		return endLine;
-	}
-
-	public int getEndColumn() {
-		return endColumn;
-	}
 }

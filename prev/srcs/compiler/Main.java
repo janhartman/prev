@@ -2,6 +2,7 @@ package compiler;
 
 import java.util.*;
 import common.report.*;
+import compiler.phases.asmgen.AsmGen;
 import compiler.phases.lexan.*;
 import compiler.phases.synan.*;
 import compiler.phases.abstr.*;
@@ -19,7 +20,7 @@ import compiler.phases.lincode.*;
 public class Main {
 
 	/** All valid phases of the compiler. */
-	private static final String phases = "lexan|synan|abstr|seman|frames|imcgen|lincode";
+	private static final String phases = "lexan|synan|abstr|seman|frames|imcgen|lincode|asmgen";
 
 	/** Values of command line arguments. */
 	private static HashMap<String, String> cmdLine = new HashMap<String, String>();
@@ -127,10 +128,6 @@ public class Main {
 					Abstr.absTree().accept(new NameChecker(new SymbTable()), null);
 					Abstr.absTree().accept(new AddrChecker(), null);
 					Abstr.absTree().accept(new TypeChecker(), null);
-
-					//compiler.phases.seman.type.SemType typeOfPrg = SemAn.isOfType().get(Abstr.absTree());
-					//if (!typeOfPrg.isAKindOf(compiler.phases.seman.type.SemIntType.class))
-					//	Report.warning("The program must return a result of type int.");
 				}
 				if (cmdLine.get("--target-phase").equals("seman"))
 					break;
@@ -155,6 +152,13 @@ public class Main {
 				}
 				new Interpreter().execute();
 				if (cmdLine.get("--target-phase").equals("lincode"))
+					break;
+				
+				//
+				try (AsmGen asmGen = new AsmGen()) {
+					// TODO
+				}
+				if (cmdLine.get("--target-phase").equals("asmgen"))
 					break;
 
 				int endWarnings = Report.numOfWarnings();
