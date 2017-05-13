@@ -154,9 +154,9 @@ public class Main {
 				if (cmdLine.get("--target-phase").equals("lincode"))
 					break;
 				
-				//
+				// Assembly code generation.
 				try (AsmGen asmGen = new AsmGen()) {
-					// TODO
+					asmGen.generate();
 				}
 				if (cmdLine.get("--target-phase").equals("asmgen"))
 					break;

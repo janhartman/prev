@@ -237,11 +237,10 @@ public class Fragmenter extends AbsFullVisitor<Object, Object> {
 
     public Object visit(AbsIfStmt node, Object visArg) {
         ImcExpr cond = (ImcExpr) node.cond.accept(this, visArg);
-        if (cond instanceof ImcCALL) {
-            ImcTEMP t = new ImcTEMP(new Temp());
-            stack.peek().add(new ImcMOVE(t, cond));
-            cond = t;
-        }
+
+        ImcTEMP t = new ImcTEMP(new Temp());
+        stack.peek().add(new ImcMOVE(t, cond));
+        cond = t;
 
         Vector<ImcStmt> stmts = ((ImcSTMTS) ImcGen.stmtImCode.get(node)).stmts();
         Label l1 = ((ImcLABEL) stmts.get(1)).label;
@@ -276,11 +275,9 @@ public class Fragmenter extends AbsFullVisitor<Object, Object> {
         Label l2 = ((ImcLABEL) stmts.get(5)).label;
         Label l3 = new Label();
 
-        if (cond instanceof ImcCALL) {
-            ImcTEMP t = new ImcTEMP(new Temp());
-            stack.peek().add(new ImcMOVE(t, cond));
-            cond = t;
-        }
+        ImcTEMP t = new ImcTEMP(new Temp());
+        stack.peek().add(new ImcMOVE(t, cond));
+        cond = t;
 
         stack.peek().add(new ImcCJUMP(cond, l1, l2));
         stack.peek().add(stmts.get(5));

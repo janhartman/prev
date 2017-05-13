@@ -36,12 +36,17 @@ public class ImcStmtGenerator implements AbsVisitor<ImcStmt, Stack<Frame>> {
         ImcBINOP dstOp = new ImcBINOP(ImcBINOP.Oper.ADD, dst,offset);
         ImcBINOP srcOp = new ImcBINOP(ImcBINOP.Oper.ADD, src, offset);
         ImcBINOP offsetOp = new ImcBINOP(ImcBINOP.Oper.ADD, offset, new ImcCONST(8));
-        ImcBINOP cond = new ImcBINOP(ImcBINOP.Oper.LTH, offset, size);
+        ImcExpr cond = new ImcBINOP(ImcBINOP.Oper.LTH, offset, size);
 
         vec.add(new ImcMOVE(offset, new ImcCONST(0)));
         vec.add(new ImcMOVE(size, new ImcCONST(typeSize)));
 
         vec.add(new ImcLABEL(l0));
+
+        ImcTEMP t = new ImcTEMP(new Temp());
+        vec.add(new ImcMOVE(t, cond));
+        cond = t;
+
         vec.add(new ImcCJUMP(cond, l1, l2));
         vec.add(new ImcLABEL(l2));
         vec.add(new ImcJUMP(l3));
