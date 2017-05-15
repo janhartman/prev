@@ -22,6 +22,7 @@ public class ImcGen extends Phase {
 	public static final AbsAttribute<AbsStmt, ImcStmt> stmtImCode = new AbsAttribute<AbsStmt, ImcStmt>();
 
 	public static final Temp FP = new Temp();
+	public static final Temp SP = new Temp();
 
 	/**
 	 * Constructs a new phase for computing frames and accesses.

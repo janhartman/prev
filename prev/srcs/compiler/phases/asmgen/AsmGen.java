@@ -11,7 +11,9 @@ import java.util.LinkedList;
  */
 public class AsmGen extends Phase {
 
-    /** The list of instructions. */
+    /**
+     * The list of instructions.
+     */
     private static final LinkedList<AsmInstr> instrs = new LinkedList<>();
 
     public AsmGen() {
@@ -21,8 +23,7 @@ public class AsmGen extends Phase {
     /**
      * Adds a new instruction to the list of instructions.
      *
-     * @param instr
-     *            The new instruction.
+     * @param instr The new instruction.
      */
     public static void add(AsmInstr instr) {
         instrs.add(instr);
@@ -44,10 +45,10 @@ public class AsmGen extends Phase {
         AsmInstrGenerator asmInstrGenerator = new AsmInstrGenerator();
 
         // TODO also add data fragments?
-        for (Fragment fragment: LinCode.fragments()) {
+        for (Fragment fragment : LinCode.fragments()) {
             if (fragment instanceof CodeFragment) {
 
-                for (ImcStmt stmt: ((CodeFragment) fragment).stmts()) {
+                for (ImcStmt stmt : ((CodeFragment) fragment).stmts()) {
                     stmt.accept(asmInstrGenerator, null);
                 }
             }
@@ -60,6 +61,7 @@ public class AsmGen extends Phase {
     public void close() {
         String loggedPhase = compiler.Main.cmdLineArgValue("--logged-phase");
         if ((loggedPhase != null) && loggedPhase.matches("asmgen" + "|all")) {
+
             for (AsmInstr instr : instrs) {
                 System.out.println(instr);
             }

@@ -13,7 +13,7 @@ import compiler.phases.seman.type.SemType;
 
 public class ImcStmtGenerator implements AbsVisitor<ImcStmt, Stack<Frame>> {
 
-    private ImcSTMTS copyArrRec (ImcExpr dst, ImcExpr src, SemType type) {
+    private ImcSTMTS copyArrRec(ImcExpr dst, ImcExpr src, SemType type) {
         long typeSize = type.size();
         Vector<ImcStmt> vec = new Vector<>();
 
@@ -33,7 +33,7 @@ public class ImcStmtGenerator implements AbsVisitor<ImcStmt, Stack<Frame>> {
         ImcTEMP offset = new ImcTEMP(new Temp());
         ImcTEMP size = new ImcTEMP(new Temp());
 
-        ImcBINOP dstOp = new ImcBINOP(ImcBINOP.Oper.ADD, dst,offset);
+        ImcBINOP dstOp = new ImcBINOP(ImcBINOP.Oper.ADD, dst, offset);
         ImcBINOP srcOp = new ImcBINOP(ImcBINOP.Oper.ADD, src, offset);
         ImcBINOP offsetOp = new ImcBINOP(ImcBINOP.Oper.ADD, offset, new ImcCONST(8));
         ImcExpr cond = new ImcBINOP(ImcBINOP.Oper.LTH, offset, size);
@@ -138,5 +138,5 @@ public class ImcStmtGenerator implements AbsVisitor<ImcStmt, Stack<Frame>> {
         ImcGen.stmtImCode.put(node, whileStmt);
         return whileStmt;
     }
-    
+
 }

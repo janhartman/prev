@@ -77,17 +77,17 @@ public class Fragmenter extends AbsFullVisitor<Object, Object> {
         ImcExpr fstExpr = (ImcExpr) node.fstExpr.accept(this, visArg);
 
         if (!(origExpr.fstExpr instanceof ImcCONST)) {
-            ImcTEMP t1 = new ImcTEMP(new Temp());
-            stmts.add(new ImcMOVE(t1, fstExpr));
-            fstExpr = t1;
+            ImcTEMP t = new ImcTEMP(new Temp());
+            stmts.add(new ImcMOVE(t, fstExpr));
+            fstExpr = t;
         }
 
         ImcExpr sndExpr = (ImcExpr) node.sndExpr.accept(this, visArg);
 
         if (!(origExpr.sndExpr instanceof ImcCONST)) {
-            ImcTEMP t2 = new ImcTEMP(new Temp());
-            stmts.add(new ImcMOVE(t2, sndExpr));
-            sndExpr = t2;
+            ImcTEMP t = new ImcTEMP(new Temp());
+            stmts.add(new ImcMOVE(t, sndExpr));
+            sndExpr = t;
         }
 
         ImcBINOP newExpr = new ImcBINOP(origExpr.oper, fstExpr, sndExpr);
@@ -118,7 +118,7 @@ public class Fragmenter extends AbsFullVisitor<Object, Object> {
         ImcCALL origExpr = (ImcCALL) ImcGen.exprImCode.get(node);
 
         Vector<ImcExpr> args = (Vector<ImcExpr>) node.args.accept(this, visArg);
-        args.add(0, origExpr.args().get(0)  );
+        args.add(0, origExpr.args().get(0));
 
         return new ImcCALL(origExpr.label, args);
     }
