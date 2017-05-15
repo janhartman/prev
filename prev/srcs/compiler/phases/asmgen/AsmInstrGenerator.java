@@ -3,8 +3,12 @@ package compiler.phases.asmgen;
 import common.report.Report;
 import compiler.phases.frames.Label;
 import compiler.phases.frames.Temp;
+import compiler.phases.imcgen.ImcGen;
 import compiler.phases.imcgen.ImcVisitor;
 import compiler.phases.imcgen.code.*;
+import compiler.phases.lincode.CodeFragment;
+import compiler.phases.lincode.Fragment;
+import compiler.phases.lincode.LinCode;
 
 import java.util.Vector;
 
@@ -13,6 +17,12 @@ import java.util.Vector;
  */
 
 public class AsmInstrGenerator implements ImcVisitor<Object, Object> {
+
+    private CodeFragment fragment;
+
+    public AsmInstrGenerator(CodeFragment fragment) {
+        this.fragment = fragment;
+    }
 
     /**
      * statements
@@ -28,7 +38,7 @@ public class AsmInstrGenerator implements ImcVisitor<Object, Object> {
         jumps.add(node.posLabel);
         jumps.add(node.negLabel);
 
-        AsmOPER cjump = new AsmOPER("BNZ `s0", uses, defs, jumps);
+        AsmOPER cjump = new AsmOPER("BNZ `s0,"+node.posLabel.name, uses, defs, jumps);
         AsmGen.add(cjump);
         return cjump;
     }
@@ -45,7 +55,7 @@ public class AsmInstrGenerator implements ImcVisitor<Object, Object> {
 
         jumps.add(node.label);
 
-        AsmOPER jump = new AsmOPER("JMP", uses, defs, jumps);
+        AsmOPER jump = new AsmOPER("JMP " + node.label.name, uses, defs, jumps);
         AsmGen.add(jump);
         return jump;
     }
@@ -58,58 +68,79 @@ public class AsmInstrGenerator implements ImcVisitor<Object, Object> {
     }
 
     // several options depending on the canonical tree
-    // TODO blocks
     public Object visit(ImcMOVE node, Object visArg) {
         Vector<Temp> uses = new Vector<>();
         Vector<Temp> defs = new Vector<>();
-        Vector<Label> jumps = new Vector<>();
 
         MoveMatch match = matchMove(node);
+        Report.info(match.toString());
+
+        ImcMEM mem;
+        ImcBINOP binop;
+        ImcCONST constant;
+        Temp temp, srcReg, dstReg;
+        AsmOPER store, load;
+        AsmMOVE move;
 
         switch (match) {
-
-            // both registers - SET
-            case TempTemp:
-                uses.add(((ImcTEMP) node.src).temp);
-                defs.add(((ImcTEMP) node.dst).temp);
-                AsmMOVE move = new AsmMOVE("SET `d0, `s0", uses, defs, null);
-                AsmGen.add(move);
-                return move;
-
-            case MemMem:
-                break;
             case MemLeft:
-                break;
-            case MemRight:
-                break;
-            case MemLeftName:
-                break;
-            case MemRightName:
-                break;
-
-            // STO with offset
-            case MemLeftBinopConstName:
-
-
-            case MemLeftBinopConstTemp:
-                ImcMEM mem = (ImcMEM) node.dst;
-                ImcBINOP binop = (ImcBINOP) mem.addr;
-                ImcCONST constant = (ImcCONST) ((binop.fstExpr instanceof ImcCONST) ? binop.fstExpr : binop.sndExpr);
-                Temp temp = ((ImcTEMP) ((binop.fstExpr instanceof ImcTEMP) ? binop.fstExpr : binop.sndExpr)).temp;
-                uses.add(temp);
-                AsmOPER store = new AsmOPER("STO `d0, `s0, " + constant.toString(), uses, defs, null);
+                mem = (ImcMEM) node.dst;
+                dstReg = (Temp) mem.addr.accept(this, visArg);
+                srcReg = (Temp) node.src.accept(this, visArg);
+                uses.add(srcReg);
+                uses.add(dstReg);
+                store = new AsmOPER("STO `s0,`s1,0", uses, null, null);
                 AsmGen.add(store);
                 return store;
 
-            case MemRightBinopConstName:
-                break;
-            case MemRightBinopConstTemp:
-                break;
-            case Other:
-                break;
-        }
+            case MemRight:
+                mem = (ImcMEM) node.src;
+                srcReg = (Temp) mem.addr.accept(this, visArg);
+                dstReg = (Temp) node.dst.accept(this, visArg);
+                uses.add(srcReg);
+                defs.add(dstReg);
+                load = new AsmOPER("LDO `d0,`s0,0", uses, defs, null);
+                AsmGen.add(load);
+                return load;
 
-        throw new Report.InternalError();
+            // STO with offset
+            case MemLeftBinopTempConst:
+                srcReg = (Temp) node.src.accept(this, visArg);
+                mem = (ImcMEM) node.dst;
+                binop = (ImcBINOP) mem.addr;
+                constant = (ImcCONST) binop.sndExpr;
+                temp = ((ImcTEMP) binop.fstExpr).temp;
+                uses.add(srcReg);
+                uses.add(temp);
+                store = new AsmOPER("STO `s0,`s1," + constant.toString(), uses, null, null);
+                AsmGen.add(store);
+                return store;
+
+            // LDO with offset
+            case MemRightBinopTempConst:
+                dstReg = (Temp) node.dst.accept(this, visArg);
+                mem = (ImcMEM) node.src;
+                binop = (ImcBINOP) mem.addr;
+                constant = (ImcCONST) binop.sndExpr;
+                temp = ((ImcTEMP) binop.fstExpr).temp;
+                uses.add(temp);
+                defs.add(dstReg);
+                load = new AsmOPER("LDO `d0,`s0," + constant.toString(), uses, defs, null);
+                AsmGen.add(load);
+                return load;
+
+            // both registers - SET
+            case TempTemp:
+            case Call:
+            case Other:
+                uses.add((Temp) node.src.accept(this, visArg));
+                defs.add((Temp) node.dst.accept(this, visArg));
+                move = new AsmMOVE("SET `d0,`s0", uses, defs, null);
+                AsmGen.add(move);
+                return move;
+        }
+        return null;
+
     }
 
 
@@ -133,13 +164,13 @@ public class AsmInstrGenerator implements ImcVisitor<Object, Object> {
 
         switch (node.oper) {
             case IOR:
-                AsmGen.instrs().add(new AsmOPER("OR `d0, `s0, `s1", uses, defs, jumps));
+                AsmGen.add(new AsmOPER("OR `d0,`s0,`s1", uses, defs, jumps));
                 break;
             case XOR:
-                AsmGen.instrs().add(new AsmOPER("XOR `d0, `s0, `s1", uses, defs, jumps));
+                AsmGen.add(new AsmOPER("XOR `d0,`s0,`s1", uses, defs, jumps));
                 break;
             case AND:
-                AsmGen.instrs().add(new AsmOPER("AND `d0, `s0, `s1", uses, defs, jumps));
+                AsmGen.add(new AsmOPER("AND `d0,`s0,`s1", uses, defs, jumps));
                 break;
             case EQU:
             case NEQ:
@@ -147,7 +178,7 @@ public class AsmInstrGenerator implements ImcVisitor<Object, Object> {
             case GTH:
             case LEQ:
             case GEQ:
-                AsmGen.instrs().add(new AsmOPER("CMP `d0, `s0, `s1", uses, defs, jumps));
+                AsmGen.add(new AsmOPER("CMP `d0,`s0,`s1", uses, defs, jumps));
                 String instr = "";
                 switch (node.oper) {
                     case EQU:
@@ -169,32 +200,32 @@ public class AsmInstrGenerator implements ImcVisitor<Object, Object> {
                         instr = "ZSNN";
                         break;
                 }
-                AsmGen.instrs().add(new AsmOPER(instr + " `d0, `s0, 1", defs, defs, jumps));
+                AsmGen.add(new AsmOPER(instr + " `d0,`s0,1", defs, defs, jumps));
                 break;
             case ADD:
-                AsmGen.instrs().add(new AsmOPER("ADD `d0, `s0, `s1", uses, defs, jumps));
+                AsmGen.add(new AsmOPER("ADD `d0,`s0,`s1", uses, defs, jumps));
                 break;
             case SUB:
-                AsmGen.instrs().add(new AsmOPER("SUB `d0, `s0, `s1", uses, defs, jumps));
+                AsmGen.add(new AsmOPER("SUB `d0,`s0,`s1", uses, defs, jumps));
                 break;
             case MUL:
-                AsmGen.instrs().add(new AsmOPER("MUL `d0, `s0, `s1", uses, defs, jumps));
+                AsmGen.add(new AsmOPER("MUL `d0,`s0,`s1", uses, defs, jumps));
                 break;
             case DIV:
                 // rR
                 defs.add(new Temp());
-                AsmGen.instrs().add(new AsmOPER("DIV `d0, `s0, `s1", uses, defs, jumps));
+                AsmGen.add(new AsmOPER("DIV `d0,`s0,`s1", uses, defs, jumps));
                 break;
             case MOD:
                 // use rR instead of the first register (move the value)
                 Temp d2 = new Temp();
                 defs.add(d2);
-                AsmGen.instrs().add(new AsmOPER("DIV `d0, `s0, `s1", uses, defs, jumps));
+                AsmGen.add(new AsmOPER("DIV `d0,`s0,`s1", uses, defs, jumps));
                 Vector<Temp> uses2 = new Vector<>();
                 Vector<Temp> defs2 = new Vector<>();
                 uses2.add(d2);
                 defs2.add(d);
-                AsmGen.instrs().add(new AsmMOVE("GET `d0, rR", uses2, defs2, jumps));
+                AsmGen.add(new AsmMOVE("GET `d0,rR", uses2, defs2, jumps));
                 return d2;
         }
         return d;
@@ -206,20 +237,45 @@ public class AsmInstrGenerator implements ImcVisitor<Object, Object> {
         Vector<Temp> defs = new Vector<>();
         Vector<Label> jumps = new Vector<>();
 
-        for (ImcExpr arg : node.args()) {
-            if (arg instanceof ImcTEMP) {
-                uses.add(((ImcTEMP) arg).temp);
+        int offset = 0;
+        for (ImcExpr expr : node.args()) {
+            Object arg = expr.accept(this, visArg);
+            if (arg instanceof Temp) {
+                Temp regArg = (Temp) arg;
+                Vector<Temp> storeUses = new Vector<>();
+                storeUses.add(regArg);
+                storeUses.add(ImcGen.SP);
+                AsmGen.add(new AsmOPER("STO `s0,`s1," + offset, storeUses, null, null));
+                offset += 8;
             }
-            arg.accept(this, visArg);
+
         }
 
-        jumps.add(node.label);
-        AsmOPER pushj = new AsmOPER("PUSHJ `s0, " + node.label, uses, defs, jumps);
+        Temp rv = null;
+        for (Fragment f : LinCode.fragments()) {
+            if (f instanceof CodeFragment) {
+                CodeFragment frag = (CodeFragment) f;
+                if (frag.frame.label.equals(node.label)) {
+                    rv = frag.RV;
+                }
+            }
+        }
 
-        throw new Report.InternalError();
+        // rJ
+        defs.add(new Temp());
+
+        // X - size of caller's stack frame
+        // calculate with FP - SP ?
+        uses.add(new Temp());
+
+        jumps.add(node.label);
+        AsmGen.add(new AsmOPER("PUSHJ `s0," + node.label.name, uses, defs, jumps));
+        return rv;
+
     }
 
     // TODO check if this loads negative numbers
+    // TODO always load to register?
     public Object visit(ImcCONST node, Object visArg) {
         long value = node.value;
 
@@ -234,30 +290,51 @@ public class AsmInstrGenerator implements ImcVisitor<Object, Object> {
         long val3 = (value >> 32) & 0x0000000000000FFFF;
         long val4 = (value >> 48) & 0x0000000000000FFFF;
 
-        AsmGen.instrs().add(new AsmOPER("SETL `d0, " + Long.toString(val1), uses, defs, jumps));
+        AsmGen.add(new AsmOPER("SETL `d0," + Long.toString(val1), uses, defs, jumps));
         uses.add(t);
 
-        AsmGen.instrs().add(new AsmOPER("INCML `d0, " + Long.toString(val2), uses, defs, jumps));
-        AsmGen.instrs().add(new AsmOPER("INCML `d0, " + Long.toString(val3), uses, defs, jumps));
-        AsmGen.instrs().add(new AsmOPER("INCML `d0, " + Long.toString(val4), uses, defs, jumps));
+        AsmGen.add(new AsmOPER("INCML `d0," + Long.toString(val2), uses, defs, jumps));
+        AsmGen.add(new AsmOPER("INCMH `d0," + Long.toString(val3), uses, defs, jumps));
+        AsmGen.add(new AsmOPER("INCH `d0," + Long.toString(val4), uses, defs, jumps));
 
         return t;
     }
 
     // Load the value from memory and return a register. (LDO)
-    // TODO blocks
     public Object visit(ImcMEM node, Object visArg) {
-        switch (matchMem(node)) {
-            case Name:
+        Vector<Temp> uses = new Vector<>();
+        Vector<Temp> defs = new Vector<>();
+
+        MemMatch match = matchMem(node);
+
+        Temp dstReg = new Temp();
+        Temp srcReg;
+        AsmOPER load = null;
+        defs.add(dstReg);
+
+        Report.info(match.toString());
+
+        switch (match) {
+            case AddTempConst:
+                ImcBINOP binop = (ImcBINOP) node.addr;
+                srcReg = ((ImcTEMP) binop.fstExpr).temp;
+                ImcCONST constant = ((ImcCONST) binop.sndExpr);
+                uses.add(srcReg);
+                load = new AsmOPER("LDO `d0,`s0," + constant.value, uses, defs, null);
                 break;
-            case BinopConstName:
-                break;
-            case BinopConstTemp:
-                break;
+
+            case AddConstTemp:
+            case AddTempTemp:
+            case AddConstConst:
             case Other:
+                srcReg = (Temp) node.addr.accept(this, visArg);
+                uses.add(srcReg);
+                load = new AsmOPER("LDO `d0,`s0,0", uses, defs, null);
                 break;
         }
-        return null;
+
+        AsmGen.add(load);
+        return dstReg;
     }
 
     // Load the label address into a register and return that register. (LDA)
@@ -269,8 +346,8 @@ public class AsmInstrGenerator implements ImcVisitor<Object, Object> {
         Temp t = new Temp();
         defs.add(t);
 
-        AsmOPER lda = new AsmOPER("LDA `d0, " + node.label.name, uses, defs, jumps);
-        AsmGen.instrs().add(lda);
+        AsmOPER lda = new AsmOPER("LDA `d0," + node.label.name, uses, defs, jumps);
+        AsmGen.add(lda);
         return t;
     }
 
@@ -291,10 +368,10 @@ public class AsmInstrGenerator implements ImcVisitor<Object, Object> {
 
         switch (node.oper) {
             case NOT:
-                AsmGen.instrs().add(new AsmOPER("NEG `d0, 1, `s0", uses, defs, jumps));
+                AsmGen.add(new AsmOPER("NEG `d0,1,`s0", uses, defs, jumps));
                 break;
             case NEG:
-                AsmGen.instrs().add(new AsmOPER("NEG `d0, `s0", uses, defs, jumps));
+                AsmGen.add(new AsmOPER("NEG `d0,`s0", uses, defs, jumps));
                 break;
         }
 
@@ -304,15 +381,11 @@ public class AsmInstrGenerator implements ImcVisitor<Object, Object> {
 
     private enum MoveMatch {
         TempTemp,
-        MemMem,
         MemLeft,
         MemRight,
-        MemLeftName,
-        MemRightName,
-        MemLeftBinopConstName,
-        MemLeftBinopConstTemp,
-        MemRightBinopConstName,
-        MemRightBinopConstTemp,
+        MemLeftBinopTempConst,
+        MemRightBinopTempConst,
+        Call,
         Other
     }
 
@@ -329,20 +402,16 @@ public class AsmInstrGenerator implements ImcVisitor<Object, Object> {
             ImcMEM dst = (ImcMEM) node.dst;
 
             switch (matchMem(dst)) {
-
-                case Name:
+                case AddTempConst:
+                    return MoveMatch.MemLeftBinopTempConst;
+                case AddConstTemp:
                     break;
-
-                case BinopConstName:
+                case AddTempTemp:
                     break;
-
-                case BinopConstTemp:
+                case AddConstConst:
                     break;
-
                 case Other:
-                    if (node.src instanceof ImcMEM) {
-                        return MoveMatch.MemMem;
-                    }
+                    break;
             }
 
             return MoveMatch.MemLeft;
@@ -353,13 +422,14 @@ public class AsmInstrGenerator implements ImcVisitor<Object, Object> {
             ImcMEM src = (ImcMEM) node.src;
 
             switch (matchMem(src)) {
-
-                case Name:
+                case AddTempConst:
+                    return MoveMatch.MemRightBinopTempConst;
+                case AddConstTemp:
                     break;
-                case BinopConstName:
+                case AddTempTemp:
                     break;
-                case BinopConstTemp:
-                    return MoveMatch.MemRightBinopConstTemp;
+                case AddConstConst:
+                    break;
                 case Other:
                     break;
             }
@@ -367,13 +437,18 @@ public class AsmInstrGenerator implements ImcVisitor<Object, Object> {
             return MoveMatch.MemRight;
         }
 
+        if (node.src instanceof ImcCALL && node.dst instanceof ImcTEMP) {
+            return MoveMatch.Call;
+        }
+
         return MoveMatch.Other;
     }
 
     private enum MemMatch {
-        Name,
-        BinopConstName,
-        BinopConstTemp,
+        AddTempConst,
+        AddConstTemp,
+        AddTempTemp,
+        AddConstConst,
         Other
     }
 
@@ -381,37 +456,65 @@ public class AsmInstrGenerator implements ImcVisitor<Object, Object> {
         if (node.addr instanceof ImcBINOP) {
             ImcBINOP binop = (ImcBINOP) node.addr;
 
-            // mem - binop - const : temp / name
-            if (binop.fstExpr instanceof ImcCONST) {
-
-                if (binop.sndExpr instanceof ImcTEMP) {
-                    return MemMatch.BinopConstTemp;
-                }
-
-                if (binop.sndExpr instanceof ImcNAME) {
-                    return MemMatch.BinopConstName;
-                }
-
-            }
-
-            if (binop.sndExpr instanceof ImcCONST) {
-                if (binop.fstExpr instanceof ImcTEMP) {
-                    return MemMatch.BinopConstTemp;
-                }
-
-                if (binop.fstExpr instanceof ImcNAME) {
-                    return MemMatch.BinopConstName;
+            if (binop.oper == ImcBINOP.Oper.ADD) {
+                switch (matchBinop(binop)) {
+                    case ConstTemp:
+                        return MemMatch.AddConstTemp;
+                    case TempConst:
+                        return MemMatch.AddTempConst;
+                    case TempTemp:
+                        return MemMatch.AddTempTemp;
+                    case ConstConst:
+                        return MemMatch.AddConstConst;
                 }
             }
-
-        }
-
-        // mem - name
-        else if (node.addr instanceof ImcNAME) {
-            return MemMatch.Name;
         }
 
         return MemMatch.Other;
+    }
+
+    private enum BinopMatch {
+        ConstTemp,
+        TempConst,
+        TempTemp,
+        ConstConst,
+        Other
+    }
+
+    private BinopMatch matchBinop(ImcBINOP binop) {
+        if (binop.fstExpr instanceof ImcCONST) {
+            ImcCONST constant = (ImcCONST) binop.fstExpr;
+            if (constant.value < 0) {
+                return BinopMatch.Other;
+            }
+
+            if (binop.sndExpr instanceof ImcTEMP) {
+                return BinopMatch.ConstTemp;
+            }
+            else if (binop.sndExpr instanceof ImcCONST) {
+                return BinopMatch.ConstConst;
+            }
+        }
+
+        if (binop.sndExpr instanceof ImcCONST) {
+            ImcCONST constant = (ImcCONST) binop.sndExpr;
+            if (constant.value < 0) {
+                return BinopMatch.Other;
+            }
+
+            if (binop.fstExpr instanceof ImcTEMP) {
+                return BinopMatch.TempConst;
+            }
+        }
+
+        if (binop.fstExpr instanceof ImcTEMP) {
+            if (binop.sndExpr instanceof ImcTEMP) {
+                return BinopMatch.TempTemp;
+            }
+        }
+
+        return BinopMatch.Other;
+
     }
 
 }

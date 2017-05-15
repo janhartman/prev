@@ -34,7 +34,7 @@ public class AsmGen extends Phase {
      *
      * @return The list of all instructions.
      */
-    public static LinkedList<AsmInstr> instrs() {
+    private static LinkedList<AsmInstr> instrs() {
         return new LinkedList<>(instrs);
     }
 
@@ -42,11 +42,11 @@ public class AsmGen extends Phase {
      * Generate the assembly instructions.
      */
     public void generate() {
-        AsmInstrGenerator asmInstrGenerator = new AsmInstrGenerator();
 
         // TODO also add data fragments?
         for (Fragment fragment : LinCode.fragments()) {
             if (fragment instanceof CodeFragment) {
+                AsmInstrGenerator asmInstrGenerator = new AsmInstrGenerator((CodeFragment) fragment);
 
                 for (ImcStmt stmt : ((CodeFragment) fragment).stmts()) {
                     stmt.accept(asmInstrGenerator, null);
@@ -54,7 +54,7 @@ public class AsmGen extends Phase {
             }
         }
 
-        instrs.add(new AsmOPER("TRAP 0, Halt, 0", null, null, null));
+        instrs.add(new AsmOPER("TRAP 0,Halt,0", null, null, null));
     }
 
     @Override
