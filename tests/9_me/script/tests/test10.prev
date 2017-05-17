@@ -1,0 +1,24 @@
+#composed pointer operations
+#prints 120
+{
+    p2=$a;
+    p=$@p2;
+	@p=111;
+	r=$R;
+	@R=9;
+	printint(a+@@r);
+	println()
+	:
+	1
+	where
+	typ INT:int;
+	typ P:ptr INT;
+	typ PP:ptr P;
+	var r:PP;
+	var R:P;
+	var a:INT;
+	var p2:P;
+	var p:P;
+	fun printint(i:int):void;
+	fun println():void
+}

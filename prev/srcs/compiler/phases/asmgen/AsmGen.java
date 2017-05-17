@@ -4,6 +4,7 @@ import compiler.phases.Phase;
 import compiler.phases.imcgen.code.ImcStmt;
 import compiler.phases.lincode.*;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 
 /**
@@ -12,9 +13,14 @@ import java.util.LinkedList;
 public class AsmGen extends Phase {
 
     /**
-     * The list of instructions.
+     * The hashmap of instruction lists (divided by fragments).
      */
-    private static final LinkedList<AsmInstr> instrs = new LinkedList<>();
+    private static final HashMap<CodeFragment, LinkedList<AsmInstr>> instrs = new HashMap<>();
+
+    /**
+     * The variable that indicates which fragment is currently being processed.
+     */
+    private static CodeFragment curFrag;
 
     public AsmGen() {
         super("asmgen");
@@ -26,35 +32,28 @@ public class AsmGen extends Phase {
      * @param instr The new instruction.
      */
     public static void add(AsmInstr instr) {
-        instrs.add(instr);
+        instrs.get(curFrag).add(instr);
     }
 
-    /**
-     * Returns the list of all instructions.
-     *
-     * @return The list of all instructions.
-     */
-    private static LinkedList<AsmInstr> instrs() {
-        return new LinkedList<>(instrs);
-    }
 
     /**
      * Generate the assembly instructions.
      */
     public void generate() {
 
-        // TODO also add data fragments?
         for (Fragment fragment : LinCode.fragments()) {
             if (fragment instanceof CodeFragment) {
-                AsmInstrGenerator asmInstrGenerator = new AsmInstrGenerator((CodeFragment) fragment);
+                CodeFragment codeFragment = (CodeFragment) fragment;
+                AsmInstrGenerator asmInstrGenerator = new AsmInstrGenerator(codeFragment);
+                AsmGen.curFrag = codeFragment;
+                instrs.put(curFrag, new LinkedList<>());
 
-                for (ImcStmt stmt : ((CodeFragment) fragment).stmts()) {
+                for (ImcStmt stmt : codeFragment.stmts()) {
                     stmt.accept(asmInstrGenerator, null);
                 }
             }
         }
 
-        instrs.add(new AsmOPER("TRAP 0,Halt,0", null, null, null));
     }
 
     @Override
@@ -62,9 +61,14 @@ public class AsmGen extends Phase {
         String loggedPhase = compiler.Main.cmdLineArgValue("--logged-phase");
         if ((loggedPhase != null) && loggedPhase.matches("asmgen" + "|all")) {
 
-            for (AsmInstr instr : instrs) {
-                System.out.println(instr);
+            for (CodeFragment frag : instrs.keySet()) {
+                System.out.println("% " + frag.frame.label.name);
+                for (AsmInstr instr : instrs.get(frag)) {
+                    System.out.println(instr);
+                }
+                System.out.println();
             }
+
         }
         super.close();
     }
