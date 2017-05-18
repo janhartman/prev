@@ -7,8 +7,6 @@ import compiler.phases.imcgen.ImcGen;
 import compiler.phases.imcgen.ImcVisitor;
 import compiler.phases.imcgen.code.*;
 import compiler.phases.lincode.CodeFragment;
-import compiler.phases.lincode.Fragment;
-import compiler.phases.lincode.LinCode;
 
 import java.util.Vector;
 
@@ -18,11 +16,7 @@ import java.util.Vector;
 
 public class AsmInstrGenerator implements ImcVisitor<Object, Object> {
 
-    private CodeFragment fragment;
 
-    AsmInstrGenerator(CodeFragment fragment) {
-        this.fragment = fragment;
-    }
 
     /**
      * statements
@@ -260,31 +254,25 @@ public class AsmInstrGenerator implements ImcVisitor<Object, Object> {
 
         }
 
-        Temp rv = null;
-        for (Fragment f : LinCode.fragments()) {
-            if (f instanceof CodeFragment) {
-                CodeFragment frag = (CodeFragment) f;
-                if (frag.frame.label.equals(node.label)) {
-                    rv = frag.RV;
-                }
-            }
-        }
 
-        // X - size of caller's stack frame
-        // calculate with FP - SP ?
+        // TODO add X
         Temp frameSize = new Temp();
-        Vector<Temp> defs2 = new Vector<>();
-        defs2.add(frameSize);
-
-        // hardcode the size - TODO fix
-        AsmGen.add(new AsmOPER("SETL `d0," + fragment.frame.size/8, null, defs2, null));
-
         uses.add(frameSize);
 
         // rJ
         defs.add(new Temp());
         jumps.add(node.label);
         AsmGen.add(new AsmOPER("PUSHJ `s0," + node.label.name, uses, defs, jumps));
+
+
+        // load result from stack
+        Temp rv = new Temp();
+        Vector<Temp> uses2 = new Vector<>();
+        Vector<Temp> defs2 = new Vector<>();
+        uses2.add(ImcGen.SP);
+        defs2.add(rv);
+        AsmGen.add(new AsmOPER("LDO `d0,`s0,0", uses2, defs2, null));
+
         return rv;
 
     }

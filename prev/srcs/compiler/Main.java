@@ -20,7 +20,7 @@ import compiler.phases.lincode.*;
 public class Main {
 
 	/** All valid phases of the compiler. */
-	private static final String phases = "lexan|synan|abstr|seman|frames|imcgen|lincode|asmgen";
+	private static final String phases = "lexan|synan|abstr|seman|frames|imcgen|lincode|asmgen|livean";
 
 	/** Values of command line arguments. */
 	private static HashMap<String, String> cmdLine = new HashMap<String, String>();
@@ -150,7 +150,7 @@ public class Main {
 				try (LinCode linCode = new LinCode()) {
 					Abstr.absTree().accept(new Fragmenter(), null);
 				}
-				new Interpreter().execute();
+				//new Interpreter().execute();
 				if (cmdLine.get("--target-phase").equals("lincode"))
 					break;
 				

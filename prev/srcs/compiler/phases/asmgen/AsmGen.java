@@ -44,7 +44,7 @@ public class AsmGen extends Phase {
         for (Fragment fragment : LinCode.fragments()) {
             if (fragment instanceof CodeFragment) {
                 CodeFragment codeFragment = (CodeFragment) fragment;
-                AsmInstrGenerator asmInstrGenerator = new AsmInstrGenerator(codeFragment);
+                AsmInstrGenerator asmInstrGenerator = new AsmInstrGenerator();
                 AsmGen.curFrag = codeFragment;
                 instrs.put(curFrag, new LinkedList<>());
 
@@ -59,7 +59,7 @@ public class AsmGen extends Phase {
     @Override
     public void close() {
         String loggedPhase = compiler.Main.cmdLineArgValue("--logged-phase");
-        if ((loggedPhase != null) && loggedPhase.matches("asmgen" + "|all")) {
+        if ((loggedPhase != null) && loggedPhase.matches("asmgen" + "|livean" + "|all")) {
 
             for (CodeFragment frag : instrs.keySet()) {
                 System.out.println("% " + frag.frame.label.name);
