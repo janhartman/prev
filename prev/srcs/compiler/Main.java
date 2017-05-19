@@ -2,7 +2,6 @@ package compiler;
 
 import java.util.*;
 import common.report.*;
-import compiler.phases.asmgen.AsmGen;
 import compiler.phases.lexan.*;
 import compiler.phases.synan.*;
 import compiler.phases.abstr.*;
@@ -10,6 +9,8 @@ import compiler.phases.seman.*;
 import compiler.phases.frames.*;
 import compiler.phases.imcgen.*;
 import compiler.phases.lincode.*;
+import compiler.phases.asmgen.*;
+import compiler.phases.liveness.*;
 
 /**
  * The compiler.
@@ -20,7 +21,7 @@ import compiler.phases.lincode.*;
 public class Main {
 
 	/** All valid phases of the compiler. */
-	private static final String phases = "lexan|synan|abstr|seman|frames|imcgen|lincode|asmgen|livean";
+	private static final String phases = "lexan|synan|abstr|seman|frames|imcgen|lincode|asmgen|liveness";
 
 	/** Values of command line arguments. */
 	private static HashMap<String, String> cmdLine = new HashMap<String, String>();
@@ -159,6 +160,13 @@ public class Main {
 					asmGen.generate();
 				}
 				if (cmdLine.get("--target-phase").equals("asmgen"))
+					break;
+
+				// Liveness analysis.
+				try (Liveness liveness = new Liveness()) {
+					liveness.generate();
+				}
+				if (cmdLine.get("--target-phase").equals("liveness"))
 					break;
 
 				int endWarnings = Report.numOfWarnings();

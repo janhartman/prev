@@ -8,14 +8,14 @@ import java.util.HashMap;
 import java.util.LinkedList;
 
 /**
- * Created by Jan on 12. 05. 2017.
+ * @author jan
  */
 public class AsmGen extends Phase {
 
     /**
      * The hashmap of instruction lists (divided by fragments).
      */
-    private static final HashMap<CodeFragment, LinkedList<AsmInstr>> instrs = new HashMap<>();
+    public static final HashMap<CodeFragment, LinkedList<AsmInstr>> instrs = new HashMap<>();
 
     /**
      * The variable that indicates which fragment is currently being processed.
@@ -59,7 +59,7 @@ public class AsmGen extends Phase {
     @Override
     public void close() {
         String loggedPhase = compiler.Main.cmdLineArgValue("--logged-phase");
-        if ((loggedPhase != null) && loggedPhase.matches("asmgen" + "|livean" + "|all")) {
+        if ((loggedPhase != null) && loggedPhase.matches("asmgen" + "|liveness" + "|all")) {
 
             for (CodeFragment frag : instrs.keySet()) {
                 System.out.println("% " + frag.frame.label.name);
@@ -70,6 +70,5 @@ public class AsmGen extends Phase {
             }
 
         }
-        super.close();
     }
 }
