@@ -30,4 +30,7 @@ public class Label {
 		this.name = "_" + name;
 	}
 
+	public String toString() {
+		return name;
+	}
 }

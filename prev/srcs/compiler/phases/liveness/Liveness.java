@@ -38,6 +38,7 @@ public class Liveness extends Phase {
         if ((loggedPhase != null) && loggedPhase.matches("liveness" + "|all")) {
             for (InterferenceGraph graph : graphs) {
                 System.out.println(graph);
+                System.out.println();
             }
         }
 

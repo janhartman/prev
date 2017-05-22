@@ -22,7 +22,7 @@ class InterferenceGraph {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         for (Interference e : interferences) {
-            sb.append(e.toString());
+            sb.append(e.toString()+"\n");
         }
 
         return sb.toString();

@@ -19,6 +19,10 @@ public class AsmLABEL extends AsmOPER {
 		this.label = label;
 	}
 
+	public Label label() {
+		return label;
+	}
+
 	@Override
 	public String toString() {
 		return label.name;

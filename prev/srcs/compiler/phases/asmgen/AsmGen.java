@@ -56,6 +56,17 @@ public class AsmGen extends Phase {
 
     }
 
+    /**
+     * Return the list of all instructions.
+     */
+    public static LinkedList<AsmInstr> allInstrs() {
+        LinkedList<AsmInstr> allInstrList = new LinkedList<>();
+        for (LinkedList<AsmInstr> list : instrs.values()) {
+            allInstrList.addAll(list);
+        }
+        return allInstrList;
+    }
+
     @Override
     public void close() {
         String loggedPhase = compiler.Main.cmdLineArgValue("--logged-phase");

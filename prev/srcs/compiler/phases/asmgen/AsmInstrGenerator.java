@@ -285,7 +285,6 @@ public class AsmInstrGenerator implements ImcVisitor<Object, Object> {
         Vector<Temp> defs = new Vector<>();
         Temp t = new Temp();
         defs.add(t);
-        uses.add(t);
 
         long val1 = value & 0x0000000000000FFFF;
         long val2 = (value >> 16) & 0x0000000000000FFFF;
@@ -295,6 +294,7 @@ public class AsmInstrGenerator implements ImcVisitor<Object, Object> {
         AsmGen.add(new AsmOPER("SETL `d0," + Long.toString(val1), uses, defs, null));
 
         if (value > 32767 || value < 0) {
+            uses.add(t);
             AsmGen.add(new AsmOPER("INCML `d0," + Long.toString(val2), uses, defs, null));
             AsmGen.add(new AsmOPER("INCMH `d0," + Long.toString(val3), uses, defs, null));
             AsmGen.add(new AsmOPER("INCH `d0," + Long.toString(val4), uses, defs, null));

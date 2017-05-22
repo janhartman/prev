@@ -20,4 +20,8 @@ public class Temp {
 		count++;
 	}
 
+	public String toString() {
+		return "T" + temp;
+	}
+
 }
