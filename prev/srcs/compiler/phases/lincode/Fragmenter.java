@@ -318,7 +318,7 @@ public class Fragmenter extends AbsFullVisitor<Object, Object> {
             canStmts = stack.pop();
 
             canStmts.add(new ImcMOVE(new ImcTEMP(RV), value));
-            canStmts.add(new ImcJUMP(endLabel));
+            //canStmts.add(new ImcJUMP(endLabel));
             canStmts.add(new ImcLABEL(endLabel));
 
             CodeFragment fragment = new CodeFragment(frame, canStmts, ImcGen.FP, RV, begLabel, endLabel);
@@ -352,7 +352,7 @@ public class Fragmenter extends AbsFullVisitor<Object, Object> {
         canStmts.add(new ImcLABEL(begLabel));
         canStmts.addAll(stack.peek());
         canStmts.add(stmt);
-        canStmts.add(new ImcJUMP(endLabel));
+        //canStmts.add(new ImcJUMP(endLabel));
         canStmts.add(new ImcLABEL(endLabel));
 
         CodeFragment fragment = new CodeFragment(frame, canStmts, ImcGen.FP, RV, begLabel, endLabel);

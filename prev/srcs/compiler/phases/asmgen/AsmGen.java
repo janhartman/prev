@@ -70,7 +70,7 @@ public class AsmGen extends Phase {
     @Override
     public void close() {
         String loggedPhase = compiler.Main.cmdLineArgValue("--logged-phase");
-        if ((loggedPhase != null) && loggedPhase.matches("asmgen" + "|liveness" + "|all")) {
+        if ((loggedPhase != null) && loggedPhase.matches("asmgen" + "|all")) {
 
             for (CodeFragment frag : instrs.keySet()) {
                 System.out.println("% " + frag.frame.label.name);

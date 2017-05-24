@@ -26,23 +26,11 @@ class GraphGenerator {
 
         LinkedList<HashSet<Temp>> ins = new LinkedList<>();
         LinkedList<HashSet<Temp>> outs = new LinkedList<>();
-        LinkedList<HashSet<Temp>> oldIns = new LinkedList<>();
-        LinkedList<HashSet<Temp>> oldOuts = new LinkedList<>();
-
-        for (int i = 0; i < instrList.size(); i++) {
-            oldIns.add(new HashSet<>());
-            oldOuts.add(new HashSet<>());
-
-            // print
-            AsmInstr instr = instrList.get(i);
-            System.out.println("" + instr + instr.uses() + instr.defs() + instr.jumps());
-        }
-        System.out.println();
+        LinkedList<HashSet<Temp>> oldIns;
+        LinkedList<HashSet<Temp>> oldOuts;
 
         // the algorithm for calculating interferences between variables
-        // TODO fix
-
-        do  {
+        do {
             oldIns = ins;
             oldOuts = outs;
 
@@ -50,9 +38,8 @@ class GraphGenerator {
             outs = new LinkedList<>();
 
             HashSet<Temp> oldIn = new HashSet<>();
-            HashSet<Temp> oldOut = new HashSet<>();
 
-            for (int i = instrList.size()-1; i >= 0; i--) {
+            for (int i = instrList.size() - 1; i >= 0; i--) {
                 AsmInstr instr = instrList.get(i);
                 HashSet<Temp> in = new HashSet<>();
                 HashSet<Temp> out = new HashSet<>();
@@ -65,30 +52,27 @@ class GraphGenerator {
                     in.addAll(toAdd);
                 }
 
-
                 // add new out-vars
                 if (instr.toString().contains("JMP") || instr.toString().contains("BNZ")) {
                     for (Label l : instr.jumps()) {
                         // find the instruction succ following label l
-                        int index = instrAfterLabel(l);
+
+                        // because we go from back to front
+                        int index = instrList.size() - 1 - instrAfterLabel(l);
+
                         if (index < ins.size()) {
                             out.addAll(ins.get(index));
                         }
+
                     }
-                }
-                else {
+                } else {
                     out.addAll(oldIn);
                 }
 
                 ins.add(in);
                 outs.add(out);
-                System.out.println("ins" + ins);
-                System.out.println("outs" + outs);
-
                 oldIn = in;
-                oldOut = out;
             }
-
         }
         while (compare(ins, oldIns) || compare(outs, oldOuts));
 
@@ -102,8 +86,8 @@ class GraphGenerator {
         Iterator<HashSet<Temp>> it1 = list1.iterator();
         Iterator<HashSet<Temp>> it2 = list2.iterator();
 
-        while(it1.hasNext() && it2.hasNext()) {
-            if (! it1.next().equals(it2.next())) {
+        while (it1.hasNext() && it2.hasNext()) {
+            if (!it1.next().equals(it2.next())) {
                 return true;
             }
         }
@@ -114,8 +98,8 @@ class GraphGenerator {
     private void addInterferences(LinkedList<HashSet<Temp>> conns) {
         for (HashSet<Temp> s : conns) {
             for (Temp t1 : s) {
-                for (Temp t2: s) {
-                    if (! t1.equals(t2)) {
+                for (Temp t2 : s) {
+                    if (!t1.equals(t2)) {
                         graph.add(t1, t2);
                     }
                 }
@@ -129,7 +113,7 @@ class GraphGenerator {
                 AsmInstr instr = instrList.get(i);
                 if (instr instanceof AsmLABEL) {
                     if (((AsmLABEL) instr).label().equals(label)) {
-                        return i+1;
+                        return i + 1;
                     }
                 }
             }
