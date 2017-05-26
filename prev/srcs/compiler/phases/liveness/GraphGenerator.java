@@ -83,6 +83,8 @@ class GraphGenerator {
             System.out.println(" " + ins.get(ins.size() - i - 1) + " " + outs.get(outs.size() - i - 1));
         }
 
+        graph.recreate();
+
         return graph;
     }
 
@@ -104,7 +106,7 @@ class GraphGenerator {
             for (Temp t1 : s) {
                 for (Temp t2 : s) {
                     if (!t1.equals(t2)) {
-                        graph.add(t1, t2);
+                        graph.addTemps(t1, t2);
                     }
                 }
             }

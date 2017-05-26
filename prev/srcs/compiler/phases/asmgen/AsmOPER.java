@@ -71,9 +71,9 @@ public class AsmOPER extends AsmInstr {
 	public String toString(HashMap<Temp, Integer> regs) {
 		String instruction = this.instr;
 		for (int i = 0; i < uses.size(); i++)
-			instruction.replace("`s" + i, "$" + regs.get(uses.get(i).temp));
+			instruction = instruction.replace("`s" + i, "$" + regs.get(uses.get(i)));
 		for (int i = 0; i < defs.size(); i++)
-			instruction.replace("`d" + i, "$" + regs.get(defs.get(i).temp));
+			instruction = instruction.replace("`d" + i, "$" + regs.get(defs.get(i)));
 		return instruction;
 	}
 

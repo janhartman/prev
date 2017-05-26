@@ -4,6 +4,8 @@ import compiler.phases.frames.Temp;
 import compiler.phases.liveness.InterferenceGraph;
 import compiler.phases.liveness.Node;
 
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Stack;
 
 /**
@@ -48,14 +50,14 @@ public class Allocator {
     }
 
     // TODO check if this makes sense to implement
-    public void coalesce() {
+    private void coalesce() {
         freeze();
     }
-    public void freeze() {
+    private void freeze() {
         spill();
     }
 
-    public void spill() {
+    private void spill() {
         // add node to stack and mark spill = true
         Node node = graph.lowDegNode(Integer.MAX_VALUE);
 
@@ -71,11 +73,52 @@ public class Allocator {
     }
 
     // graph is empty - pop values from stack and assign colors
-    public void select() {
+    private void select() {
 
+        LinkedList<Node> spills = new LinkedList<>();
+
+        HashMap<Temp, Integer> mapping = new HashMap<>();
+
+        int K = RegAlloc.K;
+
+        while (! stack.empty()) {
+            Node node = stack.pop();
+
+            // for each color
+            for (int c = 0; c < K; c++) {
+                boolean ok = true;
+
+                // check if it is not in use by neighboring nodes
+                for (Node neighbor : node.neighbors()) {
+                    if (neighbor.color == c) {
+                        ok = false;
+                    }
+                }
+
+                if (ok) {
+                    node.color = c;
+                    mapping.put(node.temp, c);
+
+                    // TODO add back to graph
+
+                    break;
+                }
+                else {
+                    if (! node.spill)
+                        System.out.println("Found an unspilled node with no color option");
+                    spills.add(node);
+                }
+
+            }
+
+
+        }
+
+
+        startOver(spills);
     }
 
-    public void startOver() {
+    private void startOver(LinkedList<Node> spills) {
 
     }
 

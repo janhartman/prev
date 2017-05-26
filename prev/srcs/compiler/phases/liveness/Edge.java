@@ -16,6 +16,13 @@ public class Edge {
         this.t2 = t1.temp < t2.temp ? t2 : t1;
     }
 
+    public Temp t1() {
+        return t1;
+    }
+    public Temp t2() {
+        return t2;
+    }
+
     @Override
     public boolean equals(Object obj) {
         return obj instanceof Edge && this.toString().equals(obj.toString());
