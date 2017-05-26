@@ -7,7 +7,7 @@ import compiler.phases.frames.Temp;
  *
  * An object of this class represents an edge in the interference graph.
  */
-class Edge {
+public class Edge {
     private Temp t1;
     private Temp t2;
 

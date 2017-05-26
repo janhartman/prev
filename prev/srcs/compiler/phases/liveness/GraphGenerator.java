@@ -21,7 +21,6 @@ class GraphGenerator {
         this.graph = new InterferenceGraph();
     }
 
-    @SuppressWarnings("unchecked")
     public InterferenceGraph createGraph(LinkedList<AsmInstr> instrList) {
 
         LinkedList<HashSet<Temp>> ins = new LinkedList<>();
@@ -47,7 +46,7 @@ class GraphGenerator {
                 // add new in-vars
                 in.addAll(instr.uses());
                 if (oldOuts.size() > instrList.size() - i - 1) {
-                    HashSet toAdd = oldOuts.get(i);
+                    HashSet<Temp> toAdd = oldOuts.get(i);
                     toAdd.removeAll(instr.defs());
                     in.addAll(toAdd);
                 }
@@ -78,6 +77,11 @@ class GraphGenerator {
 
         addInterferences(ins);
         addInterferences(outs);
+
+        for (int i = 0; i < instrList.size(); i++) {
+            System.out.printf("%-15s", instrList.get(i));
+            System.out.println(" " + ins.get(ins.size() - i - 1) + " " + outs.get(outs.size() - i - 1));
+        }
 
         return graph;
     }

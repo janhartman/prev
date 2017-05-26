@@ -3,6 +3,7 @@ package compiler;
 import java.util.*;
 import common.report.*;
 import compiler.phases.lexan.*;
+import compiler.phases.regalloc.RegAlloc;
 import compiler.phases.synan.*;
 import compiler.phases.abstr.*;
 import compiler.phases.seman.*;
@@ -167,6 +168,13 @@ public class Main {
 					liveness.generate();
 				}
 				if (cmdLine.get("--target-phase").equals("liveness"))
+					break;
+
+				// Register allocation.
+				try (RegAlloc regAlloc = new RegAlloc()) {
+					regAlloc.allocate();
+				}
+				if (cmdLine.get("--target-phase").equals("regalloc"))
 					break;
 
 				int endWarnings = Report.numOfWarnings();

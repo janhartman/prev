@@ -13,10 +13,12 @@ public class Node {
 
     public Temp temp;
     private HashSet<Edge> edges;
+    public boolean spill;
 
     public Node(Temp temp) {
         this.temp = temp;
         this.edges = new HashSet<>();
+        this.spill = false;
     }
 
     public int deg() {

@@ -4,12 +4,11 @@ import compiler.phases.frames.Temp;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 
 /**
  * @author jan
  */
-class InterferenceGraph {
+public class InterferenceGraph {
 
     private HashMap<Temp, Node> nodes;
 
@@ -42,8 +41,20 @@ class InterferenceGraph {
     public void remove(Node node) {
         if (nodes.containsKey(node.temp)) {
             nodes.remove(node.temp);
-            // save node somewhere
         }
+    }
+
+    public Node lowDegNode(int k) {
+        for (Node node : nodes.values()) {
+            if (node.deg() < k) {
+                return node;
+            }
+        }
+        return null;
+    }
+
+    public int numNodes() {
+        return nodes.size();
     }
 
     public void printEdges() {

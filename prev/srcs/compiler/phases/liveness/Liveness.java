@@ -14,7 +14,7 @@ public class Liveness extends Phase {
     /**
      * The list of all interference graphs.
      */
-    private static final LinkedList<InterferenceGraph> graphs = new LinkedList<>();
+    public static final LinkedList<InterferenceGraph> graphs = new LinkedList<>();
 
     public Liveness() {
         super("liveness");
