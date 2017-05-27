@@ -49,6 +49,13 @@ public class InterferenceGraph {
         nodes.add(node);
     }
 
+    /**
+     * Adds a pair of variables connected by a MOVE.
+     */
+    public void addMove(Temp t1, Temp t2) {
+        // TODO how to recognize edge as MOVE
+
+    }
 
     /**
      * Adds all the missing temporaries (with no interferences) to the graph.

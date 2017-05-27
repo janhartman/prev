@@ -32,6 +32,10 @@ public class Liveness extends Phase {
 
     }
 
+    public static void reset() {
+        graphs.clear();
+    }
+
     @Override
     public void close() {
         String loggedPhase = compiler.Main.cmdLineArgValue("--logged-phase");

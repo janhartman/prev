@@ -31,14 +31,21 @@ public class RegAlloc extends Phase {
     /**
      * Allocate registers to temporary values.
      */
-    public void allocate() {
+    public boolean allocate() {
+        boolean spill = false;
 
         for (CodeFragment fragment : Liveness.graphs.keySet()) {
-            Allocator allocator = new Allocator(Liveness.graphs.get(fragment));
+            Allocator allocator = new Allocator(Liveness.graphs.get(fragment), AsmGen.instrs.get(fragment));
             allocator.simplify();
             registers.put(fragment, allocator.mapping());
+            spill = spill || allocator.spill;
         }
 
+        return spill;
+    }
+
+    public static void reset() {
+        registers.clear();
     }
 
     @Override

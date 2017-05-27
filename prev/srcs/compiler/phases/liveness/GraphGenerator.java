@@ -2,6 +2,7 @@ package compiler.phases.liveness;
 
 import compiler.phases.asmgen.AsmInstr;
 import compiler.phases.asmgen.AsmLABEL;
+import compiler.phases.asmgen.AsmMOVE;
 import compiler.phases.frames.Label;
 import compiler.phases.frames.Temp;
 
@@ -93,6 +94,7 @@ class GraphGenerator {
         printInsOuts(instrList, ins, outs);
 
         graph.addAllTemps();
+        addMoves(instrList);
 
         return graph;
     }
@@ -148,7 +150,16 @@ class GraphGenerator {
         return -1;
     }
 
-    private void printInsOuts(LinkedList<AsmInstr> instrList, LinkedList<HashSet<Temp>> ins, LinkedList<HashSet<Temp>> outs) {
+    private void addMoves(LinkedList<AsmInstr> instrList) {
+        for (AsmInstr instr : instrList) {
+            if (instr instanceof AsmMOVE) {
+                graph.addMove(instr.uses().get(0), instr.defs().get(0));
+            }
+        }
+    }
+
+    private void printInsOuts(LinkedList<AsmInstr> instrList,
+                              LinkedList<HashSet<Temp>> ins, LinkedList<HashSet<Temp>> outs) {
         System.out.println();
         for (int i = 0; i < instrList.size(); i++) {
             System.out.printf("%-15s", instrList.get(i));

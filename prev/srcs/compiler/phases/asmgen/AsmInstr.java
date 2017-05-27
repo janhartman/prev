@@ -28,9 +28,16 @@ public abstract class AsmInstr {
 	/**
 	 * Returns the list of labels this instruction can jump to.
 	 * 
-	 * @returnThe list of labels this instruction can jump to.
+	 * @return The list of labels this instruction can jump to.
 	 */
 	public abstract Vector<Label> jumps();
+
+	/**
+	 * Returns the string representation of this instruction.
+	 *
+	 * @return the string representation of this instruction.
+	 */
+	public abstract String instr();
 
 	/**
 	 * Returns a string representing this instruction with temporaries.

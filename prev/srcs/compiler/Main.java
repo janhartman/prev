@@ -163,17 +163,33 @@ public class Main {
 				if (cmdLine.get("--target-phase").equals("asmgen"))
 					break;
 
-				// Liveness analysis.
-				try (Liveness liveness = new Liveness()) {
-					liveness.generate();
-				}
-				if (cmdLine.get("--target-phase").equals("liveness"))
-					break;
+				// repeat until register allocation succeeds
+				boolean regAllocFailed = false;
+				int count = 0;
+				do {
+					// Liveness analysis.
+					try (Liveness liveness = new Liveness()) {
+						Liveness.reset();
+                        liveness.generate();
+                    }
+					if (cmdLine.get("--target-phase").equals("liveness"))
+                        break;
 
-				// Register allocation.
-				try (RegAlloc regAlloc = new RegAlloc()) {
-					regAlloc.allocate();
-				}
+					// Register allocation.
+					try (RegAlloc regAlloc = new RegAlloc()) {
+						RegAlloc.reset();
+                        regAllocFailed = regAlloc.allocate();
+                    }
+
+                    if (count++ > 3) {
+						Report.info("Breaking loop");
+						break;
+					}
+
+				} while (regAllocFailed);
+
+				Report.info("Allocated " + count + " times.");
+
 				if (cmdLine.get("--target-phase").equals("regalloc"))
 					break;
 

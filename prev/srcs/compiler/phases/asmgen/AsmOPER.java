@@ -58,6 +58,11 @@ public class AsmOPER extends AsmInstr {
 	}
 
 	@Override
+	public String instr() {
+		return instr;
+	}
+
+	@Override
 	public String toString() {
 		String instruction = this.instr;
 		for (int i = 0; i < uses.size(); i++)
