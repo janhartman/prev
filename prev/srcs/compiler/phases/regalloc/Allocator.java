@@ -1,6 +1,7 @@
 package compiler.phases.regalloc;
 
 import compiler.phases.frames.Temp;
+import compiler.phases.imcgen.ImcGen;
 import compiler.phases.liveness.InterferenceGraph;
 import compiler.phases.liveness.Node;
 
@@ -78,6 +79,8 @@ public class Allocator {
         LinkedList<Node> spills = new LinkedList<>();
 
         HashMap<Temp, Integer> mapping = new HashMap<>();
+        mapping.put(ImcGen.FP, 253);
+        mapping.put(ImcGen.SP, 254);
 
         int K = RegAlloc.K;
 
@@ -98,14 +101,13 @@ public class Allocator {
                 if (ok) {
                     node.color = c;
                     mapping.put(node.temp, c);
-
-                    // TODO add back to graph
+                    graph.addNode(node);
 
                     break;
                 }
                 else {
                     if (! node.spill)
-                        System.out.println("Found an unspilled node with no color option");
+                        System.out.println("Found an unspilled node with no color option: " + node);
                     spills.add(node);
                 }
 
@@ -114,7 +116,8 @@ public class Allocator {
 
         }
 
-
+        //System.out.println(spills);
+        System.out.println(mapping);
         startOver(spills);
     }
 

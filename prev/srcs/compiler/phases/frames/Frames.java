@@ -5,6 +5,8 @@ import compiler.phases.abstr.*;
 import compiler.phases.abstr.abstree.*;
 import compiler.phases.seman.*;
 
+import java.util.LinkedList;
+
 /**
  * Computing frames and accesses.
  * 
@@ -16,6 +18,8 @@ public class Frames extends Phase {
 	public static final AbsAttribute<AbsFunDef, Frame> frames = new AbsAttribute<AbsFunDef, Frame>();
 
 	public static final AbsAttribute<AbsVarDecl, Access> accesses = new AbsAttribute<AbsVarDecl, Access>();
+
+	public static final LinkedList<Temp> allTemps = new LinkedList<>();
 
 	/**
 	 * Constructs a new phase for computing frames and accesses.

@@ -18,6 +18,7 @@ public class Temp {
 	public Temp() {
 		this.temp = count;
 		count++;
+		Frames.allTemps.add(this);
 	}
 
 	public String toString() {

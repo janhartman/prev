@@ -1,9 +1,11 @@
 package compiler.phases.liveness;
 
+import compiler.phases.frames.Frames;
 import compiler.phases.frames.Temp;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 
 /**
  * @author jan
@@ -13,65 +15,63 @@ public class InterferenceGraph {
     /**
      * The mapping of temporary variables to actual nodes in the graph.
      */
-    private HashMap<Temp, Node> nodes;
+    private LinkedList<Node> nodes;
 
-    /**
-     * The edges of the graph.
-     */
-    private HashSet<Edge> edges;
 
     public InterferenceGraph() {
-        this.nodes = new HashMap<>();
-        this.edges = new HashSet<>();
+        this.nodes = new LinkedList<>();
     }
 
     /**
      * Add a new pair of interfering temporary variables to the graph.
      */
     public void addTemps(Temp t1, Temp t2) {
-        Edge edge = new Edge(t1, t2);
-        edges.add(edge);
-        addEdgeToNode(t1, edge);
-        addEdgeToNode(t2, edge);
-    }
-
-
-    public void recreate() {
-
+        Node node1 = addNode(t1);
+        Node node2 = addNode(t2);
+        node1.addNeighbor(node2);
+        node2.addNeighbor(node1);
     }
 
     /**
-     * Add an edge to a node.
+     * Add a node to the graph. If it exists, return the existing value.
      */
-    public void addEdgeToNode(Temp temp, Edge edge) {
-        if (nodes.containsKey(temp)) {
-            nodes.get(temp).addEdge(edge);
+    public Node addNode(Temp temp) {
+        for (Node node : nodes) {
+            if (node.temp.temp == temp.temp) {
+                return node;
+            }
         }
-        else {
-            Node node = new Node(temp);
-            node.addEdge(edge);
-            nodes.put(temp, node);
-        }
+
+        Node newNode = new Node(temp);
+        nodes.add(newNode);
+        return newNode;
     }
 
+    public void addNode(Node node) {
+        nodes.add(node);
+    }
+
+    public void addAllTemps() {
+        for (Temp temp : Frames.allTemps) {
+            addNode(temp);
+        }
+    }
 
     /**
      * Remove a node from the graph.
      */
-
-    // TODO remove edges to other nodes
     public void remove(Node node) {
-        if (nodes.containsKey(node.temp)) {
-            nodes.remove(node.temp);
+        for (Node neighbor : node.neighbors()) {
+            neighbor.neighbors().remove(node);
         }
-
+        nodes.remove(node);
     }
 
     /**
      * Return the first node with a degree lower than k.
      */
     public Node lowDegNode(int k) {
-        for (Node node : nodes.values()) {
+        for (Node node : nodes) {
             if (node.deg() < k) {
                 return node;
             }
@@ -84,29 +84,21 @@ public class InterferenceGraph {
     }
 
 
-    /**
-     * Print all the edges of the graph.
-     */
-    public void printEdges() {
-        for (Edge e : edges) {
-            System.out.println(e);
-        }
-    }
 
     /**
-     * Print the graph as an adjacency graph.
+     * Print the graph as an adjacency matrix.
      */
     public void printAsMatrix() {
         System.out.print("    ");
 
-        for (Node node : nodes.values()) {
+        for (Node node : nodes) {
             System.out.printf("%5s", node.temp);
         }
         System.out.println();
 
-        for (Node node : nodes.values()) {
+        for (Node node : nodes) {
             System.out.printf("%5s", node.temp);
-            for (Node node2 : nodes.values()) {
+            for (Node node2 : nodes) {
                 if (node.isNeighbor(node2)) {
                     System.out.print("    x");
                 }

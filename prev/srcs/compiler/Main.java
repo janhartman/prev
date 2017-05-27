@@ -22,7 +22,7 @@ import compiler.phases.liveness.*;
 public class Main {
 
 	/** All valid phases of the compiler. */
-	private static final String phases = "lexan|synan|abstr|seman|frames|imcgen|lincode|asmgen|liveness";
+	private static final String phases = "lexan|synan|abstr|seman|frames|imcgen|lincode|asmgen|liveness|regalloc";
 
 	/** Values of command line arguments. */
 	private static HashMap<String, String> cmdLine = new HashMap<String, String>();

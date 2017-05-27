@@ -47,6 +47,7 @@ public class RegAlloc extends Phase {
         if ((loggedPhase != null) && loggedPhase.matches("regalloc" + "|all")) {
             for (CodeFragment frag : AsmGen.instrs.keySet()) {
                 System.out.println("% " + frag.frame.label.name);
+
                 for (AsmInstr instr : AsmGen.instrs.get(frag)) {
                     System.out.println(instr.toString(registers));
                 }

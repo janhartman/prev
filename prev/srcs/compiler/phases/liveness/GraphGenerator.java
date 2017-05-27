@@ -1,6 +1,5 @@
 package compiler.phases.liveness;
 
-import compiler.phases.asmgen.AsmGen;
 import compiler.phases.asmgen.AsmInstr;
 import compiler.phases.asmgen.AsmLABEL;
 import compiler.phases.frames.Label;
@@ -21,6 +20,8 @@ class GraphGenerator {
         this.graph = new InterferenceGraph();
     }
 
+
+    @SuppressWarnings("unchecked")
     public InterferenceGraph createGraph(LinkedList<AsmInstr> instrList) {
 
         LinkedList<HashSet<Temp>> ins = new LinkedList<>();
@@ -28,25 +29,35 @@ class GraphGenerator {
         LinkedList<HashSet<Temp>> oldIns;
         LinkedList<HashSet<Temp>> oldOuts;
 
+        int iter = 0;
+
         // the algorithm for calculating interferences between variables
         do {
-            oldIns = ins;
             oldOuts = outs;
+            oldIns = ins;
+
+            System.out.println("iter " + iter++);
+            /*
+            System.out.println("ins1 " + ins);
+            System.out.println("ins2 " + oldIns);
+            System.out.println("out1 " + outs);
+            System.out.println("out2 " + oldOuts);
+            System.out.println();
+            */
 
             ins = new LinkedList<>();
             outs = new LinkedList<>();
 
-            HashSet<Temp> oldIn = new HashSet<>();
-
-            for (int i = instrList.size() - 1; i >= 0; i--) {
-                AsmInstr instr = instrList.get(i);
+            for (int idx = instrList.size() - 1; idx >= 0; idx--) {
+                AsmInstr instr = instrList.get(idx);
                 HashSet<Temp> in = new HashSet<>();
                 HashSet<Temp> out = new HashSet<>();
 
                 // add new in-vars
                 in.addAll(instr.uses());
-                if (oldOuts.size() > instrList.size() - i - 1) {
-                    HashSet<Temp> toAdd = oldOuts.get(i);
+                if (oldOuts.size() > 0) {
+                    int outIdx = instrList.size() - idx - 1;
+                    HashSet<Temp> toAdd = (HashSet<Temp>) oldOuts.get(outIdx).clone();
                     toAdd.removeAll(instr.defs());
                     in.addAll(toAdd);
                 }
@@ -57,20 +68,21 @@ class GraphGenerator {
                         // find the instruction succ following label l
 
                         // because we go from back to front
-                        int index = instrList.size() - 1 - instrAfterLabel(l);
+                        int succIdx = instrList.size() - 1 - instrAfterLabel(l, instrList);
 
-                        if (index < ins.size()) {
-                            out.addAll(ins.get(index));
+                        if (succIdx < ins.size()) {
+                            out.addAll(ins.get(succIdx));
                         }
 
                     }
                 } else {
-                    out.addAll(oldIn);
+                    if (ins.size() > 0) {
+                        out.addAll(ins.get(ins.size() - 1));
+                    }
                 }
 
                 ins.add(in);
                 outs.add(out);
-                oldIn = in;
             }
         }
         while (compare(ins, oldIns) || compare(outs, oldOuts));
@@ -78,25 +90,32 @@ class GraphGenerator {
         addInterferences(ins);
         addInterferences(outs);
 
-        for (int i = 0; i < instrList.size(); i++) {
-            System.out.printf("%-15s", instrList.get(i));
-            System.out.println(" " + ins.get(ins.size() - i - 1) + " " + outs.get(outs.size() - i - 1));
-        }
+        printInsOuts(instrList, ins, outs);
 
-        graph.recreate();
+        graph.addAllTemps();
 
         return graph;
     }
 
     private boolean compare(LinkedList<HashSet<Temp>> list1, LinkedList<HashSet<Temp>> list2) {
+
+        if (list1.size() != list2.size()) {
+            return true;
+        }
+
         Iterator<HashSet<Temp>> it1 = list1.iterator();
         Iterator<HashSet<Temp>> it2 = list2.iterator();
 
-        while (it1.hasNext() && it2.hasNext()) {
-            if (!it1.next().equals(it2.next())) {
+        while (it1.hasNext()) {
+            HashSet<Temp> s1 = it1.next();
+            HashSet<Temp> s2 = it2.next();
+
+            if (!s1.equals(s2)) {
+                System.out.println("sets not equal: " + s1 + " " + s2);
                 return true;
             }
         }
+
 
         return false;
     }
@@ -113,19 +132,30 @@ class GraphGenerator {
         }
     }
 
-    private int instrAfterLabel(Label label) {
-        for (LinkedList<AsmInstr> instrList : AsmGen.instrs.values()) {
-            for (int i = 0; i < instrList.size(); i++) {
-                AsmInstr instr = instrList.get(i);
-                if (instr instanceof AsmLABEL) {
-                    if (((AsmLABEL) instr).label().equals(label)) {
-                        return i + 1;
+    private int instrAfterLabel(Label label, LinkedList<AsmInstr> instrList) {
+        for (int i = 0; i < instrList.size(); i++) {
+            AsmInstr instr = instrList.get(i);
+            if (instr instanceof AsmLABEL) {
+                if (((AsmLABEL) instr).label().equals(label)) {
+
+                    while (instrList.get(i) instanceof AsmLABEL) {
+                        i++;
                     }
+                    return i;
                 }
             }
         }
 
         return -1;
+    }
+
+    private void printInsOuts(LinkedList<AsmInstr> instrList, LinkedList<HashSet<Temp>> ins, LinkedList<HashSet<Temp>> outs) {
+        System.out.println();
+        for (int i = 0; i < instrList.size(); i++) {
+            System.out.printf("%-15s", instrList.get(i));
+            System.out.println(" " + ins.get(ins.size() - i - 1) + " " + outs.get(outs.size() - i - 1));
+        }
+        System.out.println();
     }
 
 }

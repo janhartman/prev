@@ -37,8 +37,6 @@ public class Liveness extends Phase {
         String loggedPhase = compiler.Main.cmdLineArgValue("--logged-phase");
         if ((loggedPhase != null) && loggedPhase.matches("liveness" + "|all")) {
             for (InterferenceGraph graph : graphs) {
-                graph.printEdges();
-                System.out.println();
                 graph.printAsMatrix();
                 System.out.println();
             }

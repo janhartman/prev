@@ -23,6 +23,7 @@ public class ImcGen extends Phase {
 
 	public static final Temp FP = new Temp();
 	public static final Temp SP = new Temp();
+	public static final Temp HP = new Temp();
 
 	/**
 	 * Constructs a new phase for computing frames and accesses.
