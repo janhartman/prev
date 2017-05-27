@@ -3,8 +3,6 @@ package compiler.phases.liveness;
 import compiler.phases.frames.Frames;
 import compiler.phases.frames.Temp;
 
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 
 /**
@@ -51,6 +49,10 @@ public class InterferenceGraph {
         nodes.add(node);
     }
 
+
+    /**
+     * Adds all the missing temporaries (with no interferences) to the graph.
+     */
     public void addAllTemps() {
         for (Temp temp : Frames.allTemps) {
             addNode(temp);
@@ -82,7 +84,6 @@ public class InterferenceGraph {
     public int numNodes() {
         return nodes.size();
     }
-
 
 
     /**

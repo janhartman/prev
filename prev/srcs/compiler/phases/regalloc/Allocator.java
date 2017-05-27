@@ -6,6 +6,7 @@ import compiler.phases.liveness.InterferenceGraph;
 import compiler.phases.liveness.Node;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Stack;
 
@@ -26,10 +27,19 @@ public class Allocator {
      */
     private Stack<Node> stack;
 
+    /**
+     * The temp -> register mapping.
+     */
+    private HashMap<Temp, Integer> mapping;
 
     public Allocator(InterferenceGraph graph) {
         this.graph = graph;
         this.stack = new Stack<>();
+        this.mapping = new HashMap<>();
+    }
+
+    public HashMap<Temp, Integer> mapping() {
+        return mapping;
     }
 
     // TODO implement all methods
@@ -78,7 +88,6 @@ public class Allocator {
 
         LinkedList<Node> spills = new LinkedList<>();
 
-        HashMap<Temp, Integer> mapping = new HashMap<>();
         mapping.put(ImcGen.FP, 253);
         mapping.put(ImcGen.SP, 254);
 
@@ -88,31 +97,31 @@ public class Allocator {
             Node node = stack.pop();
 
             // for each color
+            boolean colorOK = true;
             for (int c = 0; c < K; c++) {
-                boolean ok = true;
+                colorOK = true;
 
                 // check if it is not in use by neighboring nodes
                 for (Node neighbor : node.neighbors()) {
                     if (neighbor.color == c) {
-                        ok = false;
+                        colorOK = false;
                     }
                 }
 
-                if (ok) {
+                if (colorOK) {
                     node.color = c;
                     mapping.put(node.temp, c);
                     graph.addNode(node);
-
                     break;
                 }
-                else {
-                    if (! node.spill)
-                        System.out.println("Found an unspilled node with no color option: " + node);
-                    spills.add(node);
-                }
-
             }
 
+            // could not find color for node
+            if (! colorOK) {
+                if (! node.spill)
+                    System.out.println("Found an unspilled node with no color option: " + node);
+                spills.add(node);
+            }
 
         }
 
@@ -123,6 +132,10 @@ public class Allocator {
 
     private void startOver(LinkedList<Node> spills) {
 
+
+        if (spills.size() > 0) {
+
+        }
     }
 
 }

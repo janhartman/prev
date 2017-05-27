@@ -5,7 +5,6 @@ import compiler.phases.asmgen.AsmGen;
 import compiler.phases.asmgen.AsmInstr;
 import compiler.phases.frames.Temp;
 import compiler.phases.lincode.CodeFragment;
-import compiler.phases.liveness.InterferenceGraph;
 import compiler.phases.liveness.Liveness;
 
 import java.util.HashMap;
@@ -18,7 +17,7 @@ public class RegAlloc extends Phase {
     /**
      * The temp -> register mapping.
      */
-    public static final HashMap<Temp, Integer> registers = new HashMap<>();
+    public static final HashMap<CodeFragment, HashMap<Temp, Integer>> registers = new HashMap<>();
 
     /**
      * The number of registers.
@@ -34,9 +33,10 @@ public class RegAlloc extends Phase {
      */
     public void allocate() {
 
-        for (InterferenceGraph graph : Liveness.graphs) {
-            Allocator allocator = new Allocator(graph);
+        for (CodeFragment fragment : Liveness.graphs.keySet()) {
+            Allocator allocator = new Allocator(Liveness.graphs.get(fragment));
             allocator.simplify();
+            registers.put(fragment, allocator.mapping());
         }
 
     }
@@ -49,7 +49,7 @@ public class RegAlloc extends Phase {
                 System.out.println("% " + frag.frame.label.name);
 
                 for (AsmInstr instr : AsmGen.instrs.get(frag)) {
-                    System.out.println(instr.toString(registers));
+                    System.out.println(instr.toString(registers.get(frag)));
                 }
                 System.out.println();
             }

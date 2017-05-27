@@ -36,8 +36,8 @@ class GraphGenerator {
             oldOuts = outs;
             oldIns = ins;
 
-            System.out.println("iter " + iter++);
             /*
+            System.out.println("iter " + iter++);
             System.out.println("ins1 " + ins);
             System.out.println("ins2 " + oldIns);
             System.out.println("out1 " + outs);
@@ -111,7 +111,6 @@ class GraphGenerator {
             HashSet<Temp> s2 = it2.next();
 
             if (!s1.equals(s2)) {
-                System.out.println("sets not equal: " + s1 + " " + s2);
                 return true;
             }
         }
