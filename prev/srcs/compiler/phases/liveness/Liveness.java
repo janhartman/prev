@@ -24,10 +24,10 @@ public class Liveness extends Phase {
      * Generate the interference graphs.
      */
     public void generate() {
-        GraphGenerator generator = new GraphGenerator();
 
         for (CodeFragment fragment : AsmGen.instrs.keySet()) {
-            graphs.put(fragment, generator.createGraph(AsmGen.instrs.get(fragment)));
+            GraphGenerator generator = new GraphGenerator(AsmGen.instrs.get(fragment), fragment.frame);
+            graphs.put(fragment, generator.createGraph());
         }
 
     }

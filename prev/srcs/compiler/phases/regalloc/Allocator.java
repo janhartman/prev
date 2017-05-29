@@ -13,8 +13,8 @@ import java.util.*;
 
 /**
  * @author jan
- *
- * Allocates registers by coloring the interference graph.
+ *         <p>
+ *         Allocates registers by coloring the interference graph.
  */
 public class Allocator {
 
@@ -77,8 +77,7 @@ public class Allocator {
 
         if (graph.numNodes() == 0) {
             select();
-        }
-        else {
+        } else {
             spill();
         }
 
@@ -94,8 +93,7 @@ public class Allocator {
             stack.push(node);
             graph.remove(node);
             simplify();
-        }
-        else {
+        } else {
             select();
         }
     }
@@ -110,7 +108,7 @@ public class Allocator {
         mapping.put(ImcGen.FP, 253);
         mapping.put(ImcGen.SP, 254);
 
-        while (! stack.empty()) {
+        while (!stack.empty()) {
             Node node = stack.pop();
 
             if (node.temp.equals(ImcGen.FP) || node.temp.equals(ImcGen.SP)) {
@@ -138,8 +136,8 @@ public class Allocator {
             }
 
             // could not find color for node
-            if (! colorOK) {
-                if (! node.spill)
+            if (!colorOK) {
+                if (!node.spill)
                     Report.warning("Found an unspilled node with no color option: " + node);
                 spills.add(node);
             }
@@ -165,7 +163,7 @@ public class Allocator {
                 AsmInstr instr = instrList.get(idx);
 
                 if (instr.defs().contains(node.temp) && instr.uses().contains(node.temp)) {
-                    prefix ="y" + instr.instr().substring(0, 4) +" ";
+                    //prefix = "y" + instr.instr().substring(0, 4) + " ";
 
                     Temp newTemp = new Temp();
                     Vector<Temp> uses = new Vector<>();
@@ -191,14 +189,12 @@ public class Allocator {
 
                     instrList.remove(idx);
                     instrList.add(idx, load);
-                    instrList.add(idx+1, newInstr);
-                    instrList.add(idx+2, store);
+                    instrList.add(idx + 1, newInstr);
+                    instrList.add(idx + 2, store);
                     idx += 2;
 
-                }
-
-                else if (instr.defs().contains(node.temp)) {
-                    prefix ="x" + instr.instr().substring(0, 4) +" ";
+                } else if (instr.defs().contains(node.temp)) {
+                    //prefix = "x" + instr.instr().substring(0, 4) + " ";
 
                     Vector<Temp> uses = new Vector<>();
                     uses.add(node.temp);
@@ -206,10 +202,8 @@ public class Allocator {
                     AsmOPER store = new AsmOPER(prefix + "STO `s0,`s1," + offset, uses, null, null);
                     instrList.add(idx + 1, store);
                     idx++;
-                }
-
-                else if (instr.uses().contains(node.temp)) {
-                    prefix ="x" + instr.instr().substring(0, 4) +" ";
+                } else if (instr.uses().contains(node.temp)) {
+                    //prefix = "x" + instr.instr().substring(0, 4) + " ";
 
                     Temp newTemp = new Temp();
                     Vector<Temp> uses = new Vector<>();

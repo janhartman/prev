@@ -183,8 +183,8 @@ public class Main {
                     }
 
 					count++;
-                    if (count > 2) {
-						Report.info("Breaking loop");
+                    if (regAllocFailed && count > 2) {
+						Report.info("Registry allocation failed - breaking loop");
 						break;
 					}
 

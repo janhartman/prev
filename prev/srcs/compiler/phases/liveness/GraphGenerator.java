@@ -2,7 +2,7 @@ package compiler.phases.liveness;
 
 import compiler.phases.asmgen.AsmInstr;
 import compiler.phases.asmgen.AsmLABEL;
-import compiler.phases.asmgen.AsmMOVE;
+import compiler.phases.frames.Frame;
 import compiler.phases.frames.Label;
 import compiler.phases.frames.Temp;
 
@@ -17,35 +17,30 @@ class GraphGenerator {
 
     private InterferenceGraph graph;
 
-    public GraphGenerator() {
+    private LinkedList<AsmInstr> instrList;
+
+    private Frame frame;
+
+    public GraphGenerator(LinkedList<AsmInstr> instrList, Frame frame) {
         this.graph = new InterferenceGraph();
+        this.instrList = instrList;
+        this.frame = frame;
     }
 
 
     @SuppressWarnings("unchecked")
-    public InterferenceGraph createGraph(LinkedList<AsmInstr> instrList) {
+    public InterferenceGraph createGraph() {
 
         LinkedList<HashSet<Temp>> ins = new LinkedList<>();
         LinkedList<HashSet<Temp>> outs = new LinkedList<>();
         LinkedList<HashSet<Temp>> oldIns;
         LinkedList<HashSet<Temp>> oldOuts;
 
-        int iter = 0;
 
         // the algorithm for calculating interferences between variables
         do {
             oldOuts = outs;
             oldIns = ins;
-
-            /*
-            System.out.println("iter " + iter++);
-            System.out.println("ins1 " + ins);
-            System.out.println("ins2 " + oldIns);
-            System.out.println("out1 " + outs);
-            System.out.println("out2 " + oldOuts);
-            System.out.println();
-            */
-
             ins = new LinkedList<>();
             outs = new LinkedList<>();
 
@@ -68,9 +63,13 @@ class GraphGenerator {
                     for (Label l : instr.jumps()) {
                         // find the instruction succ following label l
 
-                        // because we go from back to front
-                        int succIdx = instrList.size() - 1 - instrAfterLabel(l, instrList);
+                        int reverseSuccIdx = instrAfterLabel(l);
+                        if (reverseSuccIdx < 0) {
+                            continue;
+                        }
 
+                        // because we go from back to front
+                        int succIdx = instrList.size() - 1 - reverseSuccIdx;
                         if (succIdx < ins.size()) {
                             out.addAll(ins.get(succIdx));
                         }
@@ -91,7 +90,7 @@ class GraphGenerator {
         addInterferences(ins);
         addInterferences(outs);
 
-        printInsOuts(instrList, ins, outs);
+        printInsOuts(ins, outs);
 
         graph.addAllTemps();
 
@@ -132,7 +131,7 @@ class GraphGenerator {
         }
     }
 
-    private int instrAfterLabel(Label label, LinkedList<AsmInstr> instrList) {
+    private int instrAfterLabel(Label label) {
         for (int i = 0; i < instrList.size(); i++) {
             AsmInstr instr = instrList.get(i);
             if (instr instanceof AsmLABEL) {
@@ -149,8 +148,7 @@ class GraphGenerator {
         return -1;
     }
 
-    private void printInsOuts(LinkedList<AsmInstr> instrList,
-                              LinkedList<HashSet<Temp>> ins, LinkedList<HashSet<Temp>> outs) {
+    private void printInsOuts(LinkedList<HashSet<Temp>> ins, LinkedList<HashSet<Temp>> outs) {
         System.out.println();
         for (int i = 0; i < instrList.size(); i++) {
             System.out.printf("%-15s", instrList.get(i));
