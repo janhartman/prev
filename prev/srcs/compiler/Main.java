@@ -2,6 +2,7 @@ package compiler;
 
 import java.util.*;
 import common.report.*;
+import compiler.phases.finphase.FinPhase;
 import compiler.phases.lexan.*;
 import compiler.phases.regalloc.RegAlloc;
 import compiler.phases.synan.*;
@@ -22,7 +23,7 @@ import compiler.phases.liveness.*;
 public class Main {
 
 	/** All valid phases of the compiler. */
-	private static final String phases = "lexan|synan|abstr|seman|frames|imcgen|lincode|asmgen|liveness|regalloc";
+	private static final String phases = "lexan|synan|abstr|seman|frames|imcgen|lincode|asmgen|liveness|regalloc|fin";
 
 	/** Values of command line arguments. */
 	private static HashMap<String, String> cmdLine = new HashMap<String, String>();
@@ -192,6 +193,10 @@ public class Main {
 
 				if (cmdLine.get("--target-phase").equals("regalloc"))
 					break;
+
+				try (FinPhase finPhase = new FinPhase()) {
+					finPhase.finish();
+				}
 
 				int endWarnings = Report.numOfWarnings();
 				if (begWarnings != endWarnings)

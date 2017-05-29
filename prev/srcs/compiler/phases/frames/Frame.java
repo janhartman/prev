@@ -18,7 +18,7 @@ public class Frame implements Loggable {
 	public final int depth;
 
 	/** The size of the frame. */
-	public final long size;
+	public long size;
 
 	/** The size of the block of local variables within a frame. */
 	public final long locsSize;
@@ -45,6 +45,10 @@ public class Frame implements Loggable {
 		this.locsSize = locsSize;
 		this.argsSize = argsSize;
 		this.size = this.locsSize + this.argsSize + 2 * (new SemPtrType(new SemVoidType())).size();
+	}
+
+	public void addTempsSize(long tempsSize) {
+		this.size += tempsSize;
 	}
 
 	@Override

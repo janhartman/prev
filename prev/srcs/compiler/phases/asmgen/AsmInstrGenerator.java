@@ -1,5 +1,6 @@
 package compiler.phases.asmgen;
 
+import com.sun.org.apache.regexp.internal.RE;
 import common.report.Report;
 import compiler.phases.frames.Label;
 import compiler.phases.frames.Temp;
@@ -7,6 +8,7 @@ import compiler.phases.imcgen.ImcGen;
 import compiler.phases.imcgen.ImcVisitor;
 import compiler.phases.imcgen.code.*;
 import compiler.phases.lincode.CodeFragment;
+import compiler.phases.regalloc.RegAlloc;
 
 import java.util.Vector;
 
@@ -254,15 +256,10 @@ public class AsmInstrGenerator implements ImcVisitor<Object, Object> {
 
         }
 
-
-        // TODO add X
-        Temp frameSize = new Temp();
-        uses.add(frameSize);
-
         // rJ
         defs.add(new Temp());
         jumps.add(node.label);
-        AsmGen.add(new AsmOPER("PUSHJ `s0," + node.label.name, uses, defs, jumps));
+        AsmGen.add(new AsmOPER("PUSHJ $" + RegAlloc.K + "," + node.label.name, uses, defs, jumps));
 
 
         // load result from stack
@@ -291,7 +288,7 @@ public class AsmInstrGenerator implements ImcVisitor<Object, Object> {
         long val3 = (value >> 32) & 0x0000000000000FFFF;
         long val4 = (value >> 48) & 0x0000000000000FFFF;
 
-        AsmGen.add(new AsmOPER("SETL `d0," + Long.toString(val1), uses, defs, null));
+        AsmGen.add(new AsmOPER("SETL `d0," + Long.toString(val1), null, defs, null));
 
         if (value > 32767 || value < 0) {
             uses.add(t);

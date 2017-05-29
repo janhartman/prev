@@ -35,7 +35,7 @@ public class RegAlloc extends Phase {
         boolean spill = false;
 
         for (CodeFragment fragment : Liveness.graphs.keySet()) {
-            Allocator allocator = new Allocator(Liveness.graphs.get(fragment), AsmGen.instrs.get(fragment));
+            Allocator allocator = new Allocator(Liveness.graphs.get(fragment), AsmGen.instrs.get(fragment), fragment.frame);
             allocator.simplify();
             registers.put(fragment, allocator.mapping());
             spill = spill || allocator.spill;

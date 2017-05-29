@@ -2,6 +2,7 @@ package compiler.phases.liveness;
 
 import compiler.phases.frames.Frames;
 import compiler.phases.frames.Temp;
+import compiler.phases.imcgen.ImcGen;
 
 import java.util.LinkedList;
 
@@ -11,19 +12,33 @@ import java.util.LinkedList;
 public class InterferenceGraph {
 
     /**
-     * The mapping of temporary variables to actual nodes in the graph.
+     * The list of nodes in the graph.
      */
     private LinkedList<Node> nodes;
+
+    /**
+     * The list of edges (pairs of variables connected with a MOVE).
+     */
+    private LinkedList<Edge> edges;
 
 
     public InterferenceGraph() {
         this.nodes = new LinkedList<>();
+        this.edges = new LinkedList<>();
+    }
+
+    public LinkedList<Edge> edges() {
+        return edges;
     }
 
     /**
      * Add a new pair of interfering temporary variables to the graph.
      */
     public void addTemps(Temp t1, Temp t2) {
+        if (t1.equals(ImcGen.FP) || t2.equals(ImcGen.FP) || t1.equals(ImcGen.SP) || t1.equals(ImcGen.SP)) {
+            return;
+        }
+
         Node node1 = addNode(t1);
         Node node2 = addNode(t2);
         node1.addNeighbor(node2);
@@ -53,8 +68,7 @@ public class InterferenceGraph {
      * Adds a pair of variables connected by a MOVE.
      */
     public void addMove(Temp t1, Temp t2) {
-        // TODO how to recognize edge as MOVE
-
+        edges.add(new Edge(t1, t2));
     }
 
     /**
