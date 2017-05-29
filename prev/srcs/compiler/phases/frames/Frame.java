@@ -26,6 +26,9 @@ public class Frame implements Loggable {
 	/** The size of the block of arguments within a frame. */
 	public final long argsSize;
 
+	/** The size of the block of temporaries within a frame. */
+	public long tempsSize;
+
 	/**
 	 * Constructs a new frame with no temporary variables and no saved
 	 * registers.
@@ -45,9 +48,11 @@ public class Frame implements Loggable {
 		this.locsSize = locsSize;
 		this.argsSize = argsSize;
 		this.size = this.locsSize + this.argsSize + 2 * (new SemPtrType(new SemVoidType())).size();
+		this.tempsSize = 0;
 	}
 
-	public void addTempsSize(long tempsSize) {
+	public void incTempsSize(long tempsSize) {
+		this.tempsSize += tempsSize;
 		this.size += tempsSize;
 	}
 

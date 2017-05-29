@@ -203,7 +203,9 @@ public class AsmInstrGenerator implements ImcVisitor<Object, Object> {
                         instr = "ZSNN";
                         break;
                 }
-                AsmGen.add(new AsmOPER(instr + " `d0,`s0,1", defs, defs, null));
+                uses = new Vector<>();
+                uses.add(d);
+                AsmGen.add(new AsmOPER(instr + " `d0,`s0,1", uses, defs, null));
                 return d;
             case ADD:
                 instr = "ADD";
@@ -236,7 +238,6 @@ public class AsmInstrGenerator implements ImcVisitor<Object, Object> {
         return d;
     }
 
-    // TODO check and fix
     public Object visit(ImcCALL node, Object visArg) {
         Vector<Temp> uses = new Vector<>();
         Vector<Temp> defs = new Vector<>();
@@ -256,11 +257,10 @@ public class AsmInstrGenerator implements ImcVisitor<Object, Object> {
 
         }
 
-        // rJ
+        // TODO check - rJ
         defs.add(new Temp());
         jumps.add(node.label);
-        AsmGen.add(new AsmOPER("PUSHJ $" + RegAlloc.K + "," + node.label.name, uses, defs, jumps));
-
+        AsmGen.add(new AsmOPER("PUSHJ $" + RegAlloc.K + "," + node.label.name, null, defs, jumps));
 
         // load result from stack
         Temp rv = new Temp();
@@ -271,7 +271,6 @@ public class AsmInstrGenerator implements ImcVisitor<Object, Object> {
         AsmGen.add(new AsmOPER("LDO `d0,`s0,0", uses2, defs2, null));
 
         return rv;
-
     }
 
 
@@ -307,7 +306,6 @@ public class AsmInstrGenerator implements ImcVisitor<Object, Object> {
 
         Temp dstReg = new Temp();
         Temp srcReg;
-        AsmOPER load = null;
         defs.add(dstReg);
 
         MemMatch match = matchMem(node);
@@ -317,7 +315,7 @@ public class AsmInstrGenerator implements ImcVisitor<Object, Object> {
                 srcReg = ((ImcTEMP) binop.fstExpr).temp;
                 ImcCONST constant = ((ImcCONST) binop.sndExpr);
                 uses.add(srcReg);
-                load = new AsmOPER("LDO `d0,`s0," + constant.value, uses, defs, null);
+                AsmGen.add(new AsmOPER("LDO `d0,`s0," + constant.value, uses, defs, null));
                 break;
 
             case AddConstTemp:
@@ -326,11 +324,10 @@ public class AsmInstrGenerator implements ImcVisitor<Object, Object> {
             case Other:
                 srcReg = (Temp) node.addr.accept(this, visArg);
                 uses.add(srcReg);
-                load = new AsmOPER("LDO `d0,`s0,0", uses, defs, null);
+                AsmGen.add(new AsmOPER("LDO `d0,`s0,0", uses, defs, null));
                 break;
         }
 
-        AsmGen.add(load);
         return dstReg;
     }
 

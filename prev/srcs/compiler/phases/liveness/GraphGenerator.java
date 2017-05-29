@@ -94,7 +94,6 @@ class GraphGenerator {
         printInsOuts(instrList, ins, outs);
 
         graph.addAllTemps();
-        addMoves(instrList);
 
         return graph;
     }
@@ -148,14 +147,6 @@ class GraphGenerator {
         }
 
         return -1;
-    }
-
-    private void addMoves(LinkedList<AsmInstr> instrList) {
-        for (AsmInstr instr : instrList) {
-            if (instr instanceof AsmMOVE) {
-                graph.addMove(instr.uses().get(0), instr.defs().get(0));
-            }
-        }
     }
 
     private void printInsOuts(LinkedList<AsmInstr> instrList,

@@ -22,7 +22,7 @@ public class RegAlloc extends Phase {
     /**
      * The number of registers.
      */
-    public static final int K = 8;
+    public static final int K = 2;
 
     public RegAlloc() {
         super("regalloc");
@@ -38,7 +38,7 @@ public class RegAlloc extends Phase {
             Allocator allocator = new Allocator(Liveness.graphs.get(fragment), AsmGen.instrs.get(fragment), fragment.frame);
             allocator.simplify();
             registers.put(fragment, allocator.mapping());
-            spill = spill || allocator.spill;
+            spill = spill || allocator.spilled();
         }
 
         return spill;

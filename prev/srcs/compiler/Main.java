@@ -182,7 +182,8 @@ public class Main {
                         regAllocFailed = regAlloc.allocate();
                     }
 
-                    if (count++ > 3) {
+					count++;
+                    if (count > 2) {
 						Report.info("Breaking loop");
 						break;
 					}
@@ -194,9 +195,11 @@ public class Main {
 				if (cmdLine.get("--target-phase").equals("regalloc"))
 					break;
 
+				/*
 				try (FinPhase finPhase = new FinPhase()) {
 					finPhase.finish();
 				}
+				*/
 
 				int endWarnings = Report.numOfWarnings();
 				if (begWarnings != endWarnings)

@@ -16,19 +16,8 @@ public class InterferenceGraph {
      */
     private LinkedList<Node> nodes;
 
-    /**
-     * The list of edges (pairs of variables connected with a MOVE).
-     */
-    private LinkedList<Edge> edges;
-
-
     public InterferenceGraph() {
         this.nodes = new LinkedList<>();
-        this.edges = new LinkedList<>();
-    }
-
-    public LinkedList<Edge> edges() {
-        return edges;
     }
 
     /**
@@ -62,13 +51,6 @@ public class InterferenceGraph {
 
     public void addNode(Node node) {
         nodes.add(node);
-    }
-
-    /**
-     * Adds a pair of variables connected by a MOVE.
-     */
-    public void addMove(Temp t1, Temp t2) {
-        edges.add(new Edge(t1, t2));
     }
 
     /**
