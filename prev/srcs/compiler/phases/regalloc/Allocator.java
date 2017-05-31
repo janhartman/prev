@@ -2,6 +2,7 @@ package compiler.phases.regalloc;
 
 import common.report.Report;
 import compiler.phases.asmgen.AsmInstr;
+import compiler.phases.asmgen.AsmMOVE;
 import compiler.phases.asmgen.AsmOPER;
 import compiler.phases.frames.Frame;
 import compiler.phases.frames.Temp;
@@ -13,7 +14,6 @@ import java.util.*;
 
 /**
  * @author jan
- *         <p>
  *         Allocates registers by coloring the interference graph.
  */
 public class Allocator {
@@ -44,7 +44,7 @@ public class Allocator {
     private Frame frame;
 
     /**
-     * A boolean value  to indicate whether a spilled has occurred or not.
+     * A boolean value  to indicate whether a spill has occurred or not.
      */
     private boolean spilled;
 
@@ -52,10 +52,10 @@ public class Allocator {
     public Allocator(InterferenceGraph graph, LinkedList<AsmInstr> instrList, Frame frame) {
         this.graph = graph;
         this.instrList = instrList;
+        this.frame = frame;
         this.stack = new Stack<>();
         this.mapping = new HashMap<>();
         this.spilled = false;
-        this.frame = frame;
     }
 
     public HashMap<Temp, Integer> mapping() {
@@ -66,8 +66,10 @@ public class Allocator {
         return spilled;
     }
 
-    // TODO implement all methods if it makes sense
 
+    /**
+     * Removes nodes with deg < K from the graph and pushes them onto the stack.
+     */
     public void simplify() {
         Node node;
         while ((node = graph.lowDegNode(RegAlloc.K)) != null) {
@@ -83,7 +85,9 @@ public class Allocator {
 
     }
 
-
+    /**
+     * Adds a node with deg >= K onto the stack.
+     */
     private void spill() {
         // add node to stack and mark spilled = true
         Node node = graph.lowDegNode(Integer.MAX_VALUE);
@@ -98,7 +102,9 @@ public class Allocator {
         }
     }
 
-    // graph is empty - pop values from stack and assign colors
+    /**
+     * Colors the graph by popping nodes from the stack.
+     */
     private void select() {
 
         LinkedList<Node> spills = new LinkedList<>();
@@ -147,13 +153,16 @@ public class Allocator {
         startOver(spills);
     }
 
+    /**
+     * Adds necessary LOAD/STORE instructions for spilled nodes to the list of instructions.
+     * @param spills The list of spilled nodes.
+     */
     private void startOver(LinkedList<Node> spills) {
         spilled = spills.size() > 0;
 
         Report.info(frame.label + " SPILLS: " + spills.size() + " " + spills);
 
         long offset = frame.argsSize + frame.tempsSize;
-        String prefix = "";
 
         for (Node node : spills) {
 
@@ -163,14 +172,12 @@ public class Allocator {
                 AsmInstr instr = instrList.get(idx);
 
                 if (instr.defs().contains(node.temp) && instr.uses().contains(node.temp)) {
-                    //prefix = "y" + instr.instr().substring(0, 4) + " ";
-
                     Temp newTemp = new Temp();
                     Vector<Temp> uses = new Vector<>();
                     Vector<Temp> defs = new Vector<>();
                     uses.add(ImcGen.SP);
                     defs.add(newTemp);
-                    AsmOPER load = new AsmOPER(prefix + "LDO `d0,`s0," + offset, uses, defs, null);
+                    AsmOPER load = new AsmOPER("LDO `d0,`s0," + offset, uses, defs, null);
 
                     Vector<Temp> uses2 = new Vector<>();
                     Vector<Temp> defs2 = new Vector<>();
@@ -180,12 +187,12 @@ public class Allocator {
                     uses2.add(i, newTemp);
                     defs2.add(newTemp);
 
-                    AsmOPER newInstr = new AsmOPER(prefix + instr.instr(), uses2, defs2, instr.jumps());
+                    AsmOPER newInstr = new AsmOPER(instr.instr(), uses2, defs2, instr.jumps());
 
                     Vector<Temp> uses3 = new Vector<>();
                     uses3.add(newTemp);
                     uses3.add(ImcGen.SP);
-                    AsmOPER store = new AsmOPER(prefix + "STO `s0,`s1," + offset, uses3, null, null);
+                    AsmOPER store = new AsmOPER("STO `s0,`s1," + offset, uses3, null, null);
 
                     instrList.remove(idx);
                     instrList.add(idx, load);
@@ -194,31 +201,29 @@ public class Allocator {
                     idx += 2;
 
                 } else if (instr.defs().contains(node.temp)) {
-                    //prefix = "x" + instr.instr().substring(0, 4) + " ";
-
                     Vector<Temp> uses = new Vector<>();
                     uses.add(node.temp);
                     uses.add(ImcGen.SP);
-                    AsmOPER store = new AsmOPER(prefix + "STO `s0,`s1," + offset, uses, null, null);
+                    AsmOPER store = new AsmOPER("STO `s0,`s1," + offset, uses, null, null);
+                    store.spill = true;
                     instrList.add(idx + 1, store);
                     idx++;
                 } else if (instr.uses().contains(node.temp)) {
-                    //prefix = "x" + instr.instr().substring(0, 4) + " ";
-
                     Temp newTemp = new Temp();
                     Vector<Temp> uses = new Vector<>();
                     Vector<Temp> defs = new Vector<>();
                     uses.add(ImcGen.SP);
                     defs.add(newTemp);
 
-                    AsmOPER load = new AsmOPER(prefix + "LDO `d0,`s0," + offset, uses, defs, null);
+                    AsmOPER load = new AsmOPER("LDO `d0,`s0," + offset, uses, defs, null);
+                    load.spill = true;
 
                     Vector<Temp> uses2 = new Vector<>();
                     uses2.addAll(instr.uses());
                     int i = uses2.indexOf(node.temp);
                     uses2.remove(node.temp);
                     uses2.add(i, newTemp);
-                    AsmOPER newInstr = new AsmOPER(prefix + instr.instr(), uses2, instr.defs(), instr.jumps());
+                    AsmOPER newInstr = new AsmOPER(instr.instr(), uses2, instr.defs(), instr.jumps());
 
                     // remove the old instruction and replace with new one
                     instrList.remove(idx);
@@ -228,6 +233,45 @@ public class Allocator {
                 }
 
             }
+        }
+
+        if (!spilled) {
+            int removedSET = 0;
+            int removedExtra = 0;
+
+            for (int i = 0; i < instrList.size(); i++) {
+                AsmInstr instr = instrList.get(i);
+                if (instr instanceof AsmMOVE) {
+                    Temp t1 = instr.uses().get(0);
+                    Temp t2 = instr.defs().get(0);
+                    if ( mapping.get(t1) != null && mapping.get(t1).equals(mapping.get(t2))) {
+                        AsmInstr previous = instrList.get(i-1);
+                        AsmInstr next = instrList.get(i+1);
+
+                        instrList.remove(i);
+                        i--;
+                        removedSET++;
+
+                        if (previous instanceof AsmOPER) {
+                            if (((AsmOPER) previous).spill && previous.instr().contains("LDO") && previous.defs().contains(t1)) {
+                                instrList.remove(previous);
+                                i--;
+                                removedExtra++;
+                            }
+                        }
+                        if (next instanceof AsmOPER) {
+                            if (((AsmOPER) next).spill && next.instr().contains("STO") && next.uses().contains(t2)) {
+                                instrList.remove(next);
+                                i--;
+                                removedExtra++;
+                            }
+                        }
+                    }
+
+                }
+            }
+
+            Report.info("Removed " + removedSET + " SET instructions and "+ removedExtra + " extras.");
         }
 
         // add the size of saved temporaries to frame size

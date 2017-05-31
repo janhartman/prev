@@ -22,7 +22,7 @@ public class RegAlloc extends Phase {
     /**
      * The number of registers.
      */
-    public static final int K = 2;
+    public static final int K = 8;
 
     public RegAlloc() {
         super("regalloc");
@@ -53,7 +53,7 @@ public class RegAlloc extends Phase {
         String loggedPhase = compiler.Main.cmdLineArgValue("--logged-phase");
         if ((loggedPhase != null) && loggedPhase.matches("regalloc" + "|all")) {
             for (CodeFragment frag : AsmGen.instrs.keySet()) {
-                System.out.println("% " + frag.frame.label.name);
+                System.out.println("\n% " + frag.frame.label.name);
 
                 for (AsmInstr instr : AsmGen.instrs.get(frag)) {
                     System.out.println(instr.toString(registers.get(frag)));

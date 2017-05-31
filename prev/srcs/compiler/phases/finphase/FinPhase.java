@@ -13,8 +13,7 @@ public class FinPhase extends Phase {
 
     /**
      * Finish the compilation:
-     * - remove unnecessary SETs
-     * - generate assembly code from code fragments
+     * - generate assembly code from data fragments
      * - add the prologue and epilogue to each function
      * - add the init code
      * - add the stdlib functions

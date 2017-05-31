@@ -12,6 +12,7 @@ import java.util.LinkedList;
 
 /**
  * @author jan
+ * Generates an inteference graph for a code fragment.
  */
 class GraphGenerator {
 
@@ -27,15 +28,12 @@ class GraphGenerator {
         this.frame = frame;
     }
 
-
-    @SuppressWarnings("unchecked")
     public InterferenceGraph createGraph() {
 
         LinkedList<HashSet<Temp>> ins = new LinkedList<>();
         LinkedList<HashSet<Temp>> outs = new LinkedList<>();
         LinkedList<HashSet<Temp>> oldIns;
         LinkedList<HashSet<Temp>> oldOuts;
-
 
         // the algorithm for calculating interferences between variables
         do {
@@ -53,7 +51,8 @@ class GraphGenerator {
                 in.addAll(instr.uses());
                 if (oldOuts.size() > 0) {
                     int outIdx = instrList.size() - idx - 1;
-                    HashSet<Temp> toAdd = (HashSet<Temp>) oldOuts.get(outIdx).clone();
+                    HashSet<Temp> toAdd = new HashSet<>();
+                    toAdd.addAll(oldOuts.get(outIdx));
                     toAdd.removeAll(instr.defs());
                     in.addAll(toAdd);
                 }
@@ -61,8 +60,8 @@ class GraphGenerator {
                 // add new out-vars
                 if (instr.toString().contains("JMP") || instr.toString().contains("BNZ")) {
                     for (Label l : instr.jumps()) {
-                        // find the instruction succ following label l
 
+                        // find the instruction succ following label l
                         int reverseSuccIdx = instrAfterLabel(l);
                         if (reverseSuccIdx < 0) {
                             continue;
@@ -87,11 +86,10 @@ class GraphGenerator {
         }
         while (compare(ins, oldIns) || compare(outs, oldOuts));
 
+        //printInsOuts(ins, outs);
+
         addInterferences(ins);
         addInterferences(outs);
-
-        printInsOuts(ins, outs);
-
         graph.addAllTemps();
 
         return graph;
@@ -148,8 +146,10 @@ class GraphGenerator {
         return -1;
     }
 
+
     private void printInsOuts(LinkedList<HashSet<Temp>> ins, LinkedList<HashSet<Temp>> outs) {
         System.out.println();
+        System.out.println(frame.label);
         for (int i = 0; i < instrList.size(); i++) {
             System.out.printf("%-15s", instrList.get(i));
             System.out.println(" " + ins.get(ins.size() - i - 1) + " " + outs.get(outs.size() - i - 1));

@@ -23,6 +23,9 @@ public class AsmOPER extends AsmInstr {
 	/** The list of labels this instruction can jump to. */
 	private final Vector<Label> jumps;
 
+	/** If this instruction was added via a spill. **/
+	public boolean spill;
+
 	/**
 	 * Constructs a new assembly instruction.
 	 * 

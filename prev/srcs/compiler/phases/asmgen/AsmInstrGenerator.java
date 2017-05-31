@@ -1,13 +1,11 @@
 package compiler.phases.asmgen;
 
-import com.sun.org.apache.regexp.internal.RE;
 import common.report.Report;
 import compiler.phases.frames.Label;
 import compiler.phases.frames.Temp;
 import compiler.phases.imcgen.ImcGen;
 import compiler.phases.imcgen.ImcVisitor;
 import compiler.phases.imcgen.code.*;
-import compiler.phases.lincode.CodeFragment;
 import compiler.phases.regalloc.RegAlloc;
 
 import java.util.Vector;
@@ -17,8 +15,6 @@ import java.util.Vector;
  */
 
 public class AsmInstrGenerator implements ImcVisitor<Object, Object> {
-
-
 
     /**
      * statements

@@ -16,9 +16,11 @@ public class InterferenceGraph {
      */
     private LinkedList<Node> nodes;
 
+
     public InterferenceGraph() {
         this.nodes = new LinkedList<>();
     }
+
 
     /**
      * Add a new pair of interfering temporary variables to the graph.
@@ -88,7 +90,6 @@ public class InterferenceGraph {
         return nodes.size();
     }
 
-
     /**
      * Print the graph as an adjacency matrix.
      */
@@ -105,8 +106,7 @@ public class InterferenceGraph {
             for (Node node2 : nodes) {
                 if (node.isNeighbor(node2)) {
                     System.out.print("    x");
-                }
-                else {
+                } else {
                     System.out.print("     ");
                 }
             }
