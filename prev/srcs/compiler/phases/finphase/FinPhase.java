@@ -55,8 +55,10 @@ public class FinPhase extends Phase {
     /**
      * Allocate data from data fragments.
      */
+    // TODO fix GREG
     private void addDataFragments() {
         program.add(" LOC Data_Segment");
+        program.add(" GREG @");
 
         for (Fragment fragment : LinCode.fragments()) {
             if (fragment instanceof DataFragment) {
@@ -72,35 +74,18 @@ public class FinPhase extends Phase {
                 program.add(allocation.toString());
             }
         }
+        // for printing
+        program.add("buf OCTA 0 BYTE 0");
+
         program.add("");
     }
 
 
     /**
-     * Add the initialization code.
-     */
-    // TODO set SP, FP, HP
-    // TODO GREG ?
-    private void addInitCode() {
-        String[] init = new String[] {
-                " LOC #100",
-                " SET rG,250",
-                " SET rL," + RegAlloc.K,
-                " SET $254, ",
-                " SET $253, ",
-                " SET $252, ",
-                " PUSHJ $" + RegAlloc.K + ",_",
-                " TRAP 0,Halt,0"
-        };
-
-        program.addAll(Arrays.asList(init));
-    }
-
-
-    /**
      * Remove unnecessary SET instructions.
+     *
      * @param instrList The list of instructions.
-     * @param mapping The mapping from temporaries to registers.
+     * @param mapping   The mapping from temporaries to registers.
      */
 
     private void removeSET(LinkedList<AsmInstr> instrList, HashMap<Temp, Integer> mapping) {
@@ -112,9 +97,9 @@ public class FinPhase extends Phase {
             if (instr instanceof AsmMOVE) {
                 Temp t1 = instr.uses().get(0);
                 Temp t2 = instr.defs().get(0);
-                if ( mapping.get(t1) != null && mapping.get(t1).equals(mapping.get(t2))) {
-                    AsmInstr previous = instrList.get(i-1);
-                    AsmInstr next = instrList.get(i+1);
+                if (mapping.get(t1) != null && mapping.get(t1).equals(mapping.get(t2))) {
+                    AsmInstr previous = instrList.get(i - 1);
+                    AsmInstr next = instrList.get(i + 1);
 
                     instrList.remove(i);
                     i--;
@@ -139,7 +124,7 @@ public class FinPhase extends Phase {
             }
         }
 
-        Report.info("Removed " + removedSET + " SET instructions and "+ removedExtra + " extras.");
+        //Report.info("Removed " + removedSET + " SET instructions and " + removedExtra + " extras.");
     }
 
 
@@ -150,37 +135,51 @@ public class FinPhase extends Phase {
         Frame frame = fragment.frame;
         long oldFPOffset = frame.locsSize + 16;
 
-        String[] prologue = new String[] {
-                frame.label.name + " SET $0,$253",
-                " SET $253, $254",
-                " SETL $1," + frame.size,
-                " SUB $254,$254,$1",
-                " SETL $1," + oldFPOffset,
-                " SUB $1,$253,$1",
-                " STO $0,$1,0",
-                " GET $0,rJ",
-                " STO $0,$1,8"
-        };
-
-        String[] epilogue = new String[] {
-                " STO $" + mapping.get(fragment.RV) + ",$253,0",
-                " SETL $1," + oldFPOffset,
-                " SUB $1,$253,$1",
-                " LDO $0,$1,8",
-                " SET rJ,$0",
-                " SET $254,$253",
-                " LDO $253,$1,0",
-                " POP 0,0"
-        };
+        String[] prologue = prologue(frame.label.name, frame.size, oldFPOffset);
+        String[] epilogue = epilogue(mapping.get(fragment.RV), oldFPOffset);
 
         program.addAll(Arrays.asList(prologue));
 
+        String label = "";
         for (AsmInstr instr : instrList) {
+            if (instr instanceof AsmLABEL) {
+                if (! label.equals("")) {
+                    program.add(label + " SET $0,$0");
+                }
+                label = ((AsmLABEL) instr).label().name;
+            } else {
+                program.add(label + " " + instr.toString(mapping));
+                label = "";
+            }
 
         }
 
         program.addAll(Arrays.asList(epilogue));
+
+        program.add("");
     }
+
+
+    /**
+     * Add the initialization code.
+     */
+    private void addInitCode() {
+        String[] init = new String[]{
+                " LOC #100",
+                "Main PUT rG,250",
+                " SETL $" + RegAlloc.K + ",0",
+                " PUT rL," + RegAlloc.K,
+                " SETH $253,24568",
+                " SUB $254,$253,8",
+                " SETH $252,16384",
+                " PUSHJ $" + RegAlloc.K + ",_",
+                " TRAP 0,Halt,0",
+                ""
+        };
+
+        program.addAll(Arrays.asList(init));
+    }
+
 
     /**
      * Add the standard library functions:
@@ -191,10 +190,105 @@ public class FinPhase extends Phase {
      * - println
      */
     private void addStdLib() {
+        String[] malloc = new String[]{
+                "malloc LDO $0,$254,8",
+                " STO $252,$254,8",
+                " ADD $252,$252,$0",
+                " POP 0,0",
+                ""
+        };
 
+        String[] free = new String[]{
+                "free POP 0,0",
+                ""
+        };
 
+        String[] printInt = new String[]{
+                "_printint LDO $0,$254,8",
+                " GET $3,rJ",
+                " SETL $2,1",
+                " CMP $1,$0,0",
+                " BNN $1,_printint_radix",
+                " NEG $0,$0",
+                " SETL $1,45",
+                " STO $1,$254,8",
+                " PUSHJ $4,_printchar",
+                "_printint_radix CMP $1,$2,$0",
+                " BP $1,_printint_print_start",
+                " MUL $2,$2,10",
+                " JMP _printint_radix",
+                "_printint_print_start DIV $2,$2,10",
+                "_printint_print CMP $1,$2,0",
+                " BNP $1,_printint_end",
+                " DIV $0,$0,$2",
+                " ADD $0,$0,48",
+                " STO $0,$254,8",
+                " PUSHJ $4,_printchar",
+                " GET $0,rR",
+                " DIV $2,$2,10",
+                " JMP _printint_print",
+                "_printint_end PUT rJ,$3",
+                " POP 0,0",
+                ""
+        };
+
+        String[] printChar = new String[]{
+                "_printchar LDO $0,$254,8",
+                " SETL $1,0",
+                " STO $1,buf",
+                " STB $0,buf",
+                " LDA $255,buf",
+                " TRAP 0,Fputs,StdOut",
+                " POP 0,0",
+                ""
+        };
+
+        String[] println = new String[]{
+                "_println SETL $0,10",
+                " SETL $1,0",
+                " STO $1,buf",
+                " STB $0,buf",
+                " LDA $255,buf",
+                " TRAP 0,Fputs,StdOut",
+                " POP 0,0",
+                ""
+        };
+
+        program.addAll(Arrays.asList(malloc));
+        program.addAll(Arrays.asList(free));
+        program.addAll(Arrays.asList(printInt));
+        program.addAll(Arrays.asList(printChar));
+        program.addAll(Arrays.asList(println));
     }
 
+
+    // TODO check offset size
+    private String[] prologue(String label, long frameSize, long oldFPOffset) {
+        return new String[]{
+                label + " SET $0,$253",
+                " SET $253,$254",
+                " SETL $1," + frameSize,
+                " SUB $254,$254,$1",
+                " SETL $1," + oldFPOffset,
+                " SUB $1,$253,$1",
+                " STO $0,$1,0",
+                " GET $0,rJ",
+                " STO $0,$1,8"
+        };
+    }
+
+    private String[] epilogue(int RVRegister, long oldFPOffset) {
+        return new String[]{
+                " STO $" + RVRegister + ",$253,0",
+                " SETL $1," + oldFPOffset,
+                " SUB $1,$253,$1",
+                " LDO $0,$1,8",
+                " PUT rJ,$0",
+                " SET $254,$253",
+                " LDO $253,$1,0",
+                " POP 0,0"
+        };
+    }
 
     @Override
     public void close() {
@@ -204,11 +298,11 @@ public class FinPhase extends Phase {
             for (String line : program) {
                 writer.write(line);
                 writer.write("\n");
+                System.out.println(line);
             }
 
             writer.close();
-        }
-        catch (IOException ioe) {
+        } catch (IOException ioe) {
             throw new Report.Error("Cannot open output file for writing");
         }
     }

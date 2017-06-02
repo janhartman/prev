@@ -92,7 +92,7 @@ public class Main {
 				throw new Report.Error("Source file not specified.");
 			}
 			if (cmdLine.get("--dst-file-name") == null) {
-				cmdLine.put("--dst-file-name", cmdLine.get("--src-file-name").replaceFirst("\\.[^./]*$", "") + ".asm");
+				cmdLine.put("--dst-file-name", cmdLine.get("--src-file-name").replaceFirst("\\.[^./]*$", "") + ".mms");
 			}
 			if (cmdLine.get("--target-phase") == null) {
 				cmdLine.put("--target-phase", phases.replaceFirst("^.*\\|", ""));
