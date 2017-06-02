@@ -1,5 +1,6 @@
 package compiler.phases.regalloc;
 
+import com.sun.org.apache.regexp.internal.RE;
 import common.report.Report;
 import compiler.phases.asmgen.AsmInstr;
 import compiler.phases.asmgen.AsmMOVE;
@@ -160,12 +161,11 @@ public class Allocator {
     private void startOver(LinkedList<Node> spills) {
         spilled = spills.size() > 0;
 
-        Report.info(frame.label + " SPILLS: " + spills.size() + " " + spills);
+        //Report.info(frame.label + " SPILLS: " + spills.size() + " " + spills);
 
         long offset = frame.argsSize + frame.tempsSize;
 
         for (Node node : spills) {
-
             offset += 8;
 
             for (int idx = 0; idx < instrList.size(); idx++) {
@@ -233,45 +233,6 @@ public class Allocator {
                 }
 
             }
-        }
-
-        if (!spilled) {
-            int removedSET = 0;
-            int removedExtra = 0;
-
-            for (int i = 0; i < instrList.size(); i++) {
-                AsmInstr instr = instrList.get(i);
-                if (instr instanceof AsmMOVE) {
-                    Temp t1 = instr.uses().get(0);
-                    Temp t2 = instr.defs().get(0);
-                    if ( mapping.get(t1) != null && mapping.get(t1).equals(mapping.get(t2))) {
-                        AsmInstr previous = instrList.get(i-1);
-                        AsmInstr next = instrList.get(i+1);
-
-                        instrList.remove(i);
-                        i--;
-                        removedSET++;
-
-                        if (previous instanceof AsmOPER) {
-                            if (((AsmOPER) previous).spill && previous.instr().contains("LDO") && previous.defs().contains(t1)) {
-                                instrList.remove(previous);
-                                i--;
-                                removedExtra++;
-                            }
-                        }
-                        if (next instanceof AsmOPER) {
-                            if (((AsmOPER) next).spill && next.instr().contains("STO") && next.uses().contains(t2)) {
-                                instrList.remove(next);
-                                i--;
-                                removedExtra++;
-                            }
-                        }
-                    }
-
-                }
-            }
-
-            Report.info("Removed " + removedSET + " SET instructions and "+ removedExtra + " extras.");
         }
 
         // add the size of saved temporaries to frame size
