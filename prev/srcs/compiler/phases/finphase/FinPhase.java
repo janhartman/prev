@@ -58,7 +58,7 @@ public class FinPhase extends Phase {
     // TODO fix GREG
     private void addDataFragments() {
         program.add(" LOC Data_Segment");
-        program.add(" GREG @");
+        //program.add(" GREG @");
 
         for (Fragment fragment : LinCode.fragments()) {
             if (fragment instanceof DataFragment) {
@@ -74,8 +74,9 @@ public class FinPhase extends Phase {
                 program.add(allocation.toString());
             }
         }
+
         // for printing
-        program.add("buf OCTA 0 BYTE 0");
+        program.add("buf BYTE 0 BYTE 0");
 
         program.add("");
     }
@@ -167,8 +168,7 @@ public class FinPhase extends Phase {
         String[] init = new String[]{
                 " LOC #100",
                 "Main PUT rG,250",
-                " SETL $" + RegAlloc.K + ",0",
-                " PUT rL," + RegAlloc.K,
+                " SETL $" + (RegAlloc.K - 1)+ ",0",
                 " SETH $253,24568",
                 " SUB $254,$253,8",
                 " SETH $252,16384",
@@ -298,7 +298,7 @@ public class FinPhase extends Phase {
             for (String line : program) {
                 writer.write(line);
                 writer.write("\n");
-                System.out.println(line);
+                //System.out.println(line);
             }
 
             writer.close();

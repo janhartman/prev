@@ -12,10 +12,12 @@ public class Fragmenter extends AbsFullVisitor<Object, Object> {
 
     private Stack<Vector<ImcStmt>> stack;
     private ImcExpr globExpr;
+    private long globArgsSize;
 
     public Fragmenter() {
         this.stack = new Stack<>();
         this.globExpr = null;
+        this.globArgsSize = 0;
     }
 
     /**
@@ -119,6 +121,10 @@ public class Fragmenter extends AbsFullVisitor<Object, Object> {
 
         Vector<ImcExpr> args = (Vector<ImcExpr>) node.args.accept(this, visArg);
         args.add(0, origExpr.args().get(0));
+
+        if(stack.size() == 1) {
+            this.globArgsSize = globArgsSize < args.size() ? args.size() : globArgsSize;
+        }
 
         return new ImcCALL(origExpr.label, args);
     }
@@ -339,10 +345,10 @@ public class Fragmenter extends AbsFullVisitor<Object, Object> {
 
 
     /**
-     * Adds the global code fragment (not in a frame, so we make a new bogus one)
+     * Adds the global code fragment (not in a frame, so we make a new one)
      */
     private void addGlobalCodeFragment() {
-        Frame frame = new Frame(new Label(""), 0, 0, 0);
+        Frame frame = new Frame(new Label(""), 0, 0, globArgsSize);
         Temp RV = new Temp();
         Label begLabel = new Label();
         Label endLabel = new Label();
