@@ -123,7 +123,7 @@ public class Fragmenter extends AbsFullVisitor<Object, Object> {
         args.add(0, origExpr.args().get(0));
 
         if(stack.size() == 1) {
-            this.globArgsSize = globArgsSize < args.size() ? args.size() : globArgsSize;
+            this.globArgsSize = globArgsSize < args.size() * 8 ? args.size() * 8 : globArgsSize;
         }
 
         return new ImcCALL(origExpr.label, args);

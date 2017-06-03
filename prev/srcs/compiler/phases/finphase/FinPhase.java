@@ -23,6 +23,7 @@ import java.util.LinkedList;
  */
 public class FinPhase extends Phase {
 
+    /** All the lines of the assembly code. **/
     private LinkedList<String> program;
 
     public FinPhase() {
@@ -57,8 +58,11 @@ public class FinPhase extends Phase {
      */
     // TODO fix GREG
     private void addDataFragments() {
+        program.add("SP GREG");
+        program.add("FP GREG");
+        program.add("HP GREG");
         program.add(" LOC Data_Segment");
-        //program.add(" GREG @");
+        program.add(" GREG @");
 
         for (Fragment fragment : LinCode.fragments()) {
             if (fragment instanceof DataFragment) {
@@ -234,8 +238,6 @@ public class FinPhase extends Phase {
 
         String[] printChar = new String[]{
                 "_printchar LDO $0,$254,8",
-                " SETL $1,0",
-                " STO $1,buf",
                 " STB $0,buf",
                 " LDA $255,buf",
                 " TRAP 0,Fputs,StdOut",
@@ -245,8 +247,6 @@ public class FinPhase extends Phase {
 
         String[] println = new String[]{
                 "_println SETL $0,10",
-                " SETL $1,0",
-                " STO $1,buf",
                 " STB $0,buf",
                 " LDA $255,buf",
                 " TRAP 0,Fputs,StdOut",
@@ -297,7 +297,7 @@ public class FinPhase extends Phase {
             BufferedWriter writer = new BufferedWriter(new FileWriter(dstFileName));
             for (String line : program) {
                 writer.write(line);
-                writer.write("\n");
+                writer.newLine();
                 //System.out.println(line);
             }
 

@@ -1,11 +1,12 @@
-{ i=0;
-  while i<10 do
+{ n=10;
+  i=0;
+  while i<n do
     { i=i+1;
       printint(ifib(i));println()
       : none }
     end;
   i=0;
-  while i<10 do
+  while i<n do
     { i=i+1;
       printint(rfib(i));println()
       : none }
@@ -13,6 +14,7 @@
   : 0
   where
     var i:int;
+    var n:int;
     fun ifib(n:int):int =
         { 
           if n==1 then f=1 else
