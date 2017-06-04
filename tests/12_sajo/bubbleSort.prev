@@ -1,0 +1,48 @@
+#bubbleSort
+{
+i=0;
+while i<=9 do
+    tab[i]=40-i;
+    i=i+1
+end;
+printTab($tab,9);
+bubbleSort($tab,9);
+printTab($tab,9)
+:1
+where
+fun printTab(p:ptr arr[10]int,n:int):void={
+    i=0;
+    while i<=n do
+        printint((@p)[i]);
+        if i!=9 then printchar(',');printchar(' ') end;
+        i=i+1
+    end;println()
+    :none
+    where var i:int
+};
+fun bubbleSort(p:ptr arr[10]int,n:int):void={
+    test=true;
+    i=0;
+    while test do
+        test=false;
+        i=i+1;
+        j=0;
+        while j<10-i do
+            if (@p)[j]>(@p)[j+1] then
+                tmp=(@p)[j];
+                (@p)[j]=(@p)[j+1];
+                (@p)[j+1]=tmp;
+                test=true
+            end;
+            j=j+1
+        end
+    end:
+    none
+    where var i:int;var j:int;var tmp:int;var test:bool
+};
+var i:int;
+var tab:arr[10]int;
+fun printint(a:int):void;
+fun println():void;
+fun printchar(c:char):void
+}

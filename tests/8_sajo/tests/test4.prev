@@ -1,5 +1,12 @@
 #nested SEXPR as args
+#returns 2
 {
- none:foo(foo(foo(foo(1))))+foo({a=1:{b=2:{c=3:c where var c:int}where var b:int}where var a:int}) where
- fun foo(a:int):int=1
+ i = foo(foo(foo(foo(1))))+foo({a=1:{b=2:{c=3:c where var c:int}where var b:int}where var a:int});
+ printint(i); println()
+ : 0
+ where
+ fun foo(a:int):int=1;
+ var i:int;
+     fun printint(i:int):void;
+    fun println():void
 }

@@ -1,7 +1,14 @@
 #sequenced binops
-#with calls
+#returns 9
 {
- none:{
+ a = {
     b=1:b where var b:int}+{a=2:a where var a:int
- }+{c=3:c where var c:int}+{d=3:d where var d:int}
+ }+{c=3:c where var c:int}+{d=3:d where var d:int};
+ printint(a); println()
+ :0
+
+ where
+ var a:int;
+     fun printint(i:int):void;
+    fun println():void
 }

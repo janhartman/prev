@@ -1,8 +1,9 @@
 #factorial(n)+n
+#returns 726
 {
  i=6;
- i=i+foo(i):
- i
+ i=i+foo(i);
+ printint(i); println() : 0
  where
  var i:int;
  fun foo(n:int):int={
@@ -12,5 +13,7 @@
      n=n-1
      end
      :a where var a:int
- }
+ };
+ fun printint(i:int):void;
+    fun println():void
 }

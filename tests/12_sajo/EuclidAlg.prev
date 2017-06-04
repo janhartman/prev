@@ -1,0 +1,16 @@
+#Euclids Algorithm
+{
+printint(gcd(124,568));println()
+:1
+where
+fun gcd(a:int,b:int):int={
+    if b==0 then
+        retVal=a
+    else
+        retVal=gcd(b,a%b)
+    end:retVal where var retVal:int
+};
+fun printint(a:int):void;
+fun println():void;
+fun printchar(c:char):void
+}

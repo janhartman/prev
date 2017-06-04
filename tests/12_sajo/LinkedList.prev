@@ -1,0 +1,61 @@
+#LinkedLists
+{
+allocSize=10;
+buildList($bank,allocSize);
+i=0;
+while i<allocSize do
+    printList($bank[i],i);
+    printListReverse($bank[i],i,i);
+    println();
+    i=i+1
+end
+:1
+where
+fun printList(N:ptr node,n:int):void={
+    if n<allocSize then
+        printint((@N).value);
+        if n<allocSize-1 then
+            printchar(',');
+            printchar(' ')
+        end;
+        printList((@N).next,n+1)
+    end;
+    if n==allocSize then
+        println()
+    end
+    :none
+};
+fun printListReverse(N:ptr node,m:int,n:int):void={
+    if n<allocSize then
+        printListReverse((@N).next,n,n+1);
+        printint((@N).value);
+        if n>m then
+            printchar(',');
+            printchar(' ')
+        end
+    end;
+    if n==m then
+            println()
+        end
+    :none
+};
+fun buildList(L:ptr List,n:int):void={
+    i=0;
+    while i<n-1 do
+        (@L)[i].next=$((@L)[i+1]);
+        (@L)[i].value=i+1;
+        i=i+1
+        end;
+    (@L)[i].value=i+1
+    :none
+    where var i:int
+};
+var i:int;
+var allocSize:int;
+var bank:List;
+typ List:arr[10]node;
+typ node:rec(value:int,next:ptr node);
+fun printint(a:int):void;
+fun println():void;
+fun printchar(c:char):void
+}

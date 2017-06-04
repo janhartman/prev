@@ -1,0 +1,70 @@
+#quickSort
+{
+buildArr($tab,20);
+printTab($tab,20);
+quickSort($tab,0,19);
+printTab($tab,20)
+:1
+
+where
+    fun buildArr(tab:ptr Arr,n:int):void={
+        i=0;
+        while i<n do
+            (@tab)[i]=i+1;
+            if i%2==0&i%3!=0 then
+                (@tab)[i]=2*(i+1)
+            end;
+            if i%5==0&i%2!=0 then
+                (@tab)[i]=3*(i+1)
+            end;
+            i=i+1
+        end
+        :none
+        where var i:int
+    };
+    fun printTab(p:ptr Arr,n:int):void={
+        i=0;
+        while i<n do
+            printint((@p)[i]);
+            if i!=n-1 then printchar(',');printchar(' ') end;
+            i=i+1
+        end;println()
+        :none
+        where var i:int
+    };
+    fun partition(tab:ptr Arr,left:int,right:int):int={
+        i=left;j=right;
+        pivot=(@tab)[(left+right)/2];
+        while i<=j do
+            while (@tab)[i]<pivot do
+                i=i+1
+            end;
+            while (@tab)[j] >pivot do
+                j=j-1
+            end;
+            if i<=j then
+                tmp=(@tab)[i];
+                (@tab)[i]=(@tab)[j];
+                (@tab)[j]=tmp;
+                i=i+1;
+                j=j-1
+             end
+         end
+        :i
+        where var i:int;var j:int;var tmp:int;var pivot:int
+    };
+    fun quickSort(tab:ptr Arr,left:int,right:int):void={
+        index=partition(tab,left,right);
+        if left < index-1 then
+            quickSort(tab,left,index-1)
+        end;
+        if index < right then
+            quickSort(tab,index,right)
+        end:none where var index:int
+    };
+    var tab:Arr;
+    typ Arr:arr[20]int;
+    fun printchar(c:char):void;
+    fun printint(i:int):void;
+    fun println():void
+}

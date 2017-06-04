@@ -1,0 +1,25 @@
+#sum of an array
+{a= foo();printint(a);println():
+a where var i:int;
+fun foo():int={
+none:foo2()
+ where var tab:arr[20]int;
+ fun foo2():int={
+    none:
+    foo3()
+    where var sum:int;
+    fun foo3():int={
+        sum=0;
+        i=20;
+        while i>0 do tab[i-1]=i; i=i-1 end;
+        i=20;
+        while i>0 do sum=sum+tab[i-1]; i=i-1 end
+
+         :sum
+    }
+ }
+};
+var a:int;
+fun printint(a:int):void;
+fun println():void
+}
