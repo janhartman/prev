@@ -92,9 +92,7 @@ public class FrameEvaluator extends AbsFullVisitor<Object, Long> {
     public Object visit(AbsFunName node, Long visArg) {
         node.args.accept(this, 1L);
         AbsFunDecl def = (AbsFunDecl) SemAn.declAt().get(node);
-        if (! (def instanceof AbsFunDef)) {
-            return null;
-        }
+
         long argsSize = (Long) def.parDecls.accept(this, -1L) + new SemPtrType(new SemVoidType()).size();
 
         FrameSize fs = stack.peek();

@@ -56,7 +56,6 @@ public class FinPhase extends Phase {
     /**
      * Allocate data from data fragments.
      */
-    // TODO fix GREG
     private void addDataFragments() {
         program.add("SP GREG");
         program.add("FP GREG");
@@ -195,7 +194,7 @@ public class FinPhase extends Phase {
      */
     private void addStdLib() {
         String[] malloc = new String[]{
-                "malloc LDO $0,$254,8",
+                "_malloc LDO $0,$254,8",
                 " STO $252,$254,8",
                 " ADD $252,$252,$0",
                 " POP 0,0",
@@ -203,7 +202,7 @@ public class FinPhase extends Phase {
         };
 
         String[] free = new String[]{
-                "free POP 0,0",
+                "_free POP 0,0",
                 ""
         };
 

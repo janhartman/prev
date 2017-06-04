@@ -197,7 +197,12 @@ public class TypeDefiner implements AbsVisitor<SemType, Object> {
             if (decl instanceof AbsTypeDecl) {
                 decl.accept(new TypeDeclarator(), this);
             }
+        }
 
+        for (AbsDecl decl : node.decls()) {
+            if (decl instanceof AbsVarDecl) {
+                decl.accept(this, null);
+            }
         }
 
         for (AbsDecl decl : node.decls()) {
@@ -208,7 +213,9 @@ public class TypeDefiner implements AbsVisitor<SemType, Object> {
         }
 
         for (AbsDecl decl : node.decls()) {
-            decl.accept(this, visArg);
+            if (decl instanceof AbsFunDef) {
+                decl.accept(this, visArg);
+            }
         }
         return null;
     }
