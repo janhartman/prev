@@ -221,12 +221,13 @@ public class AsmInstrGenerator implements ImcVisitor<Object, Object> {
                 Temp d2 = new Temp();
                 defs.add(d2);
                 AsmGen.add(new AsmOPER("DIV" + instrFormat, uses, defs, null));
+
                 Vector<Temp> uses2 = new Vector<>();
                 Vector<Temp> defs2 = new Vector<>();
                 uses2.add(d2);
                 defs2.add(d);
-                AsmGen.add(new AsmMOVE("GET `d0,rR", uses2, defs2, null));
-                return d2;
+                AsmGen.add(new AsmOPER("GET `d0,rR", uses2, defs2, null));
+                return d;
         }
 
         AsmGen.add(new AsmOPER(instr + instrFormat, uses, defs, null));
@@ -253,7 +254,6 @@ public class AsmInstrGenerator implements ImcVisitor<Object, Object> {
 
         }
 
-        // TODO check - rJ
         defs.add(new Temp());
         jumps.add(node.label);
         AsmGen.add(new AsmOPER("PUSHJ $" + RegAlloc.K + "," + node.label.name, null, defs, jumps));
@@ -469,7 +469,7 @@ public class AsmInstrGenerator implements ImcVisitor<Object, Object> {
 
         if (binop.sndExpr instanceof ImcCONST) {
             ImcCONST constant = (ImcCONST) binop.sndExpr;
-            if (constant.value < 0) {
+            if (constant.value > 255 || constant.value < 0) {
                 return BinopMatch.Other;
             }
 

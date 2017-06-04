@@ -1,9 +1,7 @@
 package compiler.phases.regalloc;
 
-import com.sun.org.apache.regexp.internal.RE;
 import common.report.Report;
 import compiler.phases.asmgen.AsmInstr;
-import compiler.phases.asmgen.AsmMOVE;
 import compiler.phases.asmgen.AsmOPER;
 import compiler.phases.frames.Frame;
 import compiler.phases.frames.Temp;

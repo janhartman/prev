@@ -209,9 +209,10 @@ public class FinPhase extends Phase {
 
         String[] printInt = new String[]{
                 "_printint LDO $0,$254,8",
-                " GET $3,rJ",
                 " SETL $2,1",
+                " GET $3,rJ",
                 " CMP $1,$0,0",
+                " BZ $1,_printzero",
                 " BNN $1,_printint_radix",
                 " NEG $0,$0",
                 " SETL $1,45",
@@ -233,6 +234,10 @@ public class FinPhase extends Phase {
                 " JMP _printint_print",
                 "_printint_end PUT rJ,$3",
                 " POP 0,0",
+                "_printzero ADD $0,$0,48",
+                " STO $0,$254,8",
+                " PUSHJ $4,_printchar",
+                " JMP _printint_end",
                 ""
         };
 

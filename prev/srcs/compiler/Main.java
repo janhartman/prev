@@ -78,6 +78,12 @@ public class Main {
 							continue;
 						}
 					}
+					if (argv[argc].matches("--dst-file-name=.*")) {
+						if (cmdLine.get("--dst-file-name") == null) {
+							cmdLine.put("--dst-file-name", argv[argc].replaceFirst("^[^=]*=", ""));
+							continue;
+						}
+					}
 					Report.warning("Command line argument '" + argv[argc] + "' ignored.");
 				} else {
 					// Source file name.
@@ -153,10 +159,11 @@ public class Main {
 				try (LinCode linCode = new LinCode()) {
 					Abstr.absTree().accept(new Fragmenter(), null);
 				}
-				//new Interpreter().execute();
+				new Interpreter().execute();
+
 				if (cmdLine.get("--target-phase").equals("lincode"))
 					break;
-				
+
 				// Assembly code generation.
 				try (AsmGen asmGen = new AsmGen()) {
 					asmGen.generate();
