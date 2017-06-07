@@ -126,7 +126,14 @@ public class ImcExprGenerator implements AbsVisitor<ImcExpr, Stack<Frame>> {
         vec.add(new ImcTEMP(ImcGen.FP));
         vec.add(mem.addr);
 
-        ImcCALL freeCall = new ImcCALL(new Label("free"), vec);
+        if (! stack.empty()) {
+            Frame frame = stack.peek();
+            if (frame.argsSize < 16 && frame.tempsSize < 16) {
+                frame.incTempsSize(16);
+            }
+        }
+
+        ImcCALL freeCall = new ImcCALL(new Label("free", true), vec);
         ImcGen.exprImCode.put(node, freeCall);
         return freeCall;
     }
@@ -171,7 +178,14 @@ public class ImcExprGenerator implements AbsVisitor<ImcExpr, Stack<Frame>> {
         vec.add(new ImcTEMP(ImcGen.FP));
         vec.add(new ImcCONST(semType.size()));
 
-        ImcCALL mallocCall = new ImcCALL(new Label("malloc"), vec);
+        if (! stack.empty()) {
+            Frame frame = stack.peek();
+            if (frame.argsSize < 16 && frame.tempsSize < 16) {
+                frame.incTempsSize(16);
+            }
+        }
+
+        ImcCALL mallocCall = new ImcCALL(new Label("malloc", true), vec);
         ImcGen.exprImCode.put(node, mallocCall);
         return mallocCall;
     }

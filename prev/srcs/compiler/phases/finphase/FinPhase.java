@@ -137,6 +137,8 @@ public class FinPhase extends Phase {
      */
     private void addPrologueEpilogue(LinkedList<AsmInstr> instrList, HashMap<Temp, Integer> mapping, CodeFragment fragment) {
         Frame frame = fragment.frame;
+        // Report.info(frame.toString());
+
         long oldFPOffset = frame.locsSize + 16;
 
         String[] prologue = prologue(frame.label.name, frame.size, oldFPOffset);
@@ -194,15 +196,15 @@ public class FinPhase extends Phase {
      */
     private void addStdLib() {
         String[] malloc = new String[]{
-                "_malloc LDO $0,$254,8",
-                " STO $252,$254,8",
+                "malloc LDO $0,$254,8",
+                " STO $252,$254,0",
                 " ADD $252,$252,$0",
                 " POP 0,0",
                 ""
         };
 
         String[] free = new String[]{
-                "_free POP 0,0",
+                "free POP 0,0",
                 ""
         };
 
@@ -266,7 +268,6 @@ public class FinPhase extends Phase {
     }
 
 
-    // TODO check offset size
     private String[] prologue(String label, long frameSize, long oldFPOffset) {
         return new String[]{
                 label + " SET $0,$253",
@@ -302,7 +303,6 @@ public class FinPhase extends Phase {
             for (String line : program) {
                 writer.write(line);
                 writer.newLine();
-                //System.out.println(line);
             }
 
             writer.close();

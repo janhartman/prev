@@ -159,7 +159,7 @@ public class Main {
 				try (LinCode linCode = new LinCode()) {
 					Abstr.absTree().accept(new Fragmenter(), null);
 				}
-				new Interpreter().execute();
+				//new Interpreter().execute();
 
 				if (cmdLine.get("--target-phase").equals("lincode"))
 					break;

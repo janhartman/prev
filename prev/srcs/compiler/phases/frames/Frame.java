@@ -69,4 +69,8 @@ public class Frame implements Loggable {
 		logger.endElement();
 	}
 
+	public String toString() {
+		return label + " locs: " + locsSize + " args: " + argsSize + " temps: " + tempsSize + " size: " + size;
+	}
+
 }

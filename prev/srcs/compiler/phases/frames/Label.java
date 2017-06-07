@@ -30,6 +30,16 @@ public class Label {
 		this.name = "_" + name;
 	}
 
+	/**
+	 * Creates a new named label for stdlib functions.
+	 *
+	 * @param name
+	 *            The name of a label.
+	 */
+	public Label(String name, boolean stdlib) {
+		this.name = name;
+	}
+
 	public String toString() {
 		return name;
 	}
