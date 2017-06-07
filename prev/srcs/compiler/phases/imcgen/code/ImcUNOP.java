@@ -1,25 +1,25 @@
 package compiler.phases.imcgen.code;
 
-import compiler.phases.imcgen.*;
+import compiler.phases.imcgen.ImcVisitor;
 
 public class ImcUNOP extends ImcExpr {
-	
-	public enum Oper {
-		NOT, NEG,
-	}
 
-	public final Oper oper;
+    public enum Oper {
+        NOT, NEG,
+    }
 
-	public final ImcExpr subExpr;
+    public final Oper oper;
 
-	public ImcUNOP(Oper oper, ImcExpr subExpr) {
-		this.oper = oper;
-		this.subExpr = subExpr;
-	}
+    public final ImcExpr subExpr;
 
-	@Override
-	public <Result, Arg> Result accept(ImcVisitor<Result, Arg> visitor, Arg accArg) {
-		return visitor.visit(this, accArg);
-	}
+    public ImcUNOP(Oper oper, ImcExpr subExpr) {
+        this.oper = oper;
+        this.subExpr = subExpr;
+    }
+
+    @Override
+    public <Result, Arg> Result accept(ImcVisitor<Result, Arg> visitor, Arg accArg) {
+        return visitor.visit(this, accArg);
+    }
 
 }

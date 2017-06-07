@@ -12,7 +12,7 @@ import java.util.LinkedList;
 
 /**
  * @author jan
- * Generates an inteference graph for a code fragment.
+ *         Generates an inteference graph for a code fragment.
  */
 class GraphGenerator {
 

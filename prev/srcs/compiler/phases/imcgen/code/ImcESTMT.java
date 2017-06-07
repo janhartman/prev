@@ -1,18 +1,18 @@
 package compiler.phases.imcgen.code;
 
-import compiler.phases.imcgen.*;
+import compiler.phases.imcgen.ImcVisitor;
 
 public class ImcESTMT extends ImcStmt {
 
-	public final ImcExpr expr;
+    public final ImcExpr expr;
 
-	public ImcESTMT(ImcExpr expr) {
-		this.expr = expr;
-	}
+    public ImcESTMT(ImcExpr expr) {
+        this.expr = expr;
+    }
 
-	@Override
-	public <Result, Arg> Result accept(ImcVisitor<Result, Arg> visitor, Arg accArg) {
-		return visitor.visit(this, accArg);
-	}
+    @Override
+    public <Result, Arg> Result accept(ImcVisitor<Result, Arg> visitor, Arg accArg) {
+        return visitor.visit(this, accArg);
+    }
 
 }

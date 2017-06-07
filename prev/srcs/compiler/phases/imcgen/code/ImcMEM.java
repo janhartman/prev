@@ -1,18 +1,18 @@
 package compiler.phases.imcgen.code;
 
-import compiler.phases.imcgen.*;
+import compiler.phases.imcgen.ImcVisitor;
 
 public class ImcMEM extends ImcExpr {
 
-	public final ImcExpr addr;
+    public final ImcExpr addr;
 
-	public ImcMEM(ImcExpr addr) {
-		this.addr = addr;
-	}
+    public ImcMEM(ImcExpr addr) {
+        this.addr = addr;
+    }
 
-	@Override
-	public <Result, Arg> Result accept(ImcVisitor<Result, Arg> visitor, Arg accArg) {
-		return visitor.visit(this, accArg);
-	}
+    @Override
+    public <Result, Arg> Result accept(ImcVisitor<Result, Arg> visitor, Arg accArg) {
+        return visitor.visit(this, accArg);
+    }
 
 }

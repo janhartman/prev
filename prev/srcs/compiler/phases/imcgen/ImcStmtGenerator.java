@@ -1,15 +1,18 @@
 package compiler.phases.imcgen;
 
-import java.util.*;
-
-import compiler.phases.abstr.*;
+import compiler.phases.abstr.AbsVisitor;
 import compiler.phases.abstr.abstree.*;
-import compiler.phases.frames.*;
+import compiler.phases.frames.Frame;
+import compiler.phases.frames.Label;
+import compiler.phases.frames.Temp;
 import compiler.phases.imcgen.code.*;
 import compiler.phases.seman.SemAn;
 import compiler.phases.seman.type.SemArrType;
 import compiler.phases.seman.type.SemRecType;
 import compiler.phases.seman.type.SemType;
+
+import java.util.Stack;
+import java.util.Vector;
 
 public class ImcStmtGenerator implements AbsVisitor<ImcStmt, Stack<Frame>> {
 

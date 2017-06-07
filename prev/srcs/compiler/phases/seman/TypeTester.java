@@ -1,18 +1,18 @@
 package compiler.phases.seman;
 
-import common.report.*;
-import compiler.phases.abstr.*;
+import common.report.Report;
+import compiler.phases.abstr.AbsVisitor;
 import compiler.phases.abstr.abstree.*;
-import compiler.phases.seman.type.*;
+import compiler.phases.seman.type.SemArrType;
+import compiler.phases.seman.type.SemPtrType;
+import compiler.phases.seman.type.SemRecType;
+import compiler.phases.seman.type.SemType;
 
-import java.util.HashMap;
-import java.util.Vector;
 
 /**
  * Tests whether types constructed by {@link TypeDefiner} make sense.
- * 
- * @author sliva
  *
+ * @author sliva
  */
 public class TypeTester implements AbsVisitor<Object, Object> {
 
@@ -25,7 +25,7 @@ public class TypeTester implements AbsVisitor<Object, Object> {
         node.elemType.accept(this, null);
         SemType arrType = SemAn.descType().get(node);
 
-        if (arrType == null || ! arrType.isAKindOf(SemArrType.class)) {
+        if (arrType == null || !arrType.isAKindOf(SemArrType.class)) {
             throw new Report.Error(node.location(), "Semantic array type not found");
         }
         return null;
@@ -44,7 +44,7 @@ public class TypeTester implements AbsVisitor<Object, Object> {
         node.subType.accept(this, null);
         SemType ptrType = SemAn.descType().get(node);
 
-        if (ptrType == null || ! ptrType.isAKindOf(SemPtrType.class)) {
+        if (ptrType == null || !ptrType.isAKindOf(SemPtrType.class)) {
             throw new Report.Error(node.location(), "Semantic pointer type not found");
         }
         return null;
@@ -54,7 +54,7 @@ public class TypeTester implements AbsVisitor<Object, Object> {
         node.compDecls.accept(this, null);
         SemType recType = SemAn.descType().get(node);
 
-        if (recType == null || ! recType.isAKindOf(SemRecType.class)) {
+        if (recType == null || !recType.isAKindOf(SemRecType.class)) {
             throw new Report.Error(node.location(), "Semantic record type not found");
         }
         return null;
@@ -64,7 +64,7 @@ public class TypeTester implements AbsVisitor<Object, Object> {
         SemType namedType = SemAn.descType().get(node);
         node.accept(new TypeDefiner(), null);
 
-        if (namedType == null)  {
+        if (namedType == null) {
             throw new Report.Error(node.location(), "Semantic named type not found");
         }
 
@@ -77,8 +77,6 @@ public class TypeTester implements AbsVisitor<Object, Object> {
      */
 
     public Object visit(AbsDecls node, Object visArg) {
-        // checkTypeHierarchy(node);
-
         for (AbsDecl decl : node.decls()) {
             decl.accept(this, visArg);
         }

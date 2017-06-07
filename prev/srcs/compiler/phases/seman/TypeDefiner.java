@@ -1,20 +1,21 @@
 package compiler.phases.seman;
 
-import java.util.*;
-import common.report.*;
-import compiler.phases.abstr.*;
+import common.report.Report;
+import compiler.phases.abstr.AbsVisitor;
 import compiler.phases.abstr.abstree.*;
 import compiler.phases.seman.type.*;
 
+import java.util.HashMap;
+import java.util.Vector;
+
 /**
  * Constructs semantic representation of each type.
- * 
+ * <p>
  * Methods of this visitor return the constructed semantic type if the AST node
  * represents a type or {@code null} otherwise. In either case methods leave
  * their results in {@link SemAn#descType()}.
- * 
- * @author sliva
  *
+ * @author sliva
  */
 public class TypeDefiner implements AbsVisitor<SemType, Object> {
 
@@ -27,13 +28,12 @@ public class TypeDefiner implements AbsVisitor<SemType, Object> {
         SemType elemType = node.elemType.accept(this, visArg);
 
         if (len == null) {
-            throw new Report.Error(node.len.location(), "Array length must be a constant integet expression");
+            throw new Report.Error(node.len.location(), "Array length must be a constant integer expression");
         }
 
         if (elemType == null) {
             return null;
-        }
-        else {
+        } else {
             SemArrType arrType = new SemArrType(len, elemType);
             SemAn.descType().put(node, arrType);
             return arrType;
@@ -43,7 +43,7 @@ public class TypeDefiner implements AbsVisitor<SemType, Object> {
     public SemType visit(AbsAtomType node, Object visArg) {
         SemType atomType;
 
-        switch(node.type) {
+        switch (node.type) {
             case BOOL:
                 atomType = new SemBoolType();
                 break;
@@ -72,8 +72,7 @@ public class TypeDefiner implements AbsVisitor<SemType, Object> {
 
         if (subType == null) {
             return null;
-        }
-        else {
+        } else {
             SemPtrType ptrType = new SemPtrType(subType);
             SemAn.descType().put(node, ptrType);
             return ptrType;
@@ -97,8 +96,7 @@ public class TypeDefiner implements AbsVisitor<SemType, Object> {
 
             try {
                 symbTable.ins(compDecl.name, compDecl);
-            }
-            catch (SymbTable.CannotInsNameException cine) {
+            } catch (SymbTable.CannotInsNameException cine) {
                 throw new Report.Error(compDecl.location(), "Component with name " + compDecl.name + " already exists in record");
             }
         }
@@ -124,12 +122,11 @@ public class TypeDefiner implements AbsVisitor<SemType, Object> {
          * If the current type name is already in the hashmap and it does not resolve to a type which
          * contains a pointer to itself, the hierarchy is recursive.
          */
-        HashMap <String, AbsTypeName> hierarchy;
+        HashMap<String, AbsTypeName> hierarchy;
 
         if (visArg != null && visArg instanceof HashMap) {
             hierarchy = (HashMap<String, AbsTypeName>) visArg;
-        }
-        else {
+        } else {
             hierarchy = new HashMap<>();
         }
 
@@ -177,8 +174,7 @@ public class TypeDefiner implements AbsVisitor<SemType, Object> {
             }
 
             throw new Report.Error(node.location(), "Recursive type hierarchy found");
-        }
-        else {
+        } else {
             hierarchy.put(node.name, node);
             type = typeDecl.type.accept(this, hierarchy);
         }
@@ -244,7 +240,7 @@ public class TypeDefiner implements AbsVisitor<SemType, Object> {
         SemType returnType = node.type.accept(this, null);
         SemType valueType = node.value.accept((TypeChecker) visArg, null);
 
-        if (! returnType.matches(valueType)) {
+        if (!returnType.matches(valueType)) {
             throw new Report.Error(node.location(), "Required matching types for declared returned type and actual returned type, got " + returnType + " and " + valueType);
         }
         return null;
@@ -252,9 +248,9 @@ public class TypeDefiner implements AbsVisitor<SemType, Object> {
 
     public SemType visit(AbsParDecl node, Object visArg) {
         SemType parType = node.type.accept(this, null);
-        if (! (parType.isAKindOf(SemBoolType.class) || parType.isAKindOf(SemIntType.class)
-            || parType.isAKindOf(SemCharType.class) || parType.isAKindOf(SemPtrType.class)
-            || parType.isAKindOf(SemVoidType.class))) {
+        if (!(parType.isAKindOf(SemBoolType.class) || parType.isAKindOf(SemIntType.class)
+                || parType.isAKindOf(SemCharType.class) || parType.isAKindOf(SemPtrType.class)
+                || parType.isAKindOf(SemVoidType.class))) {
             throw new Report.Error(node.location(), "Parameter type " + parType + " not allowed");
         }
 

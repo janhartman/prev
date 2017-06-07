@@ -1,7 +1,7 @@
 package compiler.phases.seman;
 
-import common.report.*;
-import compiler.phases.abstr.*;
+import common.report.Report;
+import compiler.phases.abstr.AbsVisitor;
 import compiler.phases.abstr.abstree.*;
 import compiler.phases.seman.type.*;
 
@@ -59,7 +59,7 @@ public class TypeChecker implements AbsVisitor<SemType, Object> {
         }
 
         SemType type = node.array.accept(this, null);
-        if (! type.isAKindOf(SemArrType.class)) {
+        if (!type.isAKindOf(SemArrType.class)) {
             throw new Report.Error(node.location(), "Array type required for array expression, got " + type);
         }
 
@@ -202,7 +202,7 @@ public class TypeChecker implements AbsVisitor<SemType, Object> {
     public SemType visit(AbsRecExpr node, Object visArg) {
         SemType type = node.record.accept(this, null);
         if (!type.isAKindOf(SemRecType.class)) {
-            throw new Report.Error(node.location(), "Record type required for record expression, got "+ type);
+            throw new Report.Error(node.location(), "Record type required for record expression, got " + type);
         }
 
         if (type instanceof SemNamedType) {
@@ -325,10 +325,9 @@ public class TypeChecker implements AbsVisitor<SemType, Object> {
         SemType type1 = node.dst.accept(this, null);
         SemType type2 = node.src.accept(this, null);
 
-        if (! type1.matches(type2)) {
+        if (!type1.matches(type2)) {
             throw new Report.Error(node.location(), "Required matching types in assign statement, got " + type1 + " and " + type2);
-        }
-        else if (! SemAn.isLValue().get(node.dst)) {
+        } else if (!SemAn.isLValue().get(node.dst)) {
             throw new Report.Error(node.dst.location(), "Destination in assign statement must be an L-value");
         }
 
@@ -337,7 +336,7 @@ public class TypeChecker implements AbsVisitor<SemType, Object> {
 
     public SemType visit(AbsExprStmt node, Object visArg) {
         SemType type = node.expr.accept(this, null);
-        if (! type.isAKindOf(SemVoidType.class)) {
+        if (!type.isAKindOf(SemVoidType.class)) {
             throw new Report.Error(node.location(), "Required type void for statement expression, got " + type);
         }
 
@@ -349,10 +348,9 @@ public class TypeChecker implements AbsVisitor<SemType, Object> {
         SemType thenType = node.thenBody.accept(this, null);
         SemType elseType = node.elseBody.accept(this, null);
 
-        if (! condType.isAKindOf(SemBoolType.class)) {
+        if (!condType.isAKindOf(SemBoolType.class)) {
             throw new Report.Error(node.cond.location(), "Required type bool for conditions");
-        }
-        else if (! (thenType.isAKindOf(SemVoidType.class) && elseType.isAKindOf(SemVoidType.class))) {
+        } else if (!(thenType.isAKindOf(SemVoidType.class) && elseType.isAKindOf(SemVoidType.class))) {
             throw new Report.Error(node.thenBody.location(), "Required type void for statements");
         }
         return thenType;
@@ -387,15 +385,13 @@ public class TypeChecker implements AbsVisitor<SemType, Object> {
         SemType condType = node.cond.accept(this, null);
         SemType bodyType = node.body.accept(this, null);
 
-        if (! condType.isAKindOf(SemBoolType.class)) {
+        if (!condType.isAKindOf(SemBoolType.class)) {
             throw new Report.Error(node.cond.location(), "Required type bool for conditions");
-        }
-        else if (! bodyType.isAKindOf(SemVoidType.class)) {
+        } else if (!bodyType.isAKindOf(SemVoidType.class)) {
             throw new Report.Error(node.body.location(), "Required type void for statements");
         }
         return bodyType;
     }
-
 
 
 }

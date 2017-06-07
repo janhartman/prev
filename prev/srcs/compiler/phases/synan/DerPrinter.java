@@ -1,22 +1,15 @@
 package compiler.phases.synan;
 
-import common.logger.*;
-import common.report.Report;
-import compiler.phases.synan.dertree.*;
+import compiler.phases.synan.dertree.DerLeaf;
+import compiler.phases.synan.dertree.DerNode;
+import compiler.phases.synan.dertree.DerTree;
 
 /**
  * The visitor that produces the log of the derivation tree.
  *
  * @author sliva
- *
  */
 public class DerPrinter implements DerVisitor<Object, Object> {
-
-
-
-    public DerPrinter() {
-
-    }
 
     @Override
     public Object visit(DerLeaf leaf, Object visArg) {

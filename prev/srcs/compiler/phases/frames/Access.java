@@ -1,26 +1,26 @@
 package compiler.phases.frames;
 
-import common.logger.*;
+import common.logger.Loggable;
 
 /**
  * Access to a variable.
- * 
- * @author sliva
  *
+ * @author sliva
  */
 public abstract class Access implements Loggable {
 
-	/** The size of the variable. */
-	public final long size;
+    /**
+     * The size of the variable.
+     */
+    public final long size;
 
-	/**
-	 * Creates a new access to a variable.
-	 * 
-	 * @param size
-	 *            The size of the variable.
-	 */
-	public Access(long size) {
-		this.size = size;
-	}
+    /**
+     * Creates a new access to a variable.
+     *
+     * @param size The size of the variable.
+     */
+    public Access(long size) {
+        this.size = size;
+    }
 
 }

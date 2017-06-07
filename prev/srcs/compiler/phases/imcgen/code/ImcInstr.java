@@ -1,15 +1,14 @@
 package compiler.phases.imcgen.code;
 
-import compiler.phases.imcgen.*;
+import compiler.phases.imcgen.ImcVisitor;
 
 /**
  * Intermediate code instruction.
- * 
- * @author sliva
  *
+ * @author sliva
  */
 public abstract class ImcInstr {
 
-	public abstract <Result, Arg> Result accept(ImcVisitor<Result, Arg> visitor, Arg accArg);
+    public abstract <Result, Arg> Result accept(ImcVisitor<Result, Arg> visitor, Arg accArg);
 
 }

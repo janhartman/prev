@@ -1,7 +1,7 @@
 package compiler.phases.abstr.abstree;
 
-import common.report.*;
-import compiler.phases.abstr.*;
+import common.report.Locatable;
+import compiler.phases.abstr.AbsVisitor;
 
 // ADDED CLASS - ONLY FOR INTERNAL USAGE
 public class AbsExprDecl extends AbsExpr {

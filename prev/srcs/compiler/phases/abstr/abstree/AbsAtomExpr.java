@@ -1,31 +1,31 @@
 package compiler.phases.abstr.abstree;
 
-import common.report.*;
-import compiler.phases.abstr.*;
+import common.report.Locatable;
+import compiler.phases.abstr.AbsVisitor;
 
 public class AbsAtomExpr extends AbsExpr {
 
-	public enum Type {
-		VOID, BOOL, CHAR, INT, PTR,
-	}
+    public enum Type {
+        VOID, BOOL, CHAR, INT, PTR,
+    }
 
-	public final Type type;
+    public final Type type;
 
-	public final String expr;
+    public final String expr;
 
-	public AbsAtomExpr(Locatable location, Type type, String expr) {
-		super(location);
-		this.type = type;
-		this.expr = expr;
-	}
-	
-	public AbsExpr relocate(Locatable location) {
-		return new AbsAtomExpr(location, type, expr);
-	}
+    public AbsAtomExpr(Locatable location, Type type, String expr) {
+        super(location);
+        this.type = type;
+        this.expr = expr;
+    }
 
-	@Override
-	public <Result, Arg> Result accept(AbsVisitor<Result, Arg> visitor, Arg accArg) {
-		return visitor.visit(this, accArg);
-	}
+    public AbsExpr relocate(Locatable location) {
+        return new AbsAtomExpr(location, type, expr);
+    }
+
+    @Override
+    public <Result, Arg> Result accept(AbsVisitor<Result, Arg> visitor, Arg accArg) {
+        return visitor.visit(this, accArg);
+    }
 
 }

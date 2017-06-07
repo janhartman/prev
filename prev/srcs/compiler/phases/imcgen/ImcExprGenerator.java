@@ -1,21 +1,20 @@
 package compiler.phases.imcgen;
 
-import java.util.*;
-
-import common.report.*;
-import compiler.phases.abstr.*;
+import compiler.phases.abstr.AbsVisitor;
 import compiler.phases.abstr.abstree.*;
-import compiler.phases.seman.*;
-import compiler.phases.seman.type.*;
 import compiler.phases.frames.*;
 import compiler.phases.imcgen.code.*;
+import compiler.phases.seman.SemAn;
+import compiler.phases.seman.type.SemType;
+
+import java.util.Stack;
+import java.util.Vector;
 
 public class ImcExprGenerator implements AbsVisitor<ImcExpr, Stack<Frame>> {
 
     /**
      * expressions
      */
-
 
     public ImcExpr visit(AbsArrExpr node, Stack<Frame> stack) {
         ImcExpr array = node.array.accept(this, stack);
@@ -126,7 +125,7 @@ public class ImcExprGenerator implements AbsVisitor<ImcExpr, Stack<Frame>> {
         vec.add(new ImcTEMP(ImcGen.FP));
         vec.add(mem.addr);
 
-        if (! stack.empty()) {
+        if (!stack.empty()) {
             Frame frame = stack.peek();
             if (frame.argsSize < 16 && frame.tempsSize < 16) {
                 frame.incTempsSize(16);
@@ -178,7 +177,7 @@ public class ImcExprGenerator implements AbsVisitor<ImcExpr, Stack<Frame>> {
         vec.add(new ImcTEMP(ImcGen.FP));
         vec.add(new ImcCONST(semType.size()));
 
-        if (! stack.empty()) {
+        if (!stack.empty()) {
             Frame frame = stack.peek();
             if (frame.argsSize < 16 && frame.tempsSize < 16) {
                 frame.incTempsSize(16);

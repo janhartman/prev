@@ -1,17 +1,20 @@
 package compiler.phases.abstr;
 
-import java.util.*;
-import common.report.*;
+import common.report.Location;
+import common.report.Report;
 import compiler.phases.abstr.abstree.*;
 import compiler.phases.lexan.Term;
-import compiler.phases.synan.*;
-import compiler.phases.synan.dertree.*;
+import compiler.phases.synan.DerVisitor;
+import compiler.phases.synan.dertree.DerLeaf;
+import compiler.phases.synan.dertree.DerNode;
+import compiler.phases.synan.dertree.DerTree;
+
+import java.util.Vector;
 
 /**
  * Transforms a derivation tree into an abstract syntax tree.
  *
  * @author sliva
- *
  */
 public class DerToAbsTree implements DerVisitor<AbsTree, AbsTree> {
 
@@ -32,7 +35,7 @@ public class DerToAbsTree implements DerVisitor<AbsTree, AbsTree> {
         int idx2 = 999;
 
         //assume visArg is never null in Expr*0
-        switch(node.label) {
+        switch (node.label) {
 
             // root node
             case Source:
@@ -41,19 +44,19 @@ public class DerToAbsTree implements DerVisitor<AbsTree, AbsTree> {
             // expr → expr1 expr0
             case Expr:
 
-            // expr1 → expr2 expr10
+                // expr1 → expr2 expr10
             case Expr1:
 
-            // expr2 → expr3 expr20
+                // expr2 → expr3 expr20
             case Expr2:
 
-            // expr3 → expr4 expr30
+                // expr3 → expr4 expr30
             case Expr3:
 
-            // expr4 → expr5 expr40
+                // expr4 → expr5 expr40
             case Expr4:
 
-            // expr6 → expr7 expr60
+                // expr6 → expr7 expr60
             case Expr6:
                 subtree = first.accept(this, null);
                 return node.subtree(1).accept(this, subtree);
@@ -105,30 +108,29 @@ public class DerToAbsTree implements DerVisitor<AbsTree, AbsTree> {
                     expr = (AbsExpr) node.subtree(1).accept(this, visArg);
                     return new AbsUnExpr(node.location(), operUn, expr);
 
-                }
-                else {
+                } else {
                     return first.accept(this, visArg);
                 }
 
 
-            // expr0 → xior expr1 expr0
+                // expr0 → xior expr1 expr0
             case Expr0:
 
-            // expr10 -> and expr2 expr10
+                // expr10 -> and expr2 expr10
             case Expr10:
 
-            // expr20 → cmp expr3 expr20
+                // expr20 → cmp expr3 expr20
             case Expr20:
 
-            // expr30 → plusminus expr4 expr30
+                // expr30 → plusminus expr4 expr30
             case Expr30:
 
-            // expr40 → multdivmod expr5 expr40
+                // expr40 → multdivmod expr5 expr40
             case Expr40:
                 subtree = node.subtree(1).accept(this, null);
                 location = new Location(visArg.location.getBegLine(), visArg.location.getBegColumn(), subtree.location().getEndLine(), subtree.location().getEndColumn());
-                AbsBinExpr.Oper operBin = getBinOper(((DerLeaf)first).symb.token);
-                AbsBinExpr binExpr = new AbsBinExpr(location, operBin, (AbsExpr)visArg, (AbsExpr)subtree);
+                AbsBinExpr.Oper operBin = getBinOper(((DerLeaf) first).symb.token);
+                AbsBinExpr binExpr = new AbsBinExpr(location, operBin, (AbsExpr) visArg, (AbsExpr) subtree);
                 return node.subtree(2).accept(this, binExpr);
 
 
@@ -139,34 +141,34 @@ public class DerToAbsTree implements DerVisitor<AbsTree, AbsTree> {
                     case LBRACKET:
                         subtree = node.subtree(1).accept(this, null);
                         location = new Location(visArg.location.getBegLine(), visArg.location.getBegColumn(), subtree.location().getEndLine(), subtree.location().getEndColumn());
-                        AbsArrExpr arrExpr = new AbsArrExpr(location, (AbsExpr)visArg, (AbsExpr)subtree);
+                        AbsArrExpr arrExpr = new AbsArrExpr(location, (AbsExpr) visArg, (AbsExpr) subtree);
                         return node.subtree(3).accept(this, arrExpr);
 
                     case DOT:
                         name = ((DerLeaf) node.subtree(1)).symb.lexeme;
-                        AbsVarName varName =  new AbsVarName(node.subtree(1).location(), name);
+                        AbsVarName varName = new AbsVarName(node.subtree(1).location(), name);
                         location = new Location(visArg.location.getBegLine(), visArg.location.getBegColumn(), varName.location().getEndLine(), varName.location().getEndColumn());
-                        AbsRecExpr recExpr = new AbsRecExpr(location, (AbsExpr)visArg, varName);
+                        AbsRecExpr recExpr = new AbsRecExpr(location, (AbsExpr) visArg, varName);
                         return node.subtree(2).accept(this, recExpr);
                 }
 
 
-            // expr7 → ( expr )
-            // expr7 → { stmtmulti : exprwhere }
-            // expr7 → literal
-            // expr7 → idenexprmulti
+                // expr7 → ( expr )
+                // expr7 → { stmtmulti : exprwhere }
+                // expr7 → literal
+                // expr7 → idenexprmulti
             case Expr7:
                 if (first instanceof DerLeaf) {
                     AbsAtomExpr.Type type = AbsAtomExpr.Type.VOID;
 
-                    switch(((DerLeaf) first).symb.token) {
+                    switch (((DerLeaf) first).symb.token) {
                         case LPARENTHESIS:
                             return node.subtree(1).accept(this, null);
 
                         case LBRACE:
                             AbsStmts stmts = new AbsStmts(node.subtree(1).location(), new Vector<>());
-                            stmts = (AbsStmts)node.subtree(1).accept(this, stmts);
-                            AbsExprDecl exprDecl = (AbsExprDecl)node.subtree(3).accept(this, null);
+                            stmts = (AbsStmts) node.subtree(1).accept(this, stmts);
+                            AbsExprDecl exprDecl = (AbsExprDecl) node.subtree(3).accept(this, null);
                             return new AbsStmtExpr(node.location(), exprDecl.decls, stmts, exprDecl.expr);
 
                         case BOOLCONST:
@@ -191,17 +193,16 @@ public class DerToAbsTree implements DerVisitor<AbsTree, AbsTree> {
                     }
                     return new AbsAtomExpr(node.location(), type, ((DerLeaf) first).symb.lexeme);
 
-                }
-                else {
+                } else {
                     return first.accept(this, null);
                 }
 
-            // exprwhere → expr exprwhere0
+                // exprwhere → expr exprwhere0
             case ExprWhere:
                 // a bit different - added a custom class to support my nonterminal
                 // the custom class should never appear in the output!
 
-                AbsExpr expr =  (AbsExpr) first.accept(this, null);
+                AbsExpr expr = (AbsExpr) first.accept(this, null);
                 AbsDecls decls = new AbsDecls(node.location(), new Vector<>());
                 decls = (AbsDecls) node.subtree(1).accept(this, decls);
 
@@ -221,8 +222,8 @@ public class DerToAbsTree implements DerVisitor<AbsTree, AbsTree> {
                 idx1 = 0;
                 idx2 = 1;
 
-            // same functionality in both
-            // exprmulti0 → , expr exprmulti0
+                // same functionality in both
+                // exprmulti0 → , expr exprmulti0
             case ExprMulti0:
                 if (idx1 == 999) {
                     idx1 = 1;
@@ -243,7 +244,7 @@ public class DerToAbsTree implements DerVisitor<AbsTree, AbsTree> {
             case Type:
                 AbsAtomType.Type atomType = AbsAtomType.Type.VOID;
 
-                switch (((DerLeaf)first).symb.token) {
+                switch (((DerLeaf) first).symb.token) {
 
                     case IDENTIFIER:
                         return new AbsTypeName(node.location(), ((DerLeaf) first).symb.lexeme);
@@ -295,8 +296,7 @@ public class DerToAbsTree implements DerVisitor<AbsTree, AbsTree> {
                     // assign statement
                     else
                         return node.subtree(1).accept(this, expr1);
-                }
-                else {
+                } else {
                     AbsStmts absStmts = new AbsStmts(node.subtree(3).location(), new Vector<>());
                     AbsExpr cond = (AbsExpr) node.subtree(1).accept(this, null);
                     AbsStmts thenBody = (AbsStmts) node.subtree(3).accept(this, absStmts);
@@ -313,9 +313,9 @@ public class DerToAbsTree implements DerVisitor<AbsTree, AbsTree> {
                 }
 
 
-            // stmt0 → = expr
+                // stmt0 → = expr
             case Stmt0:
-                AbsExpr expr1 = (AbsExpr) node.subtree(1).accept(this ,null);
+                AbsExpr expr1 = (AbsExpr) node.subtree(1).accept(this, null);
                 location = new Location(visArg.location.getBegLine(), visArg.location.getBegColumn(), expr1.location().getEndLine(), expr1.location().getEndColumn());
                 return new AbsAssignStmt(location, (AbsExpr) visArg, expr1);
 
@@ -330,7 +330,7 @@ public class DerToAbsTree implements DerVisitor<AbsTree, AbsTree> {
             // stmtmulti0 → ; stmtmulti
             case StmtMulti0:
 
-            // stmtelse → else stmtmulti
+                // stmtelse → else stmtmulti
             case StmtElse:
                 return node.subtree(1).accept(this, visArg);
 
@@ -356,15 +356,14 @@ public class DerToAbsTree implements DerVisitor<AbsTree, AbsTree> {
 
                         if (((DerNode) node.subtree(7)).subtrees().size() == 0) {
                             return new AbsFunDecl(node.location(), name, params, returnType);
-                        }
-                        else {
+                        } else {
                             AbsExpr value = (AbsExpr) node.subtree(7).accept(this, null);
                             return new AbsFunDef(node.location(), name, params, returnType, value);
                         }
                 }
 
 
-            // declmulti → decl declmulti0
+                // declmulti → decl declmulti0
             case DeclMulti:
                 AbsDecl decl = (AbsDecl) first.accept(this, null);
                 Vector<AbsDecl> vecDecl = ((AbsDecls) visArg).decls();
@@ -385,16 +384,15 @@ public class DerToAbsTree implements DerVisitor<AbsTree, AbsTree> {
 
                 //visArg is a parameter denoting whether to use comp or parDecls
                 if (visArg instanceof AbsParDecls) {
-                    Vector<AbsParDecl> vec =((AbsParDecls) visArg).parDecls();
+                    Vector<AbsParDecl> vec = ((AbsParDecls) visArg).parDecls();
                     AbsParDecl parDecl = new AbsParDecl(location1, name, type);
 
                     vec.add(parDecl);
                     AbsParDecls parDecls = new AbsParDecls(visArg.location(), vec);
 
                     return node.subtree(3).accept(this, parDecls);
-                }
-                else {
-                    Vector<AbsCompDecl> vec =((AbsCompDecls) visArg).compDecls();
+                } else {
+                    Vector<AbsCompDecl> vec = ((AbsCompDecls) visArg).compDecls();
                     AbsCompDecl compDecl = new AbsCompDecl(location1, name, type);
 
                     vec.add(compDecl);
@@ -404,7 +402,7 @@ public class DerToAbsTree implements DerVisitor<AbsTree, AbsTree> {
                 }
 
 
-            // identypemulti0 → , identypemulti
+                // identypemulti0 → , identypemulti
             case IdenTypeMulti0:
                 return node.subtree(1).accept(this, visArg);
 
@@ -420,19 +418,19 @@ public class DerToAbsTree implements DerVisitor<AbsTree, AbsTree> {
 
                 // function call
                 else {
-                    location = ((DerNode)node.subtree(1)).subtree(1).location();
+                    location = ((DerNode) node.subtree(1)).subtree(1).location();
                     AbsArgs args = new AbsArgs(location, new Vector<>());
                     args = (AbsArgs) node.subtree(1).accept(this, args);
                     return new AbsFunName(node.location(), name, args);
                 }
 
 
-            // idenexprmulti0 → ( exprmulti )
+                // idenexprmulti0 → ( exprmulti )
             case IdenExprMulti0:
                 return node.subtree(1).accept(this, visArg);
 
             default:
-                throw new Report.Error(node.location(), "Wrong node type " + node.label +" in visit(DerNode)");
+                throw new Report.Error(node.location(), "Wrong node type " + node.label + " in visit(DerNode)");
         }
 
     }
@@ -445,8 +443,8 @@ public class DerToAbsTree implements DerVisitor<AbsTree, AbsTree> {
         return visArg;
     }
 
-    private AbsBinExpr.Oper getBinOper (Term token) {
-        switch(token) {
+    private AbsBinExpr.Oper getBinOper(Term token) {
+        switch (token) {
             case IOR:
                 return AbsBinExpr.Oper.IOR;
             case XOR:

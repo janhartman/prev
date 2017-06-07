@@ -1,37 +1,38 @@
 package compiler.phases.synan.dertree;
 
-import common.report.*;
-import compiler.phases.lexan.*;
-import compiler.phases.synan.*;
+import common.report.Location;
+import compiler.phases.lexan.Symbol;
+import compiler.phases.synan.DerVisitor;
 
 /**
  * The leaf of the derivation tree.
- * 
- * @author sliva
  *
+ * @author sliva
  */
 public class DerLeaf extends DerTree {
 
-	/** The CFG terminal this node represents. */
-	public final Symbol symb;
+    /**
+     * The CFG terminal this node represents.
+     */
+    public final Symbol symb;
 
-	/**
-	 * Construct a new leaf of the derivation tree.
-	 * 
-	 * @param symb The CFG terminal this node represents.
-	 */
-	public DerLeaf(Symbol symb) {
-		this.symb = symb;
-	}
+    /**
+     * Construct a new leaf of the derivation tree.
+     *
+     * @param symb The CFG terminal this node represents.
+     */
+    public DerLeaf(Symbol symb) {
+        this.symb = symb;
+    }
 
-	@Override
-	public Location location() {
-		return symb.location();
-	}
+    @Override
+    public Location location() {
+        return symb.location();
+    }
 
-	@Override
-	public <Result, Arg> Result accept(DerVisitor<Result, Arg> visitor, Arg accArg) {
-		return visitor.visit(this, accArg);
-	}
+    @Override
+    public <Result, Arg> Result accept(DerVisitor<Result, Arg> visitor, Arg accArg) {
+        return visitor.visit(this, accArg);
+    }
 
 }

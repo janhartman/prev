@@ -2,7 +2,10 @@ package compiler.phases.finphase;
 
 import common.report.Report;
 import compiler.phases.Phase;
-import compiler.phases.asmgen.*;
+import compiler.phases.asmgen.AsmGen;
+import compiler.phases.asmgen.AsmInstr;
+import compiler.phases.asmgen.AsmLABEL;
+import compiler.phases.asmgen.AsmMOVE;
 import compiler.phases.frames.Frame;
 import compiler.phases.frames.Temp;
 import compiler.phases.lincode.CodeFragment;
@@ -23,7 +26,9 @@ import java.util.LinkedList;
  */
 public class FinPhase extends Phase {
 
-    /** All the lines of the assembly code. **/
+    /**
+     * All the lines of the assembly code.
+     **/
     private LinkedList<String> program;
 
     public FinPhase() {
@@ -129,7 +134,7 @@ public class FinPhase extends Phase {
         String label = "";
         for (AsmInstr instr : instrList) {
             if (instr instanceof AsmLABEL) {
-                if (! label.equals("")) {
+                if (!label.equals("")) {
                     program.add(label + " SET $0,$0");
                 }
                 label = ((AsmLABEL) instr).label().name;
@@ -153,7 +158,7 @@ public class FinPhase extends Phase {
         String[] init = new String[]{
                 " LOC #100",
                 "Main PUT rG,250",
-                " SETL $" + (RegAlloc.K - 1)+ ",0",
+                " SETL $" + (RegAlloc.K - 1) + ",0",
                 " SETH $253,24568",
                 " SUB $254,$253,8",
                 " SETH $252,16384",

@@ -1,7 +1,6 @@
 package compiler.phases.seman;
 
-import common.report.*;
-import compiler.phases.abstr.*;
+import compiler.phases.abstr.AbsVisitor;
 import compiler.phases.abstr.abstree.*;
 
 /**
@@ -37,7 +36,6 @@ public class ConstIntEvaluator implements AbsVisitor<Long, Object> {
         else
             return null;
     }
-
 
     public Long visit(AbsBinExpr node, Object visArg) {
         Long val1 = node.fstExpr.accept(this, visArg);
@@ -154,8 +152,6 @@ public class ConstIntEvaluator implements AbsVisitor<Long, Object> {
     public Long visit(AbsTypeName node, Object visArg) {
         return null;
     }
-
-
 
     public Long visit(AbsVarDecl node, Object visArg) {
         return null;

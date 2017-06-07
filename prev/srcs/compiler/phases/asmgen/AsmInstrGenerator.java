@@ -1,6 +1,5 @@
 package compiler.phases.asmgen;
 
-import common.report.Report;
 import compiler.phases.frames.Label;
 import compiler.phases.frames.Temp;
 import compiler.phases.imcgen.ImcGen;
@@ -236,7 +235,6 @@ public class AsmInstrGenerator implements ImcVisitor<Object, Object> {
     }
 
     public Object visit(ImcCALL node, Object visArg) {
-        Vector<Temp> uses = new Vector<>();
         Vector<Temp> defs = new Vector<>();
         Vector<Label> jumps = new Vector<>();
 
@@ -272,8 +270,6 @@ public class AsmInstrGenerator implements ImcVisitor<Object, Object> {
 
     public Object visit(ImcCONST node, Object visArg) {
         long value = node.value;
-
-        Vector<Temp> uses = new Vector<>();
         Vector<Temp> defs = new Vector<>();
         Temp t = new Temp();
         defs.add(t);
@@ -286,6 +282,7 @@ public class AsmInstrGenerator implements ImcVisitor<Object, Object> {
         AsmGen.add(new AsmOPER("SETL `d0," + Long.toString(val1), null, defs, null));
 
         if (value > 32767 || value < 0) {
+            Vector<Temp> uses = new Vector<>();
             uses.add(t);
             AsmGen.add(new AsmOPER("INCML `d0," + Long.toString(val2), uses, defs, null));
             AsmGen.add(new AsmOPER("INCMH `d0," + Long.toString(val3), uses, defs, null));

@@ -1,11 +1,13 @@
 package compiler.phases.lincode;
 
-import java.util.*;
-
-import common.report.*;
-import compiler.phases.frames.*;
-import compiler.phases.imcgen.*;
+import common.report.Report;
+import compiler.phases.frames.Label;
+import compiler.phases.frames.Temp;
+import compiler.phases.imcgen.ImcVisitor;
 import compiler.phases.imcgen.code.*;
+
+import java.util.HashMap;
+import java.util.Stack;
 
 public class Interpreter {
 

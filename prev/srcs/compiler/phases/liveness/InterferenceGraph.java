@@ -26,7 +26,7 @@ public class InterferenceGraph {
      * Add a new pair of interfering temporary variables to the graph.
      */
     public void addTemps(Temp t1, Temp t2) {
-        if (t1.equals(ImcGen.FP) || t2.equals(ImcGen.FP) || t1.equals(ImcGen.SP) || t1.equals(ImcGen.SP)) {
+        if (t1.equals(ImcGen.FP) || t2.equals(ImcGen.FP) || t1.equals(ImcGen.SP) || t2.equals(ImcGen.SP)) {
             return;
         }
 

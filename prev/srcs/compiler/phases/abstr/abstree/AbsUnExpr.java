@@ -1,31 +1,31 @@
 package compiler.phases.abstr.abstree;
 
-import common.report.*;
-import compiler.phases.abstr.*;
+import common.report.Locatable;
+import compiler.phases.abstr.AbsVisitor;
 
 public class AbsUnExpr extends AbsExpr {
 
-	public enum Oper {
-		NOT, ADD, SUB, MEM, VAL,
-	}
+    public enum Oper {
+        NOT, ADD, SUB, MEM, VAL,
+    }
 
-	public final Oper oper;
+    public final Oper oper;
 
-	public final AbsExpr subExpr;
+    public final AbsExpr subExpr;
 
-	public AbsUnExpr(Locatable location, Oper oper, AbsExpr subExpr) {
-		super(location);
-		this.oper = oper;
-		this.subExpr = subExpr;
-	}
-	
-	public AbsExpr relocate(Locatable location) {
-		return new AbsUnExpr(location, oper, subExpr);
-	}
+    public AbsUnExpr(Locatable location, Oper oper, AbsExpr subExpr) {
+        super(location);
+        this.oper = oper;
+        this.subExpr = subExpr;
+    }
 
-	@Override
-	public <Result, Arg> Result accept(AbsVisitor<Result, Arg> visitor, Arg accArg) {
-		return visitor.visit(this, accArg);
-	}
+    public AbsExpr relocate(Locatable location) {
+        return new AbsUnExpr(location, oper, subExpr);
+    }
+
+    @Override
+    public <Result, Arg> Result accept(AbsVisitor<Result, Arg> visitor, Arg accArg) {
+        return visitor.visit(this, accArg);
+    }
 
 }

@@ -2,7 +2,9 @@ package compiler.phases.asmgen;
 
 import compiler.phases.Phase;
 import compiler.phases.imcgen.code.ImcStmt;
-import compiler.phases.lincode.*;
+import compiler.phases.lincode.CodeFragment;
+import compiler.phases.lincode.Fragment;
+import compiler.phases.lincode.LinCode;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -46,7 +48,7 @@ public class AsmGen extends Phase {
                 CodeFragment codeFragment = (CodeFragment) fragment;
                 AsmInstrGenerator asmInstrGenerator = new AsmInstrGenerator();
                 AsmGen.curFrag = codeFragment;
-                instrs.put(curFrag, new LinkedList<>());
+                instrs.put(codeFragment, new LinkedList<>());
 
                 for (ImcStmt stmt : codeFragment.stmts()) {
                     stmt.accept(asmInstrGenerator, null);

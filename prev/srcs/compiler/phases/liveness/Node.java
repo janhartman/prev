@@ -2,14 +2,12 @@ package compiler.phases.liveness;
 
 import compiler.phases.frames.Temp;
 
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 
 /**
  * @author jan
- *
- * An object of this class represents a node in the interference graph.
+ *         <p>
+ *         An object of this class represents a node in the interference graph.
  */
 public class Node {
 

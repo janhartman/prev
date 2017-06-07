@@ -9,7 +9,10 @@ import compiler.phases.imcgen.ImcGen;
 import compiler.phases.liveness.InterferenceGraph;
 import compiler.phases.liveness.Node;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Stack;
+import java.util.Vector;
 
 /**
  * @author jan
@@ -43,7 +46,7 @@ public class Allocator {
     private Frame frame;
 
     /**
-     * A boolean value  to indicate whether a spill has occurred or not.
+     * A boolean value to indicate whether a spill has occurred or not.
      */
     private boolean spilled;
 
@@ -154,6 +157,7 @@ public class Allocator {
 
     /**
      * Adds necessary LOAD/STORE instructions for spilled nodes to the list of instructions.
+     *
      * @param spills The list of spilled nodes.
      */
     private void startOver(LinkedList<Node> spills) {
@@ -203,7 +207,6 @@ public class Allocator {
                     uses.add(node.temp);
                     uses.add(ImcGen.SP);
                     AsmOPER store = new AsmOPER("STO `s0,`s1," + offset, uses, null, null);
-                    store.spill = true;
                     instrList.add(idx + 1, store);
                     idx++;
                 } else if (instr.uses().contains(node.temp)) {
@@ -214,8 +217,6 @@ public class Allocator {
                     defs.add(newTemp);
 
                     AsmOPER load = new AsmOPER("LDO `d0,`s0," + offset, uses, defs, null);
-                    load.spill = true;
-
                     Vector<Temp> uses2 = new Vector<>();
                     uses2.addAll(instr.uses());
                     int i = uses2.indexOf(node.temp);

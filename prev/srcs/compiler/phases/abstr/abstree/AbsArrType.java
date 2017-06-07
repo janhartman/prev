@@ -1,23 +1,23 @@
 package compiler.phases.abstr.abstree;
 
-import common.report.*;
-import compiler.phases.abstr.*;
+import common.report.Locatable;
+import compiler.phases.abstr.AbsVisitor;
 
 public class AbsArrType extends AbsType {
 
-	public final AbsExpr len;
+    public final AbsExpr len;
 
-	public final AbsType elemType;
+    public final AbsType elemType;
 
-	public AbsArrType(Locatable location, AbsExpr len, AbsType elemType) {
-		super(location);
-		this.len = len;
-		this.elemType = elemType;
-	}
+    public AbsArrType(Locatable location, AbsExpr len, AbsType elemType) {
+        super(location);
+        this.len = len;
+        this.elemType = elemType;
+    }
 
-	@Override
-	public <Result, Arg> Result accept(AbsVisitor<Result, Arg> visitor, Arg accArg) {
-		return visitor.visit(this, accArg);
-	}
+    @Override
+    public <Result, Arg> Result accept(AbsVisitor<Result, Arg> visitor, Arg accArg) {
+        return visitor.visit(this, accArg);
+    }
 
 }

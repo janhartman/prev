@@ -1,12 +1,14 @@
 package compiler.phases.lincode;
 
-import java.util.*;
-
-import compiler.phases.abstr.*;
+import common.report.Report;
+import compiler.phases.abstr.AbsFullVisitor;
 import compiler.phases.abstr.abstree.*;
 import compiler.phases.frames.*;
-import compiler.phases.imcgen.*;
+import compiler.phases.imcgen.ImcGen;
 import compiler.phases.imcgen.code.*;
+
+import java.util.Stack;
+import java.util.Vector;
 
 public class Fragmenter extends AbsFullVisitor<Object, Object> {
 
@@ -122,7 +124,7 @@ public class Fragmenter extends AbsFullVisitor<Object, Object> {
         Vector<ImcExpr> args = (Vector<ImcExpr>) node.args.accept(this, visArg);
         args.add(0, origExpr.args().get(0));
 
-        if(stack.size() == 1) {
+        if (stack.size() == 1) {
             this.globArgsSize = globArgsSize < args.size() * 8 ? args.size() * 8 : globArgsSize;
         }
 
@@ -358,7 +360,6 @@ public class Fragmenter extends AbsFullVisitor<Object, Object> {
         canStmts.add(new ImcLABEL(begLabel));
         canStmts.addAll(stack.peek());
         canStmts.add(stmt);
-        //canStmts.add(new ImcJUMP(endLabel));
         canStmts.add(new ImcLABEL(endLabel));
 
         CodeFragment fragment = new CodeFragment(frame, canStmts, ImcGen.FP, RV, begLabel, endLabel);

@@ -1,27 +1,27 @@
 package compiler.phases.abstr.abstree;
 
-import common.report.*;
-import compiler.phases.abstr.*;
+import common.report.Locatable;
+import compiler.phases.abstr.AbsVisitor;
 
 public class AbsRecExpr extends AbsExpr {
 
-	public final AbsExpr record;
+    public final AbsExpr record;
 
-	public final AbsVarName comp;
+    public final AbsVarName comp;
 
-	public AbsRecExpr(Locatable location, AbsExpr record, AbsVarName comp) {
-			super(location);
-			this.record = record;
-			this.comp = comp;
-		}
+    public AbsRecExpr(Locatable location, AbsExpr record, AbsVarName comp) {
+        super(location);
+        this.record = record;
+        this.comp = comp;
+    }
 
-	public AbsExpr relocate(Locatable location) {
-		return new AbsRecExpr(location, record, comp);
-	}
+    public AbsExpr relocate(Locatable location) {
+        return new AbsRecExpr(location, record, comp);
+    }
 
-	@Override
-	public <Result, Arg> Result accept(AbsVisitor<Result, Arg> visitor, Arg accArg) {
-		return visitor.visit(this, accArg);
-	}
+    @Override
+    public <Result, Arg> Result accept(AbsVisitor<Result, Arg> visitor, Arg accArg) {
+        return visitor.visit(this, accArg);
+    }
 
 }

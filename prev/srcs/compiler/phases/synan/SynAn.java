@@ -1,9 +1,13 @@
 package compiler.phases.synan;
 
-import common.report.*;
-import compiler.phases.*;
-import compiler.phases.lexan.*;
-import compiler.phases.synan.dertree.*;
+import common.report.Report;
+import compiler.phases.Phase;
+import compiler.phases.lexan.LexAn;
+import compiler.phases.lexan.Symbol;
+import compiler.phases.lexan.Term;
+import compiler.phases.synan.dertree.DerLeaf;
+import compiler.phases.synan.dertree.DerNode;
+import compiler.phases.synan.dertree.DerTree;
 
 /**
  * Syntax analysis.
@@ -93,8 +97,9 @@ public class SynAn extends Phase {
     /**
      * An improved skip method - also checks if the current symbol to append
      * matches the desired symbol.
-     * @param node The node of the derivation tree currently being expanded by
-     *             the parser.
+     *
+     * @param node  The node of the derivation tree currently being expanded by
+     *              the parser.
      * @param token The token to check the current symbol's token against
      * @return {@code null}.
      */
@@ -112,6 +117,7 @@ public class SynAn extends Phase {
     /**
      * The root parsing method - creates a Source node and calls parseExpr
      * to parse the list of symbols.
+     *
      * @return node
      */
     private DerNode parseSource() {
@@ -551,7 +557,7 @@ public class SynAn extends Phase {
             // expr5 → del expr5
             case DEL:
 
-            // expr5 → unop expr5
+                // expr5 → unop expr5
             case NOT:
             case ADD:
             case SUB:
@@ -862,7 +868,7 @@ public class SynAn extends Phase {
             // type → identifier
             case IDENTIFIER:
 
-            // type → void | bool | char | int
+                // type → void | bool | char | int
             case BOOL:
             case VOID:
             case CHAR:

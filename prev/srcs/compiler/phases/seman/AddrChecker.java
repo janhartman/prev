@@ -1,6 +1,6 @@
 package compiler.phases.seman;
 
-import compiler.phases.abstr.*;
+import compiler.phases.abstr.AbsVisitor;
 import compiler.phases.abstr.abstree.*;
 
 
@@ -21,7 +21,7 @@ public class AddrChecker implements AbsVisitor<Boolean, Object> {
 
     public Boolean visit(AbsArrExpr node, Object visArg) {
         node.index.accept(this, null);
-        boolean isLValue = node.array.accept(this , null);
+        boolean isLValue = node.array.accept(this, null);
         SemAn.isLValue().put(node, isLValue);
         return isLValue;
     }
@@ -77,11 +77,10 @@ public class AddrChecker implements AbsVisitor<Boolean, Object> {
 
     public Boolean visit(AbsVarName node, Object visArg) {
         AbsDecl decl = SemAn.declAt().get(node);
-        boolean isLValue = (decl instanceof AbsVarDecl) || (decl instanceof AbsParDecl);
+        boolean isLValue = (decl instanceof AbsVarDecl);
         SemAn.isLValue().put(node, isLValue);
         return isLValue;
     }
-
 
 
     /**
@@ -111,7 +110,6 @@ public class AddrChecker implements AbsVisitor<Boolean, Object> {
     public Boolean visit(AbsTypeName node, Object visArg) {
         return false;
     }
-
 
 
     /**
@@ -156,8 +154,6 @@ public class AddrChecker implements AbsVisitor<Boolean, Object> {
         node.body.accept(this, null);
         return false;
     }
-
-
 
 
     /**
@@ -217,8 +213,6 @@ public class AddrChecker implements AbsVisitor<Boolean, Object> {
         node.type.accept(this, null);
         return false;
     }
-
-
 
 
 }
