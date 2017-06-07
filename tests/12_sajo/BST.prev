@@ -1,0 +1,141 @@
+{
+    root=[ptr node]null;
+
+    root=insert(root,50);
+    root=insert(root,30);
+    root=insert(root,20);
+    root=insert(root,40);
+    root=insert(root,70);
+    root=insert(root,60);
+    root=insert(root,80);
+
+    inorder(root);println();
+
+    root=delete(root,30);
+    inorder(root);println();
+
+    root=delete(root,50);
+    inorder(root);println();
+
+    root=delete(root,70);
+    inorder(root);println();
+
+    root=insert(root,100);
+    inorder(root);println()
+
+
+    :1
+    where
+    typ node:rec(val:int,left:ptr node,right:ptr node);
+    var root:ptr node;
+    var tmp:ptr node;
+    var N:node;
+    var i:int;
+
+    fun makeNode(val:int):ptr node={
+        out=new node;
+        (@out).left=[ptr node]null;
+        (@out).right=[ptr node]null;
+        (@out).val=val
+        :
+        out
+        where
+        var out:ptr node
+    };
+
+    fun find(root:ptr node,key:int):ptr node={
+        if root==[ptr node]null|(@root).val==key then
+            out=root
+        else
+            if (@root).val < key then
+                out=find((@root).right,key)
+            else
+                out=find((@root).left,key)
+            end
+        end
+        :
+        out
+        where
+        var out:ptr node
+    };
+
+    fun inorder(root:ptr node):void={
+        if root!=[ptr node]null then
+            inorder((@root).left);
+            printint((@root).val);printchar(' ');
+            inorder((@root).right)
+        end
+        :none
+    };
+
+
+    fun insert(root:ptr node,key:int):ptr node={
+         if root==[ptr node]null then
+            out=makeNode(key)
+         else
+            if key < (@root).val then
+                (@root).left=insert((@root).left,key)
+            else
+                if key > (@root).val then
+                    (@root).right=insert((@root).right,key)
+                end
+            end;
+            out=root
+         end
+         :
+         out
+         where
+         var out:ptr node
+    };
+
+    fun minNode(root:ptr node):ptr node={
+        current=root;
+        while (@current).left!=[ptr node]null do
+            current=(@current).left
+        end
+        :
+        current
+        where
+        var current:ptr node
+    };
+
+    fun delete(root:ptr node,key:int):ptr node={
+        if root==[ptr node]null then
+            out=root
+        else
+            if key < (@root).val then
+            (@root).left=delete((@root).left,key);
+            out=root
+            else
+                if key>(@root).val then
+                    (@root).right=delete((@root).right,key);
+                    out=root
+                 else
+                    if (@root).left==[ptr node]null then
+                        out=(@root).right;
+                        del root
+                    else
+                        if (@root).right==[ptr node]null then
+                           out=(@root).left;
+                           del root
+                        else
+                            tmp=minNode((@root).right);
+                            (@root).val=(@tmp).val;
+                            (@root).right=delete((@root).right,(@tmp).val);
+                            out=root
+                        end
+                    end
+                 end
+            end
+        end
+        :
+        out
+        where
+        var out:ptr node;
+        var tmp:ptr node
+    };
+
+    fun printint(n:int):void;
+    fun printchar(c:char):void;
+    fun println():void
+}
