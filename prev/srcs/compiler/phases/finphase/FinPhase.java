@@ -94,7 +94,6 @@ public class FinPhase extends Phase {
 
     private void removeSET(LinkedList<AsmInstr> instrList, HashMap<Temp, Integer> mapping) {
         int removedSET = 0;
-        int removedExtra = 0;
 
         for (int i = 0; i < instrList.size(); i++) {
             AsmInstr instr = instrList.get(i);
@@ -102,33 +101,14 @@ public class FinPhase extends Phase {
                 Temp t1 = instr.uses().get(0);
                 Temp t2 = instr.defs().get(0);
                 if (mapping.get(t1) != null && mapping.get(t1).equals(mapping.get(t2))) {
-                    AsmInstr previous = instrList.get(i - 1);
-                    AsmInstr next = instrList.get(i + 1);
-
                     instrList.remove(i);
                     i--;
                     removedSET++;
-
-                    if (previous instanceof AsmOPER) {
-                        if (((AsmOPER) previous).spill && previous.instr().contains("LDO") && previous.defs().contains(t1)) {
-                            instrList.remove(previous);
-                            i--;
-                            removedExtra++;
-                        }
-                    }
-                    if (next instanceof AsmOPER) {
-                        if (((AsmOPER) next).spill && next.instr().contains("STO") && next.uses().contains(t2)) {
-                            instrList.remove(next);
-                            i--;
-                            removedExtra++;
-                        }
-                    }
                 }
-
             }
         }
 
-        //Report.info("Removed " + removedSET + " SET instructions and " + removedExtra + " extras.");
+        //Report.info("Removed " + removedSET + " SET instructions");
     }
 
 
@@ -137,7 +117,7 @@ public class FinPhase extends Phase {
      */
     private void addPrologueEpilogue(LinkedList<AsmInstr> instrList, HashMap<Temp, Integer> mapping, CodeFragment fragment) {
         Frame frame = fragment.frame;
-        // Report.info(frame.toString());
+        //Report.info(frame.toString());
 
         long oldFPOffset = frame.locsSize + 16;
 

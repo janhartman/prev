@@ -164,7 +164,7 @@ public class Allocator {
         long offset = frame.argsSize + frame.tempsSize;
 
         for (Node node : spills) {
-            offset += 8;
+            //Report.info("offset for node " + node.temp + " is " + offset);
 
             for (int idx = 0; idx < instrList.size(); idx++) {
                 AsmInstr instr = instrList.get(idx);
@@ -231,6 +231,7 @@ public class Allocator {
                 }
 
             }
+            offset += 8;
         }
 
         // add the size of saved temporaries to frame size
