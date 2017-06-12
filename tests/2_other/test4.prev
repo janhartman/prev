@@ -1,8 +1,0 @@
-#Nepravilno gnezdeni oklepaji v izrazu
-{
-	a = a+)b*a(
-	: 0
-	where
-	var a:int;
-	var b:int;
-}

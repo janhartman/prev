@@ -1,0 +1,32 @@
+{
+     n = 10;
+     printint(ifac(n)); println();
+     printint(rfac(n)); println()
+     : 0
+     where
+     var n:int;
+     fun ifac(n:int):int = {
+        r = 1;
+        while n > 0
+        do
+            r = r * n;
+            n = n - 1
+        end
+        : r
+        where
+        var r:int
+     };
+     fun rfac(n:int):int = {
+         if n == 1
+         then
+             r = 1
+         else
+             r = n * rfac(n-1)
+         end
+         : r
+         where
+         var r:int
+     };
+     fun printint(i:int):void;
+     fun println():void
+ }

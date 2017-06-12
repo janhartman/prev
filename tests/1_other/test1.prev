@@ -1,6 +1,0 @@
-#check the literals
-char a = 'g'
-int b = +01234
-int c = -532
-ptr kazalec = null
-bool moj_booleancek = true

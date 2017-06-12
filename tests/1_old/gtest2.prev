@@ -1,7 +1,0 @@
-char c = 'c'
-integer int = 1234.1234 # syntax error 
-boolean t = falsee # invalid value
-
-if(str.charAt(0) == c){
-	printf(int)
-}

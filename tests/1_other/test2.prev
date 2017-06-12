@@ -1,5 +1,0 @@
-#pravilno parsanje imen spremenljivk
-123abc #int literal in identifier abc
-abc123 #identifier abc123
-funkcija
-bool booleancek

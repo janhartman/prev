@@ -1,9 +1,0 @@
-{
-   p.x.z = p.y
-   : 007
-
-    where
-    typ t : rec(x: t2, y:int);
-    typ t2 : rec(z:int);
-    var p : t
-}

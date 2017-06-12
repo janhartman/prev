@@ -1,4 +1,0 @@
-{
-fun i(a:bool):
-a + b
-}

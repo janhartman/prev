@@ -1,7 +1,0 @@
-#sequenced binops
-#returns 9
-{
- none:{
-    b=1:b where var b:int}+{a=2:a where var a:int
- }+{c=3:c where var c:int}+{d=3:d where var d:int}
-}

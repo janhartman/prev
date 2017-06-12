@@ -1,8 +1,0 @@
-# recursive types
-{
-    none : 0
-    where
-    typ a : b ;
-    typ b : c ;
-    typ c : a
-}

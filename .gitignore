@@ -1,14 +1,5 @@
 .idea
 out
 *.class
-*.exe
 source.prev
-source.lexan.xml
-source.synan.xml
-source.abstr.xml
-source.seman.xml
-source.frames.xml
-source.imcgen.xml
-source.lincode.xml
 source.mms
-source.mmo

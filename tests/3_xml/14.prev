@@ -1,1 +1,0 @@
-{ while true do 1 end :  3 where fun mojaFunkcija(prvi:int, drugi:int):int = prvi+drugi}

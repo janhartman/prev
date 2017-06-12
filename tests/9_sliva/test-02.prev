@@ -1,7 +1,0 @@
-{
-  none;[void]null;[void]f(1)
-  : f(i) + g(i)
-  where var i:int;
-        fun f(i:int):int = g(i)+1;
-        fun g(i:int):int = f(i)+1
-}

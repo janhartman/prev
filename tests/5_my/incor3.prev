@@ -1,8 +1,0 @@
-# cannot cast int to char
-{
-    a = [char] i
-    : i
-    where
-    var i : int;
-    var a : char
-}

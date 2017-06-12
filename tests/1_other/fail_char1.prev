@@ -1,2 +1,0 @@
-#check non terminated char literal
-''' 'a' '~' ' ' '   'u'

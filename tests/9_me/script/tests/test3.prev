@@ -1,5 +1,0 @@
-#nested SEXPR as STMT
-#returns 1
-{
- {{{a=1:none where var a:int}:none}:none}:1
-}

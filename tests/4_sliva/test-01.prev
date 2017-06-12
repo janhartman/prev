@@ -1,3 +1,0 @@
-{ i=1 : i+1 where var i:int } +
-{ i=1 : i+1 where typ integer:int; var i:integer }
-

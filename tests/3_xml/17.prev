@@ -1,8 +1,0 @@
-{
-del @ i - 89 > 13 == new bla 
-;
-[ void] + 4 
-:
-id (4+3, 94+6, 9325*24)
-where typ i : bool
-}

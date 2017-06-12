@@ -1,5 +1,0 @@
-{ 
-	1 : 2 where 
-	fun i1(i2:int,i3:bool):
-		char ='a'
-}

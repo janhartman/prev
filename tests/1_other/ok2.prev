@@ -1,3 +1,0 @@
-# minimalist whitespace
-
-fun void test(char c,var v){int i=0;while(i<=10){int k=i-(+10);i=i*2}}
